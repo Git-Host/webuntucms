@@ -1,0 +1,19 @@
+1)
+V rootu je potreba si udelat adresare:
+cache
+cache/admin
+cache/admin/data
+cache/admin/data/kernel
+
+cache/index
+cache/index/data
+cache/index/data/kernel
+
+
+To plati pro kazdou web instanci.
+
+2) Naiportovat si z /doc/database 
+strukturu a data databaze
+
+3) nastavit si pripojeni k databazi stejne jako v 
+/kernel/config/config.php
