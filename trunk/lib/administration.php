@@ -8,6 +8,8 @@ class Administration extends Object
 	
 	private $cache;
 	private static $instance = FALSE;
+	
+	const CACHEID_ADMINSTRATION_CATEGORY_LIST = 'administration_administration_category_list';
 	 
 	public static function getSingleton() {
 		if(self::$instance === FALSE) {
@@ -33,7 +35,8 @@ class Administration extends Object
 	private function setAdministrationCategoryList()
 	{
 		$sql = "SELECT id, description_id, pageid_id, url, weight FROM " . BobrConf::DB_PREFIX . "administrationcategory";
-		$this->administrationCategoryList = $this->cache->sqlData( $sql, 'url');
+		//$this->administrationCategoryList = $this->cache->sqlData( $sql, 'url');
+		$this->administrationCategoryList = $this->cache->loadData( self::CACHEID_ADMINSTRATION_CATEGORY_LIST, $sql, 'url' );
 		return $this->administrationCategoryList;
 	}
 }

@@ -15,7 +15,7 @@ class PageId extends Object
 				
 	protected	$pageIdNodeList;
 	
-	const PAGEID_LIST = 'all-pageid-data';
+	const CACHEID_LIST = 'all_pageid_data';
 	
 	
 	private static $instance = FALSE;
@@ -46,14 +46,14 @@ class PageId extends Object
 		$sql =  "SELECT p.id, p.block_ids, pn.css, pn.template  
 					FROM " . BobrConf::DB_PREFIX . "pageid p
 					JOIN " . BobrConf::DB_PREFIX . "pageid_node pn ON p.pageid_node_id = pn.id";
-		$this->pageIdList = $this->cache->loadData( self::PAGEID_LIST, $sql, 'id' );
+		$this->pageIdList = $this->cache->loadData( self::CACHEID_LIST, $sql, 'id' );
 		return $this->pageIdList;
 	}
 	
 	private function invalidPageIdList()
 	{
 		unset( $this->pageIdList );
-		return $this->cache->invalid( self::PAGEID_LIST );
+		return $this->cache->invalid( self::CACHEID_LIST );
 	}
 	
 	private function insertPageId()

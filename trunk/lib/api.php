@@ -31,7 +31,7 @@ class Api
 	public static function fatalMessage( $text )
 	{
 		$output	= "\n<div class=\"fatal-message\">\n";
-		$output	.= "<img src=\"/share/icons/default/actions/alarm.png\" class=\"img-tips\" />\n";
+		$output	.= "<img src=\"/share/icons/default/actions/alarm.png\" class=\"img-tips\" width=\"54\" height=\"54\"/>\n";
 		$output	.= "<div class=\"pad\">\n" . $text ." </div>\n";
 		$output	.= "\n</div>\n";
 		
@@ -177,4 +177,8 @@ class Api
     return $str;  
   }
   
+  public static function cacheId( $ids )
+  {
+  	return str_replace( ',', '_', $ids );
+  }
 }

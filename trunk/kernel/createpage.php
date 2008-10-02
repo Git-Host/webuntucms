@@ -38,7 +38,6 @@ final class CreatePage extends Object
 	private function container( $container )
 	{
 		$blocks = $this->getBlockList();
-		Ladenka::var_dumper( $blocks );
 		if( array_key_exists( $container, $blocks ) ){
 			foreach( $blocks[$container] as $block ){
 				$this->moduleDelegator->loadModule( $block );

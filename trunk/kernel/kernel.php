@@ -16,7 +16,6 @@
 			// @todo vyhodit nejakou peknou stranku s omluvou, ze se nemuzu pripojit do DB
 			Debug::dump( $e );
 		}
-		
 		// Nejake ty susenky a validace
 		$session = Session::getSingleton();
 		$validator = Validator::getSingleton();

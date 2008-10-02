@@ -42,13 +42,17 @@ class ModuleDelegator extends Object
 			$fileName = __DIR__ . '/modules/' . $block['module'] . '/' . $this->webInstace . '/' . $block['module'] . '.' . $this->webInstace . '.php';
 			
 			if( file_exists( $fileName ) ){
-				if( FALSE === class_exists( $className ) ){
-					require_once $fileName;
+				try{
+					if( FALSE === class_exists( $className ) ){
+						require_once $fileName;
+					}
+					// protoze jsem si jiz command rozparsovali tak ho priradime do pole at to nedelame 100x
+					$block['command'] = $this->command;
+					$module = new $className( $block );
+					$module->output();	
+				}catch ( TemplateException $exception ){
+					Message::addFatal( $exception->getMessage() );
 				}
-				// protoze jsem si jiz command rozparsovali tak ho priradime do pole at to nedelame 100x
-				$block['command'] = $this->command;
-				$module = new $className( $block );
-				$module->output();
 			}else {
 				Message::addFatal( "Byl volan neexistujici modul.<br />" . $block['command'] );
 			}

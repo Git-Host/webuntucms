@@ -69,6 +69,11 @@ final class ProcessAdmin extends ProcessWeb
 		}
 	}
 	
+	/**
+	 * Vytvori defaultni page
+	 * @param  void
+	 * @return bool
+	 */
 	protected function defaultPage()
 	{
 		try {

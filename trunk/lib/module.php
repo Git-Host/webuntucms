@@ -14,6 +14,10 @@ class Module extends Object
 			// objekt cache
 			$cache;
 			
+	const CACHEID_MODULE_LIST			= 'module_module_list';
+	const CACHEID_DYNAMIC_MODULE_LIST	= 'module_dynamic_module_list';
+	const CACHEID_GROUP_FUNCTIONS_LIST	= 'module_group_function_list';
+	
 	private static $instance = FALSE;
 	 
 	public static function getSingleton() {
@@ -61,7 +65,8 @@ class Module extends Object
 				FROM " . BobrConf::DB_PREFIX . "module m
 				JOIN " . BobrConf::DB_PREFIX . "module_functions mf ON m.id = mf.module_id
 				WHERE status = 1";
-		$this->moduleList = $this->cache->sqlData ( $sql, 'hash');
+		//$this->moduleList = $this->cache->sqlData ( $sql, 'hash');
+		$this->moduleList = $this->cache->loadData( self::CACHEID_MODULE_LIST, $sql, 'hash');
 		return $this->moduleList;
 	}
 	
@@ -84,7 +89,8 @@ class Module extends Object
 		$sql = "SELECT mf.hash, mf.func FROM bobr_module_functions mf 
 				JOIN bobr_dynamicmodule dm ON dm.module_functions_id = mf.id
 				WHERE mf.administration = 'f'";
-		$this->dynamicModuleList = $this->cache->sqlData( $sql, 'hash');
+		//$this->dynamicModuleList = $this->cache->sqlData( $sql, 'hash');
+		$this->dynamicModuleList = $this->cache->loadData( self::CACHEID_DYNAMIC_MODULE_LIST, $sql, 'hash');
 		return $this->dynamicModuleList;
 	}
 	
@@ -100,7 +106,8 @@ class Module extends Object
 				JOIN " . BobrConf::DB_PREFIX  . "module_functions mf ON mf.id = gf.module_function_id
 				WHERE group_id  IN(" . $groupsId . ")
 				ORDER BY module_id, module_function_id, group_id";
-		$this->groupFunctionsList = $this->cache->sqlData( $sql, 'hash');
+		//$this->groupFunctionsList = $this->cache->sqlData( $sql, 'hash');
+		$this->groupFunctionsList = $this->cache->loadData( self::CACHEID_GROUP_FUNCTIONS_LIST . Api::cacheId( $groupsId ), $sql, 'hash' );
 		return $this->groupFunctionsList;
 	}
 	

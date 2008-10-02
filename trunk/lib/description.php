@@ -7,7 +7,7 @@ class Description extends Object
 	private static	$cache,
 					$cacheStorage = 'data/';
 	
-	
+	const CACHEID_DATA = 'description_data_by_id_';
 	
 	public static function loadByIds( $descriptionIds )
 	{
@@ -17,7 +17,8 @@ class Description extends Object
 			$sql = "SELECT id, title, description 
 					FROM " . BobrConf::DB_PREFIX . "description_" . self::$lang . "
 					WHERE id IN ( " . $descriptionIds . ")";
-			$description = self::$cache->sqlData( $sql, 'id' );
+			//$description = self::$cache->sqlData( $sql, 'id' );
+			$description = self::$cache->loadData( self::CACHEID_DATA . str_replace( ',', '_', $descriptionIds ), $sql, 'id' );
 			if ( is_array( self::$descriptionList ) ){
 				/**
 				 * Array merge zde nejde pouzit protoze pri slucovani poli 
