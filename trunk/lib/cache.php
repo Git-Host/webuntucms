@@ -39,7 +39,7 @@ class Cache extends  Object
 	 */
 	public function __construct( $storage )
 	{
-		$this->storage = BobrConf::CACHE_ROOT . Api::getProcessMethod() . '/' . $storage;
+		$this->storage = __DIR__ . BobrConf::CACHE_ROOT . Api::getProcessMethod() . '/' . $storage;
 		$config = BobrConf::getSingleton();
 		$this->logCache = $config['LOGGING_CACHE'];
 	}

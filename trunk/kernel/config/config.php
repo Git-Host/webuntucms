@@ -1,4 +1,8 @@
 <?php
+
+// Nacteme si lokalni konfiguraci
+require_once __DIR__ . '/kernel/config/localconfig.php';
+
 /**
  * V teto tride se definuji konstanty
  */
@@ -9,19 +13,19 @@ class BobrConf extends Settings
 	/*
 	 * Pripojeni na databazi
 	 */
-	const DB_HOST				= 'localhost';
-	const DB_PORT				= '5432';
-	const DB_NAME				= 'bobr_devel';
-	const DB_USER				= 'postgres';
-	const DB_PASSWORD			= 'webuntu';
-	const DB_PERSISTENT			= TRUE;
-	const DB_CONNECTION_NAME	= 'default';
-	const DB_PREFIX				= 'bobr_';
+	const DB_HOST				= LocalConfig::DB_HOST;
+	const DB_PORT				= LocalConfig::DB_PORT;
+	const DB_NAME				= LocalConfig::DB_NAME;
+	const DB_USER				= LocalConfig::DB_USER;
+	const DB_PASSWORD			= LocalConfig::DB_USER;
+	const DB_PERSISTENT			= LocalConfig::DB_PERSISTENT;
+	const DB_CONNECTION_NAME	= LocalConfig::DB_CONNECTION_NAME;
+	const DB_PREFIX				= LocalConfig::DB_PREFIX;
 	
-	const CACHE_ROOT			= 'cache/';
-	const DEBUG_MODE			= TRUE;
+	const CACHE_ROOT			= LocalConfig::CACHE_ROOT;
+	const DEBUG_MODE			= LocalConfig::DEBUG_MODE;
 	// Share url je zde mysleno ke slozce share. Vetsinou je url jen /
-	const SHARE_URL				= '/';
+	const SHARE_URL				= LocalConfig::SHARE_URL;
 
 	
 	

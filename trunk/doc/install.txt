@@ -1,13 +1,18 @@
 1)
 V rootu je potreba si udelat adresare:
-cache
-cache/admin
-cache/admin/data
-cache/admin/data/kernel
+local/cache
+local/cache/admin
+local/cache/admin/data
+local/cache/admin/data/kernel
 
-cache/index
-cache/index/data
-cache/index/data/kernel
+local/cache/index
+local/cache/index/data
+local/cache/index/data/kernel
+
+local/err
+/local/tmp/
+/local/tmp/uploads
+/local/tmp/sessions
 
 
 To plati pro kazdou web instanci.
