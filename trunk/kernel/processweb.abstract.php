@@ -551,10 +551,4 @@ abstract class ProcessWeb extends Request
 	{
 		return $this->command;
 	}
-
-	public function __destruct()
-	{
-		Ladenka::var_dumper( $this->lang );
-		unset( $_SESSION['location'] );
-	}
 }
