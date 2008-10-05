@@ -2,11 +2,14 @@
 
 class Lang extends Object 
 {
-			// pole jazyku
+			// pole jazyku klicem je id jazyka
 	private $langList,
+			// pole jazyku kde klicem je symbol jazyka
+			$symbolLangList,
 			// objekt cache
 			$cache;
 	const CACHEID_LANG_LIST = 'lang_lang_list';
+	const CACHEID_SYMBOL_LANG_LIST = 'lang_symbol_lang_list';
 				
 	private static $instance = FALSE;
 	 
@@ -42,4 +45,20 @@ class Lang extends Object
 		return $this->langList;
 	}
 	
+	public function getSymbolLangList()
+	{
+		if( NULL === $this->symbolLangList ){
+			return $this->setSymbolLangList();
+		}else {
+			return $this->symbolLangList;
+		}
+	}
+	
+	private function setSymbolLangList()
+	{
+		$sql =  "SELECT id, symbol, country as name FROM " . BobrConf::DB_PREFIX ."lang";
+		//$this->langList = $this->cache->sqlData( $sql, 'id');
+		$this->langList = $this->cache->loadData( self::CACHEID_SYMBOL_LANG_LIST, $sql, 'symbol');
+		return $this->langList;
+	}
 }

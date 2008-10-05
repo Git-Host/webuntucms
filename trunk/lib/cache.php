@@ -34,7 +34,7 @@ class Cache extends  Object
 			$fileCacheList = array();
 	
 	
-	/*
+	/**
 	 * Do konstruktoru se pridava konkretni slozka do ktere se v ramci instance bude cachovat.
 	 */
 	public function __construct( $storage )

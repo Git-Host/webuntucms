@@ -66,6 +66,16 @@ class Ladenka
 	}
 	
 	/**
+	 * Usmrti bez scriptu a vypise vstup
+	 * @param mixed
+	 * @return void
+	 */
+	public static function kill ( $mixed )
+	{
+		die( Ladenka::var_dumper( $mixed ) );
+	}
+	
+	/**
 	 * Dumps information about a variable in readable format.
 	 *
 	 * @param  mixed  variable to dump.

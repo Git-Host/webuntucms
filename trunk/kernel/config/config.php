@@ -26,6 +26,7 @@ class BobrConf extends Settings
 	const DEBUG_MODE			= LocalConfig::DEBUG_MODE;
 	// Share url je zde mysleno ke slozce share. Vetsinou je url jen /
 	const SHARE_URL				= LocalConfig::SHARE_URL;
+	
 
 	
 	
@@ -34,6 +35,7 @@ class BobrConf extends Settings
 	// @todo tohle by se melo tahat z databaze
 	private $settings = array(
 		'WEB_TITLE'				=>	'BOBR COPR 2.0 DEVEL',
+		// Pri dynamickem vytvareni titulku prevracet poradi
 		'WEB_TITLE_REVERT'		=>	FALSE,
 		'WEB_TITLE_SEPARATOR'	=>	'-',
 		'WEB_META_KEYWORDS'		=>	'bobr, copr, punk, junk',
@@ -41,15 +43,20 @@ class BobrConf extends Settings
 		'WEB_AUTHOR'			=>	'BOBR COPR',
 		'WEB_WEBMASTER'			=>	'BOBR PIČO',
 		'WEB_COPYRIGHT'			=>	'BOBR',
-		'WEB_FAVICON'			=>	'favicon.ico',
-		'WEB_LANG'				=>	'1',
+		'WEB_FAVICON'			=>	'share/kubuntu.png',
 		'WEB_PAGEID_DEFAULT'	=>	'1',
 		'WEB_ROOT'				=>	'/',
-		// administrace default data
+		'WEB_LANG'				=>	'cs',
+		// Pokud neni jazyk ulozev n session bere se z prohlizece
+		'BROWSER_PREFERER_LANG'	=> TRUE,
+		// Z obrazovat symbol jazyka (cs) v uri
+		'LANG_SYMBOL_TO_URI'	=> TRUE,
+		// -------------------------------------
+		// Administrace default data
 		'ADMIN_ROOT'			=>	'/bobradmin/',
-		'ADMIN_LANG'			=>	'1',
+		'ADMIN_LANG'			=>	'cs',
 		'ADMIN_PAGEID_DEFAULT'	=>	'3',
-		// ostatni data
+		// Ostatni data
 		'TIME_FORMAT'			=>	'd/m/Y - H:i',
 		'FORBIDDEN_PAGE'		=>	'http://redtube.com',
 		'LOGGING_CACHE'			=>	FALSE,

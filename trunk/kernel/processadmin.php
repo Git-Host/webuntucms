@@ -56,7 +56,8 @@ final class ProcessAdmin extends ProcessWeb
 				$this->hashUrl = md5( trim( str_replace( $category[0] . '/', '', $this->GET[ $this->getVariable ]) ) );
 				// sestavime si page
 				$this->pageId = $this->administrationCategoryList[ $category[0] ]['pageid_id'];
-				$this->lang = $this->langList[ $this->config['ADMIN_LANG'] ];
+				//$this->lang = $this->langList[ $this->config['ADMIN_LANG'] ]['symbol'];
+				$this->setAdminLang();
 				$this->getPage( $this->pageId );
 				array_shift( $category );
 				// vytvorime command
@@ -78,11 +79,33 @@ final class ProcessAdmin extends ProcessWeb
 	{
 		try {
 			$this->pageId	= $this->config['ADMIN_PAGEID_DEFAULT'];
-			$this->lang		= $this->langList[ $this->config['ADMIN_LANG'] ];
+			//$this->lang		= $this->langList[ $this->config['ADMIN_LANG'] ];
+			$this->setAdminLang();
 			$this->getPage( $this->pageId );
 	    	return TRUE;
 		}catch (UrlException $exception){
 			return FALSE;
 		}
 	}
+	
+	private function setAdminLang()
+	{
+		if( NULL === $this->lang){
+			return $this->setDefaultLang();
+		}else {
+			return $this->lang;
+		}
+	}
+	
+	protected function setDefaultLang()
+    {
+    	$this->symbolLangList = Lang::getSingleton()->symbolLangList;
+    	if ( ( TRUE === $this->config['BROWSER_PREFERER_LANG'] ) 
+    	&& ( TRUE === array_key_exists( $this->LANG, $this->symbolLangList ) ) 
+    	){
+    		return $this->lang = $this->LANG;
+    	}else{
+    		return $this->lang = $this->config['ADMIN_LANG'];
+    	}
+    }
 }

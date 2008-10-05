@@ -29,7 +29,7 @@
 			$process = new $processWebName( $session );
 			
 			// Nastavime popiskovaci jazyk aby se pozdeji nemenil
-			Description::setLang( $process->lang['symbol'] );
+			Description::setLang( $process->lang );
 			
 			// Mame potrebne data pro sestaveni stranky
 			$createPage = new CreatePage( $process );

@@ -126,35 +126,6 @@ class Request extends Object
 		}
 	}
 	
-	/**
-	 * Tato funkce vraci pole z requestu
-	 * @return 
-	 * @param $what Object
-	 */
-/*
-	public function get( $what )
-	{
-		$what = strtoupper( $what );
-		switch ( $what ){
-			case 'POST':
-				return $this->POST;
-			break;
-			case 'GET':
-				return $this->GET;
-			break;
-			case 'SESSION':
-				return $this->SESSION;
-			break;
-			case 'COOKIE':
-				return $this->COOKIE;
-			break;
-			default:
-				throw new FatalErrorException('Promena kterou volas neexistuje');
-				return FALSE;
-			break;
-		}
-	}
-	*/
 	public function getGET()
 	{
 		return $this->GET;
