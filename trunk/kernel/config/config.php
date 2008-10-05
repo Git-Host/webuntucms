@@ -48,7 +48,7 @@ class BobrConf extends Settings
 		'WEB_ROOT'				=>	'/',
 		'WEB_LANG'				=>	'cs',
 		// Pokud neni jazyk ulozev n session bere se z prohlizece
-		'BROWSER_PREFERER_LANG'	=> TRUE,
+		'BROWSER_PREFERED_LANG'	=> FALSE,
 		// Z obrazovat symbol jazyka (cs) v uri
 		'LANG_SYMBOL_TO_URI'	=> TRUE,
 		// -------------------------------------

@@ -356,7 +356,7 @@ abstract class ProcessWeb extends Request
 	protected function setDefaultLang()
 	{
 		$this->symbolLangList = Lang::getSingleton()->symbolLangList;
-		if ( ( TRUE === $this->config['BROWSER_PREFERER_LANG'] )
+		if ( ( TRUE === $this->config['BROWSER_PREFERED_LANG'] )
 		&& ( TRUE === array_key_exists( $this->LANG, $this->symbolLangList ) )
 		){
 			return $this->lang = $this->LANG;
