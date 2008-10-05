@@ -335,13 +335,20 @@ abstract class ProcessWeb extends Request
 	{
 		return $this->langList = Lang::getSingleton()->langList;
 	}
+	/**
+	 * Nastavi jazyk
+	 * 
+	 * @param integer $langId - Id langu
+	 * @return string $lang
+	 */
 	protected function setLang( $langId )
 	{
 		if( TRUE === $this->config['LANG_SYMBOL_TO_URI'] ){
-			if(FALSE === ( $this->langList[ $langId ]['symbol'] === $this->lang ) ){
-				$this->redirect( $this->lang . '/' . $this->URI );
-			}else{
+			if( $this->langList[ $langId ]['symbol'] === $this->lang ){
 				return $this->lang;
+			}else{
+				//Ladenka::kill( $this->URI );
+				//$this->redirect( $this->lang . '/' . $this->URI );
 			}
 		}else {
 			return $this->langList[ $langId ]['symbol'];
