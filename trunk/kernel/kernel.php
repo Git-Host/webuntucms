@@ -4,11 +4,11 @@
 	try{
 		// Nastavime kodovani serveru pro iconv
 		$config = BobrConf::getSingleton();
-		
+
 		if( TRUE === BobrConf::DEBUG_MODE ){
 			Debug::enable( E_ALL | E_STRICT | E_NOTICE , FALSE );
 		}
-		
+
 		// Spojime se s databazi
 		try {
 			Database::connectionToPsqlDatabase( BobrConf::DB_CONNECTION_NAME );
@@ -23,19 +23,21 @@
 		$processMethod = Api::getProcessMethod();
 		if( FALSE === $validator->processAccess( $processMethod ) ){
 			Message::addError( 'Nemate dostatecna prava pro vstup na tuto stranku.');
+			//var_dump($_SESSION);
+			//die();
 			Request::redirect( $config['WEB_ROOT'] );
 		}else {
 			$processWebName = 'Process' . Api::getProcessMethod();
 			$process = new $processWebName( $session );
-			
+
 			// Nastavime popiskovaci jazyk aby se pozdeji nemenil
 			Description::setLang( $process->lang );
-			
+
 			// Mame potrebne data pro sestaveni stranky
 			$createPage = new CreatePage( $process );
 		}
-		
-		
+
+
 	}catch ( KernelException $exception ){
 		//@todo vykreslit neakou statickou stranku
 		print $exception->getMessage() .'<br />';

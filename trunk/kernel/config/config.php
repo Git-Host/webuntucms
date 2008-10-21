@@ -9,7 +9,7 @@ require_once __DIR__ . '/kernel/config/localconfig.php';
 class BobrConf extends Settings
 {
 	const WEB_ENCODING			= 'utf-8';
-	
+
 	/*
 	 * Pripojeni na databazi
 	 */
@@ -21,17 +21,17 @@ class BobrConf extends Settings
 	const DB_PERSISTENT			= LocalConfig::DB_PERSISTENT;
 	const DB_CONNECTION_NAME	= LocalConfig::DB_CONNECTION_NAME;
 	const DB_PREFIX				= LocalConfig::DB_PREFIX;
-	
+
 	const CACHE_ROOT			= LocalConfig::CACHE_ROOT;
 	const DEBUG_MODE			= LocalConfig::DEBUG_MODE;
 	// Share url je zde mysleno ke slozce share. Vetsinou je url jen /
 	const SHARE_URL				= LocalConfig::SHARE_URL;
-	
 
-	
-	
+
+
+
 	private static $instance = FALSE;
-	
+
 	// @todo tohle by se melo tahat z databaze
 	private $settings = array(
 		'WEB_TITLE'				=>	'BOBR COPR 2.0 DEVEL',
@@ -50,7 +50,7 @@ class BobrConf extends Settings
 		// Pokud neni jazyk ulozev n session bere se z prohlizece
 		'BROWSER_PREFERED_LANG'	=> FALSE,
 		// Z obrazovat symbol jazyka (cs) v uri
-		'LANG_SYMBOL_TO_URI'	=> TRUE,
+		'LANG_SYMBOL_TO_URI'	=> FALSE,
 		// -------------------------------------
 		// Administrace default data
 		'ADMIN_ROOT'			=>	'/bobradmin/',
@@ -60,9 +60,9 @@ class BobrConf extends Settings
 		'TIME_FORMAT'			=>	'd/m/Y - H:i',
 		'FORBIDDEN_PAGE'		=>	'http://redtube.com',
 		'LOGGING_CACHE'			=>	FALSE,
-		
+
 	);
-	
+
 	public static function getSingleton() {
 		if( self::$instance === FALSE ) {
 			self::$instance = new BobrConf();
@@ -73,7 +73,7 @@ class BobrConf extends Settings
 	private function __construct() {
 		$this->setIconvEncoding();
 	}
-		
+
 	function offsetGet ( $value )
 	{
 		$value = strtoupper( $value );
@@ -83,7 +83,7 @@ class BobrConf extends Settings
 			throw new KernelException( "Proměná v configu " . $value . " neexistuje.");
 		}
 	}
-	
+
 	/**
 	 * Nastavi pro funkci iconv kodovani na z konstanty WEB_ENCODING
 	 * @todo dodelat do configu funkce ktere budou nastavovat kodovani dle prani ne takto natvrdo
@@ -100,5 +100,5 @@ class BobrConf extends Settings
 			throw new KernelException( 'Nepodařilo se nastavit interní kódvání serveru.' );
 		}
 	}
-	
+
 }
