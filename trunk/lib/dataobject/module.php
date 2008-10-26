@@ -3,40 +3,40 @@
  * Module slouzi pro praci s tabulkou module
  *
  */
-class Module extends Object 
+class Module extends Object
 {
 			// pole modulu
-	private $moduleList,
+	private $allModuleList,
 			// pole dynamickych modulu
 			$dynamicModuleList,
 			// pole group function modulu
-			$groupFunctionsList,
+			$groupFunctionsList = array(),
 			// objekt cache
 			$cache;
-			
-	const CACHEID_MODULE_LIST			= 'module_module_list';
+
+	const CACHEID_ALL_MODULE_LIST			= 'module_all_module_list';
 	const CACHEID_DYNAMIC_MODULE_LIST	= 'module_dynamic_module_list';
 	const CACHEID_GROUP_FUNCTIONS_LIST	= 'module_group_function_list';
-	
+
 	private static $instance = FALSE;
-	 
+
 	public static function getSingleton() {
 		if(self::$instance === FALSE) {
 			self::$instance = new Module();
 		}
 		return self::$instance;
 	}
-	
+
 	private function __construct()
 	{
 		$this->cache = new Cache('data/kernel/');
 	}
-	
+
 	/**
 	 * Zjistuje jestli se jedna o modul
-	 * 
+	 *
 	 * @todo prochazet pole modulu a ne delat dalsi select
-	 * 
+	 *
 	 * $moduleName string - Nazev modulu
 	 * @return  bool
 	 */
@@ -49,56 +49,73 @@ class Module extends Object
 			return FALSE;
 		}
 	}
-	
-	public function getModuleList()
+
+	public function getAllModuleList()
 	{
-		if( NULL === $this->moduleList ){
-			$this->moduleList = $this->setModuleList();
-			return $this->moduleList;
+		if( NULL === $this->allModuleList ){
+			$this->allModuleList = $this->setModuleList();
+			return $this->allModuleList;
 		}else {
-			return $this->moduleList;
+			return $this->allModuleList;
 		}
 	}
-	private function setModuleList()
+	private function setAllModuleList()
 	{
-		$sql = "SELECT m.id, m.module, m.description_id, m.administrationcategory_id, mf.hash, mf.func, m.isdynamic, mf.description_id as function_description_id
-				FROM " . BobrConf::DB_PREFIX . "module m
-				JOIN " . BobrConf::DB_PREFIX . "module_functions mf ON m.id = mf.module_id
-				WHERE status = 1";
+		$sql = "SELECT
+			m.id, m.module, m.description_id, m.administrationcategory_id,
+			mf.hash, mf.func, m.isdynamic, mf.pageid_id, mf.description_id as function_description_id
+			FROM " . BobrConf::DB_PREFIX . "module m
+			JOIN " . BobrConf::DB_PREFIX . "module_functions mf ON m.id = mf.module_id
+			WHERE status = 1";
 		//$this->moduleList = $this->cache->sqlData ( $sql, 'hash');
-		$this->moduleList = $this->cache->loadData( self::CACHEID_MODULE_LIST, $sql, 'hash');
-		return $this->moduleList;
+		$this->allModuleList = $this->cache->loadData( self::CACHEID_MODULE_LIST, $sql, 'hash');
+		return $this->allModuleList;
 	}
-	
+
 	public function getDynamicModuleList()
 	{
 		if( NULL === $this->dynamicModuleList ){
-			$this->dynamicModuleList = $this->setDynamicModuleList();
-			return $this->dynamicModuleList;
+			throw new InvalidArgumentException('Neni nacteno pole s dynamickyma modulama.');
 		}else{
 			return $this->dynamicModuleList;
 		}
 	}
-	
+
 	/**
 	 * @todo Pridelat do module_functions page_id a lang v pripade dynamickych modulu
 	 * neni odkud tyto informace tahat
 	 */
-	private function setDynamicModuleList()
+	public function setDynamicModuleList( $webInstanceId )
 	{
-		$sql = "SELECT mf.hash, mf.func FROM bobr_module_functions mf 
-				JOIN bobr_dynamicmodule dm ON dm.module_functions_id = mf.id
-				WHERE mf.administration = 'f'";
-		//$this->dynamicModuleList = $this->cache->sqlData( $sql, 'hash');
-		$this->dynamicModuleList = $this->cache->loadData( self::CACHEID_DYNAMIC_MODULE_LIST, $sql, 'hash');
-		return $this->dynamicModuleList;
+		$sql = "SELECT mf.hash, mf.func, dm.lang_id, dm.page_id
+			FROM bobr_module_functions mf
+			JOIN bobr_dynamicmodule dm ON dm.module_functions_id = mf.id
+			WHERE mf.webinstance_id = " . $webInstanceId;
+		$this->dynamicModuleList = $this->cache->loadData( self::CACHEID_DYNAMIC_MODULE_LIST . $webInstanceId, $sql, 'hash');
+
+		return $this->validateDynamicModuleList();
 	}
-	
+
+	private function validateDynamicModuleList()
+	{
+		$dynamicModuleList = array();
+		foreach( $this->dynamicModuleList as $key => $module ){
+			if( isset( $this->groupFunctionsList[$key] ) ){
+				$dynamicModuleList[$key] = $this->dynamicModuleList[$key];
+			}
+		}
+		return $dynamicModuleList;
+	}
+
 	public function getGroupFunctionsList()
 	{
-		return $this->groupFunctionsList;
+		if( empty($this->groupFunctionsList) ){
+			throw new InvalidArgumentException('Neznam skupinu pro kterou chces pole metod.');
+		}else{
+			return $this->groupFunctionsList;
+		}
 	}
-	
+
 	public function setGroupFunctionsList( $groupsId )
 	{
 		$sql = "SELECT gf.group_id, gf.module_id, gf.module_function_id, mf.hash, mf.func , mf.administration, mf.description_id
@@ -110,6 +127,6 @@ class Module extends Object
 		$this->groupFunctionsList = $this->cache->loadData( self::CACHEID_GROUP_FUNCTIONS_LIST . Api::cacheId( $groupsId ), $sql, 'hash' );
 		return $this->groupFunctionsList;
 	}
-	
-	
+
+
 }

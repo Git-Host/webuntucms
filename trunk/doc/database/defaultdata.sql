@@ -5,7 +5,7 @@
 -- Zakladni statusy
 INSERT INTO bobr_status
 (description_id, status_title)
-VALUES 
+VALUES
 (1, 'disabled'),
 (2, 'enabled'),
 (3, 'concept'),
@@ -17,7 +17,12 @@ VALUES
 -------------------------------------------------------
 -- TYTO DATA JSOU NUTNE PRO SPUSTENI BOBRA
 -------------------------------------------------------
-
+INSERT INTO bobr_webinstace
+(title, description)
+VALUES
+('index', 'Zakladni stranka.'),
+('admin', 'Administrace.'),
+('blog', 'Uzivatelsky blog.');
 
 -- Lang - seznan podporovanych langu
 INSERT INTO bobr_lang
@@ -25,17 +30,17 @@ INSERT INTO bobr_lang
 VALUES
 ( 'cs', 'Czech rep.');
 
--- Default uzivatele s passwordem - pass 
-INSERT INTO bobr_users 
-(nick,pass,email) 
-VALUES 
+-- Default uzivatele s passwordem - pass
+INSERT INTO bobr_users
+(nick,pass,email)
+VALUES
 ('admin', '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684', 'info@bobrpico.cz'),
 ('user', '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684', 'info@bobrpico.cz');
 
 -- Popisky k zakladnimu rozmisteni webu
 INSERT INTO bobr_description_cs
 (title, description)
-VALUES  
+VALUES
 -- Statusy
 ('Nepovolený', 'Výchozí položka pro nově vzniklé elementy.'),
 ('Povolený', 'Opak výchozí položky Nepovolený, tyto elementy se zobrazují.'),
@@ -82,7 +87,7 @@ VALUES
 ( 14, 2, 'comunication', 6);
 
 -- Module - par demo modulu do databaze
-INSERT INTO bobr_module 
+INSERT INTO bobr_module
 ( module, status, description_id, administrationcategory_id, isdynamic )
 VALUES
 ( 'symptom', 1, 15, 3, false ),
@@ -168,10 +173,10 @@ VALUES
 
 -- PageID - konkretni pageID
 INSERT INTO bobr_pageid
-( pageid_node_id, block_ids, description )
+( pageid_node_id, webinstance_id, block_ids, description )
 VALUES
-( 1, '1', 'Zobrazeni loginu.'),
-( 1, '1,2,3', 'Neco dalsiho.');
+( 1, 1,'1', 'Zobrazeni loginu.'),
+( 1, 2,'1,2,3', 'Neco dalsiho.');
 
 -- Container - seznam kontejneru, ktere muzeme pouzivat
 INSERT INTO bobr_container

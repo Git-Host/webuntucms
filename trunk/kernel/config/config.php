@@ -45,15 +45,16 @@ class BobrConf extends Settings
 		'WEB_COPYRIGHT'			=>	'BOBR',
 		'WEB_FAVICON'			=>	'share/kubuntu.png',
 		'WEB_PAGEID_DEFAULT'	=>	'1',
-		'WEB_ROOT'				=>	'/',
+		'WEB_ROOT'				=>	'/cs/',
 		'WEB_LANG'				=>	'cs',
 		// Pokud neni jazyk ulozev n session bere se z prohlizece
 		'BROWSER_PREFERED_LANG'	=> FALSE,
 		// Z obrazovat symbol jazyka (cs) v uri
-		'LANG_SYMBOL_TO_URI'	=> FALSE,
+		// POZOR kdyz se povoli tato funkcnost musi se symbol jazyka dat do WEB_ROOT a ADMIN_ROOT (/bobradmin/cs/)
+		'LANG_SYMBOL_TO_URI'	=> TRUE,
 		// -------------------------------------
 		// Administrace default data
-		'ADMIN_ROOT'			=>	'/bobradmin/',
+		'ADMIN_ROOT'			=>	'/bobradmin/cs/',
 		'ADMIN_LANG'			=>	'cs',
 		'ADMIN_PAGEID_DEFAULT'	=>	'3',
 		// Ostatni data

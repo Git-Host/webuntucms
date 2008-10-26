@@ -1,16 +1,16 @@
 <?php
 final class CreatePage extends Object
 {
-	
+
 			// Objekty
 	private $process,
 			$block,
 			$moduleDelegator;
-		
+
 	public 	$css,
 			$title,
 			$meta;
-			
+
 	protected $blockList;
 	// Prijmame jen potomky ProcessWebu
 	public function __construct( ProcessWeb $process )
@@ -18,11 +18,11 @@ final class CreatePage extends Object
 		$this->process = $process;
 		$this->init();
 	}
-	
+
 	private function init()
 	{
 		$this->block = Block::getSingleton();
-		$this->moduleDelegator = ModuleDelegator::getSingleton( $this->process->webInstace, $this->process->command );
+		$this->moduleDelegator = ModuleDelegator::getSingleton( $this->process->webInstance, $this->process->command );
 
 		// @todo lepe kontolovat cestu
 		$fileName = __DIR__ . '/' . $this->process->pageTemplate;
@@ -32,9 +32,9 @@ final class CreatePage extends Object
 		}else{
 			throw new CreatePageException ('Nepodarilo se vlozit template: <b>' . $this->process->pageTemplate . '</b>');
 		}
-		
+
 	}
-	
+
 	private function container( $container )
 	{
 		$blocks = $this->getBlockList();
@@ -44,13 +44,13 @@ final class CreatePage extends Object
 			}
 		}
 	}
-	
+
 	private function setPageHead()
 	{
 		$this->css = BobrConf::SHARE_URL . $this->process->pageCss;
 		$this->title = 'Defaultni titulek, zaridit aby se generoval!!!';
 	}
-	
+
 	protected function getBlockList()
 	{
 		if( NULL === $this->blockList ){
@@ -59,7 +59,7 @@ final class CreatePage extends Object
 			return $this->blockList;
 		}
 	}
-	
+
 	protected function setBlockList()
 	{
 		return $this->blockList = $this->block->loadBlockById( $this->process->pageBlockIds );

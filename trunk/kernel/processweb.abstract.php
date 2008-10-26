@@ -95,7 +95,7 @@ abstract class ProcessWeb extends Request
 	protected $root;
 
 	/**
-	 * Seznam vsech dostupnych modulu
+	 * Seznam modulu a metod na ktere ma dana groupa pristup
 	 *
 	 * @var array
 	 */
@@ -113,7 +113,7 @@ abstract class ProcessWeb extends Request
 	 *
 	 * @var string
 	 */
-	protected $webInstace;
+	protected $webInstance;
 
 	/**
 	 * URI se kterou se pracuje.
@@ -136,18 +136,22 @@ abstract class ProcessWeb extends Request
 		parent::__construct( $session );
 		$this->config = BobrConf::getSingleton();
 
+		$this->setRoot();
+
 		$this->requestVariable = $this->setVariable();
+
 		// nacteme pole s jazykama
 		$this->setLangList();
 		if( TRUE === $this->config['LANG_SYMBOL_TO_URI'] ){
 			$this->searchLang();
 		}
+
 		// zjistime jestli neco je v getu... jinak hodime defaultni page
 		if( TRUE === $this->ISAJAX ){
 			if( FALSE === $this->isDynamicUri( $this->GET[ $this->getVariable ] ) ){
 				throw new AjaxException('Dotaz na stranku neni validni.');
 			}else {
-				throw new AjaxException(' POZOR POZOR neni udelan controller na ajaxove requesty.');
+				throw new AjaxException('POZOR POZOR neni udelan controller na ajaxove requesty.');
 			}
 		}elseif( $this->URI ){
 			$this->controllGetRequest();
@@ -163,7 +167,6 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function controllGetRequest()
 	{
-		$this->setRoot();
 		// pokud nema validni promene pryc s tim
 		if( FALSE === $this->requestVariable ){
 			//$this->redirect( $this->root );
@@ -178,7 +181,7 @@ abstract class ProcessWeb extends Request
 				$this->failedUriMessage();
 				$this->redirect( $this->root, 404 );
 			}
-				
+
 		}
 	}
 
@@ -197,7 +200,6 @@ abstract class ProcessWeb extends Request
 			$module = explode('/', $uri );
 			$this->command =	$module[0] . '/' . $this->dynamicUriList[ $hashKey ]['func'];
 			$this->pageId	=	$this->config['WEB_PAGEID_DEFAULT'];
-			//$this->lang		=	$this->langList[ $this->config['WEB_LANG'] ];
 			$this->lang		=	$this->setDefaultLang();
 			$this->getPage( $this->pageId );
 			return TRUE;
@@ -240,7 +242,7 @@ abstract class ProcessWeb extends Request
 	protected function qPage()
 	{
 		try{
-			// podivame jestli je url staticka
+			// podivame se jestli je url staticka
 			if (FALSE === $this->isStaticUri( $this->URI ) ){
 				// zjistime jestli volani nejni dynamickeho modulu
 				return $this->isDynamicUri( $this->URI ) ;
@@ -267,7 +269,7 @@ abstract class ProcessWeb extends Request
 	{
 		$result =  dibi::query( "SELECT command, pageid_id, lang_id
 								FROM " . BobrConf::DB_PREFIX . "aliases
-								WHERE hash = '" . md5( $uri ) . "' LIMIT 1");		
+								WHERE hash = '" . md5( $uri ) . "' LIMIT 1");
 
 		$result = $result->fetchAll();
 		if( count( $result ) ){
@@ -337,7 +339,7 @@ abstract class ProcessWeb extends Request
 	}
 	/**
 	 * Nastavi jazyk
-	 * 
+	 *
 	 * @param integer $langId - Id langu
 	 * @return string $lang
 	 */
@@ -345,6 +347,7 @@ abstract class ProcessWeb extends Request
 	{
 		if( TRUE === $this->config['LANG_SYMBOL_TO_URI'] ){
 			if( $this->langList[ $langId ]['symbol'] === $this->lang ){
+				$this->root = $this->root . $this->lang;
 				return $this->lang;
 			}else{
 				//Ladenka::kill( $this->URI );
@@ -353,12 +356,16 @@ abstract class ProcessWeb extends Request
 		}else {
 			return $this->langList[ $langId ]['symbol'];
 		}
-		 
+
 	}
 	/**
-	 * Nastavi defaultni jazyk podle configu
+	 * Nastavi defaultni jazyk podle configu.
+	 * Zjisti se jestli se ma brat defaultni hodnota z browseru, pokud ano a jazyk je podporovan
+	 * nastavi se jako default.
+	 * Pokud ne vezme se defaultni jazyk podle configu.
+	 *
 	 * @param void
-	 * @return string $this->lang - jazyk
+	 * @return string $lang - symbol jazyka
 	 */
 	protected function setDefaultLang()
 	{
@@ -381,13 +388,15 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function searchLang()
 	{
+		// @todo rbas neni to zde duplicitni?
 		$this->setSymbolLangList();
 		if( TRUE === empty( $this->URI ) ){
-			$this->redirect( $this->config['WEB_LANG'] );
+			$this->redirect( $this->root );
 		}else {
 			//	Ladenka::kill( $this->config['WEB_LANG'] );
 			if( FALSE === $this->setLangToUri() ){
-				$this->redirect( $this->config['WEB_LANG'] );
+				// @todo rbas zajistit aby se do root zapisoval lang budou se z toho generovat linky ktere tuto informaci musi znat
+				$this->redirect( $this->root );
 			}else {
 				return $this->lang;
 			}
@@ -436,13 +445,9 @@ abstract class ProcessWeb extends Request
 	 * na url bez lomitka
 	 *
 	 * @param url
-	 * @param home_page_separator - implicitne je nastaven jako lomitko protoze diky apache modulu rewrite se
-	 * 		musi urcovat web root lomitkem "/",
-	 * 		pokud se jedna o administraci tak jako druhy parametr se udava NULL muze se i FALSE nebo prazdny string
-	 * 		,ale NULL je rychlejsi ;)
 	 * @return TRUE / presmerovani
 	 */
-	protected function validateUri($url, $home_page_separator = '/')
+	protected function validateUri($url)
 	{
 		// zjistime zda-li na poslednim miste v url je a pokud ano tak presmerujem url
 		$slash = preg_match ( "@\/$@", $url);
@@ -471,16 +476,27 @@ abstract class ProcessWeb extends Request
 		if( FALSE === empty( $this->dynamicUriList ) ){
 			return $this->dynamicUriList;
 		}else {
-			return $this->setDynamicUriList();
+			$webInstanceList = WebInstance::getSingleton()->getWebInstanceList();
+			if( isset($webInstanceList[ $this->getWebInstance() ] ) ){
+				return $this->setDynamicUriList( $webInstanceList[ $this->webInstance ]['id'] );
+			}else{
+				throw new LogicException('Modul neni urcen pro tuto webinstanci.' . Ladenka::var_dumper($webInstanceList));
+			}
+
 		}
 	}
 	/**
 	 * vygeneruje pole dynamickych uri
 	 * @return
 	 */
-	protected function setDynamicUriList()
+	protected function setDynamicUriList( $webInstanceId )
 	{
-		return $this->dynamicUriList = Module::getSingleton()->getDynamicModuleList();
+		return $this->dynamicUriList = Module::getSingleton()->setDynamicModuleList( $webInstanceId );
+	}
+
+	protected function getModuleList()
+	{
+		$this->moduleList = Module::getSingleton()->getGroupFunctionsList();
 	}
 
 	/**
@@ -504,22 +520,22 @@ abstract class ProcessWeb extends Request
 	}
 
 	/**
-	 * Pokud process je instace tridy ProcessAdmin
+	 * Pokud process je instance tridy ProcessAdmin
 	 * volaji se administracni metody modulu.
 	 * Jinak se vola web.
 	 *
 	 * @param void
-	 * @return string nazev webInstace ktera se ma volat
+	 * @return string nazev webInstance ktera se ma volat
 	 */
-	public function getWebInstace()
+	public function getWebInstance()
 	{
 		if ( $this instanceof ProcessAdmin ){
-			$this->webInstace = 'admin';
+			$this->webInstance = 'admin';
 		}else{
-			$this->webInstace = 'web';
+			$this->webInstance = 'web';
 		}
 
-		return $this->webInstace;
+		return $this->webInstance;
 	}
 
 

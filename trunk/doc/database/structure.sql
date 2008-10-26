@@ -1,22 +1,35 @@
+CREATE TABLE bobr_webinstance(
+	id SERIAL PRIMARY KEY,
+	title VARCHAR(24),
+	description VARCHAR(512)
+);
+COMMENT ON COLUMN bobr_webinstance.id IS 'Primarni klic tabulky.';
+COMMENT ON COLUMN bobr_webinstance.title IS 'Nazev webinstace bez diakritiky, fuj znaku a malym pismem. Max 24 znaku.';
+COMMENT ON COLUMN bobr_webinstance.description IS 'Popis dane instace slouzici jen pro administraci.';
+
 CREATE TABLE bobr_pageid_node (
 	id SERIAL PRIMARY KEY,
 	css VARCHAR (512),
 	template VARCHAR (512)
 );
-COMMENT ON COLUMN bobr_pageid_node.id IS 'Primarni klic';
-COMMENT ON COLUMN bobr_pageid_node.css IS 'Cesta k CSS souboru';
+COMMENT ON COLUMN bobr_pageid_node.id IS 'Primarni klic.';
+COMMENT ON COLUMN bobr_pageid_node.css IS 'Cesta k CSS souboru.';
 COMMENT ON COLUMN bobr_pageid_node.template IS 'Cesta k template.';
 
 CREATE TABLE bobr_pageid (
 	id SERIAL PRIMARY KEY,
 	pageid_node_id INTEGER,
+	webinstance_id INTEGER,
 	block_ids TEXT,
-	description TEXT
+	description TEXT,
+	FOREIGN KEY (pageid_node_id) REFERENCES bobr_pageid (id) ON UPDATE NO ACTION ON DELETE SET NULL,
+	FOREIGN KEY (webinstance_id) REFERENCES bobr_webinstance (id) ON UPDATE NO ACTION ON DELETE SET NULL,
 );
 
 
 COMMENT ON COLUMN bobr_pageid.id IS 'Primarni klic.';
 COMMENT ON COLUMN bobr_pageid.pageid_node_id IS 'Odkaz do tabulky pageid_node.';
+COMMENT ON COLUMN bobr_pageid.webinstance_id IS 'Odkaz na webinstanci pro kterou je dana pageid.';
 COMMENT ON COLUMN bobr_pageid.block_ids IS 'ID bloku oddelene carkou.';
 COMMENT ON COLUMN bobr_pageid.description IS 'Popis bloku, co je zac atd...';
 
@@ -107,18 +120,19 @@ CREATE TABLE bobr_module_functions (
 	hash CHAR (32),
 	func TEXT,
 	description_id INTEGER,
-	administration BOOLEAN,
+	webinstance_id INTEGER,
 	author VARCHAR (64),
 	funcversion VARCHAR (10),
 	bobrversion VARCHAR(10),
-	CONSTRAINT bobr_module_funcitons_module_id FOREIGN KEY (module_id) REFERENCES bobr_module (id) 
+	FOREIGN KEY (module_id) REFERENCES bobr_module (id),
+	FOREIGN KEY (webinstance_id) REFERENCES bobr_webinstance (id)
 );
 COMMENT ON COLUMN bobr_module_functions.id IS 'Primarni klic.';
 COMMENT ON COLUMN bobr_module_functions.module_id IS 'Odkaz na id modulu';
 COMMENT ON COLUMN bobr_module_functions.hash IS 'Hash sloupecku func, slouzi pro rychlejsi vyhledavani konkretni funkce modulu. Sklada se z nazvumodulu a nazvu funkce napr. md5(menunew-item)';
 COMMENT ON COLUMN bobr_module_functions.func IS 'Funkce modulu ve stringu (menu/edit).';
 COMMENT ON COLUMN bobr_module_functions.description_id IS 'Odkaz na lokalizovany popisek';
-COMMENT ON COLUMN bobr_module_functions.administration IS 'Pokud je funkce administracni neni jen na vypsani dat nekam a ma se zobrazovat v aministraci je zde TRUE';
+COMMENT ON COLUMN bobr_module_functions.administration IS 'Urcuje pro jakou webinstanci je psana funkce.';
 COMMENT ON COLUMN bobr_module_functions.author IS 'Jmeno autora modulu';
 COMMENT ON COLUMN bobr_module_functions.funcversion IS 'Verze funkce';
 COMMENT ON COLUMN bobr_module_functions.bobrversion IS 'Verze BOBRa do ktereho je funkce psana';
@@ -128,14 +142,17 @@ CREATE TABLE bobr_dynamicmodule (
 	module_functions_id INTEGER,
 	aliases_id INTEGER,
 	lang_id INTEGER,
+	pageid_id INTEGER,
 	CONSTRAINT bobr_dynamicmodule_module_funcions_id FOREIGN KEY (module_functions_id) REFERENCES bobr_module_functions (id) ON UPDATE NO ACTION ON DELETE CASCADE,
 	CONSTRAINT bobr_dynamicmodule_aliases_id FOREIGN KEY (aliases_id) REFERENCES bobr_aliases (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT bobr_dynamicmodule_lang_id FOREIGN KEY (lang_id) REFERENCES bobr_lang (id) ON UPDATE NO ACTION ON DELETE NO ACTION
+	FOREIGN KEY (pageid_id) REFERENCES bobr_pageid (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON COLUMN bobr_dynamicmodule.id IS 'Primarni klic';
 COMMENT ON COLUMN bobr_dynamicmodule.module_functions_id IS 'Odkaz do tabulky module_functions na id konkretni funkce modulu.';
 COMMENT ON COLUMN bobr_dynamicmodule.aliases_id IS 'Odkaz na id aliasu, aliasy slozi pro lokalizovani nazvu dynamickych modulu.';
 COMMENT ON COLUMN bobr_dynamicmodule.lang_id IS 'Odkaz na id langu ve kterem je dany alias lokalizovan.';
+COMMENT ON COLUMN bobr_dynamicmodule.pageid_id IS 'Informace o jakou pageid se jedna.';
 
 CREATE TABLE bobr_container (
 	id SERIAL PRIMARY KEY,
@@ -276,8 +293,6 @@ CREATE TABLE bobr_group_functions (
 	group_id INTEGER,
 	module_id INTEGER,
 	module_function_id INTEGER,
-	privilege BOOLEAN,
-	
 	CONSTRAINT bobr_group_functions_group_id FOREIGN KEY (group_id) REFERENCES bobr_groups (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT bobr_group_functions_module_id FOREIGN KEY (module_id) REFERENCES bobr_module (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	CONSTRAINT bobr_group_functions_module_function_id FOREIGN KEY (module_function_id) REFERENCES bobr_module_functions (id) ON UPDATE NO ACTION ON DELETE NO ACTION
@@ -286,13 +301,12 @@ COMMENT ON COLUMN bobr_group_functions.id IS 'Primarni klic tabylky';
 COMMENT ON COLUMN bobr_group_functions.group_id IS 'Odkaz na id groupy.';
 COMMENT ON COLUMN bobr_group_functions.module_id IS 'Odkaz na id modulu.';
 COMMENT ON COLUMN bobr_group_functions.module_function_id IS 'Odkaz na id funkce modulu.';
-COMMENT ON COLUMN bobr_group_functions.privilege IS 'Hodnota prava TRUE | FALSE.';
 
 CREATE TABLE bobr_group_access (
 	id SERIAL PRIMARY KEY,
 	group_id INTEGER NOT NULL,
 	processtype varchar(32) NOT NULL,
-	
+
 	CONSTRAINT bobr_group_access_group_id FOREIGN KEY (group_id) REFERENCES bobr_groups (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 COMMENT ON COLUMN bobr_group_access.id IS 'Id daneho pravidla';

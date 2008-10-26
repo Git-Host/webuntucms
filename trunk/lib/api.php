@@ -1,31 +1,33 @@
 <?php
 class Api
 {
+	private static $bootWebInstance = '';
+
 	public static function errorMessage( $text )
 	{
-		
+
 		$output	= "\n<div class=\"error-message\">\n";
 		$output	.= "<img src=\"/share/icons/default/actions/error.png\" class=\"img-tips\" />\n";
 		$output	.= "<div class=\"pad\">\n" . $text ." </div>\n";
 		$output	.= "\n</div>\n";
-		
+
 		return $output;
 	}
-	
+
 	public static function tipMessage( $text )
 	{
 		$output	= "\n<div class=\"tip-message\">\n";
 		$output	.= "<img src=\"themes/admin/images/icon/question.png\" class=\"img-tips\" />\n";
 		$output	.= "<div class=\"pad\">\n".$text."</div><!--/pad-->\n";
 		$output	.= "\n</div><!--/yellow_tips-->\n";
-		
+
 		return $output;
 	}
-	
+
 	/**
 	 * Tento druh hlasek se vypisuje jen uzivatelu, kteri na ne maji pravo
 	 * @todo dodelat checkovani prav
-	 * @return 
+	 * @return
 	 * @param $text Object
 	 */
 	public static function fatalMessage( $text )
@@ -34,16 +36,16 @@ class Api
 		$output	.= "<img src=\"/share/icons/default/actions/alarm.png\" class=\"img-tips\" width=\"54\" height=\"54\"/>\n";
 		$output	.= "<div class=\"pad\">\n" . $text ." </div>\n";
 		$output	.= "\n</div>\n";
-		
+
 		return $output;
 	}
-	
+
 	/**
 	 * Odstranuje tagy a prevadi specialni znaky na html entity
 	 * @return $value ocistena
 	 * @param $value string, array
 	 */
-	public static function handleTrash( $value ) 
+	public static function handleTrash( $value )
 	{
 		if(is_array( $value )) {
 			foreach($value as $key => $data) {
@@ -56,38 +58,44 @@ class Api
 		} else {
 			$value = htmlspecialchars(strip_tags( $value ));
 		}
-		return $value;	
+		return $value;
 	}
-	
+
 
 	/**
 	 * Vyrizne ze script name nazev
+	 * @todo provadet kontrolu oproti databazovym webInstancim jestli vubec takova existuje
 	 *
 	 * @return string $matches[1] vrati nazev scriptu oriznute o php
 	 */
 	public static function getProcessMethod()
 	{
-		preg_match( "/(\w*)\.php/", $_SERVER['SCRIPT_NAME'], $matches );
-		if( isset ( $matches[1] ) ){
-			return $matches[1];	
+		if( empty( self::$bootWebInstance ) ){
+			preg_match( "/(\w*)\.php/", $_SERVER['SCRIPT_NAME'], $matches );
+			if( isset ( $matches[1] ) ){
+				self::$bootWebInstance = $matches[1];
+				return self::$bootWebInstance;
+			}else {
+				throw new KernelException("Nelze identifikovat spoustejici script.");
+			}
 		}else {
-			throw new KernelException("Nelze identifikovat spoustejici script.");
+			return self::$bootWebInstance;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Prevede pole commandu na hash, podle ktereho se pak vyhledava
 	 *
 	 * @param array $command
 	 * @return string | boolean
 	 */
-	public static function commandToHash( $command ) 
+	public static function commandToHash( $command )
 	{
 		return ( is_array( $command ) ) ? md5( implode( '/', $command ) ) : FALSE;
 	}
-	
-	
+
+
 	/**
 	 * Pro lepsejsi query do DB je tu tato funkce
 	 */
@@ -96,16 +104,16 @@ class Api
 	  $mydate = date("d/m/Y - H:i", $time);
 	  return $mydate;
 	}
-	
+
 	/**
 	 * Nahradi nevyzadane znaky za normalni pismenka.
 	 *
 	 * @param string $str
 	 * @return string
 	 */
-	
+
 	public function coolUri($str){
-     	
+
 	    // pole znaku ktere se maji nahradit
 	     $replace = array(
 	    'À'=>'A','Á'=>'A','Â'=>'A','Ã'=>'A','Ä'=>'A','Å'=>'A','Ā'=>'A','Ą'=>'A','Ă'=>'A',
@@ -154,29 +162,29 @@ class Api
 	    'Ź'=>'Z','Ž'=>'Z','Ż'=>'Z',
 	    'ž'=>'z','ż'=>'z','ź'=>'z',
 	    'ß'=>'ss','ſ'=>'ss');
-	    
-	    // nahradi znaky s diakritikou na znaky bez diakritiky 
-	    $str = strtr($str, $replace);
-	    
-	    // prevede vsechna velka pismena na mala 
-	    $str = strtolower ($str);  
-	
-	    // nahradi pomlckou vsechny znanky, ktera nejsou pismena 
-	    $re = "/[^[:alpha:][:digit:]]/"; 
-	    $replacement = "-"; 
-	    $str = preg_replace ($re, $replacement, $str); 
-	
-	    // odstrani ze zacatku a z konce retezce pomlcky 
-	    $str = trim ($str, "-"); 
-	
-	    // odstrani z adresy pomlcky, pokud jsou dve a vice vedle sebe 
-	    $re = "/[-]+/"; 
-	    $replacement = "-"; 
-	    $str = preg_replace ($re, $replacement, $str); 
 
-    return $str;  
+	    // nahradi znaky s diakritikou na znaky bez diakritiky
+	    $str = strtr($str, $replace);
+
+	    // prevede vsechna velka pismena na mala
+	    $str = strtolower ($str);
+
+	    // nahradi pomlckou vsechny znanky, ktera nejsou pismena
+	    $re = "/[^[:alpha:][:digit:]]/";
+	    $replacement = "-";
+	    $str = preg_replace ($re, $replacement, $str);
+
+	    // odstrani ze zacatku a z konce retezce pomlcky
+	    $str = trim ($str, "-");
+
+	    // odstrani z adresy pomlcky, pokud jsou dve a vice vedle sebe
+	    $re = "/[-]+/";
+	    $replacement = "-";
+	    $str = preg_replace ($re, $replacement, $str);
+
+    return $str;
   }
-  
+
   public static function cacheId( $ids )
   {
   	return str_replace( ',', '_', $ids );

@@ -63,6 +63,7 @@ class NetteLoader extends AutoLoader
 		'dibi'		=>	'/lib/dibi/dibi.php',
 		'framework'	=>	'/lib/Nette/Framework.php',
 		'debug'		=>	'/lib/Nette/Debug.php',
+		'webinstance'	=>	'/lib/dataobject/webinstance.php',
 		'module'	=>	'/lib/dataobject/module.php',
 		'lang'		=>	'/lib/dataobject/lang.php',
 		'html'		=>	'/lib/html.php',

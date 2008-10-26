@@ -1,12 +1,77 @@
 @CHARSET "UTF-8";
-.fatal-message {padding:5px 10px 20px 5px;margin:10px 10px 10px 10px;border-top: solid 5px #FF7D6A;background:#FFC4B8;  color: black;}
-.error-message {padding:5px 10px 20px 5px;margin:10px 10px 10px 10px;border:solid 2px #FF7D6A;background:#FFC4B8;  color: black;}
-.error-message pre{padding: 5px; border: solid 3px red; background: #eeeeee; overflow: auto;}
-.pad {padding:5px 10px 10px 10px;}
-.tip-message {padding:5px 10px 20px 5px;margin:10px 10px 10px 10px;border:solid 2px #FFEAAF;background:#FFFFCB; color: black;}
-.green_tips {padding:5px 5px 5px 5px;margin:10px 10px 10px 10px;border:solid 1px #61C816;background:#98FE83; color: black;}
-.blue_tips {padding:5px 5px 5px 5px;margin:10px 10px 10px 10px;border:solid 1px #1F79DF;background:#96C6FD; color: black;}
-.orange_tips {padding:5px 5px 5px 5px;margin:10px 10px 10px 10px;border:solid 1px #FF9600;background:#FFBF25; color: black;}
-.red-text {color:red;}
-.help {padding:5px 5px 5px 5px;margin:10px 10px 10px 10px;border:solid 1px #eeeeee;background:#F7F7F7; color: black;}
-.img-tips{ display: block; float: left;}
+
+.fatal-message {
+	padding: 5px 10px 20px 5px;
+	margin: 10px 10px 10px 10px;
+	border-top: solid 5px #FF7D6A;
+	background: #FFC4B8;
+	color: black;
+}
+
+.error-message {
+	padding: 5px 10px 20px 5px;
+	margin: 10px 10px 10px 10px;
+	border: solid 2px #FF7D6A;
+	background: #FFC4B8;
+	color: black;
+}
+
+.error-message pre {
+	padding: 5px;
+	border: solid 3px red;
+	background: #eeeeee;
+	overflow: auto;
+}
+
+.pad {
+	padding: 5px 10px 10px 10px;
+}
+
+.tip-message {
+	padding: 5px 10px 20px 5px;
+	margin: 10px 10px 10px 10px;
+	border: solid 2px #FFEAAF;
+	background: #FFFFCB;
+	color: black;
+}
+
+.green_tips {
+	padding: 5px 5px 5px 5px;
+	margin: 10px 10px 10px 10px;
+	border: solid 1px #61C816;
+	background: #98FE83;
+	color: black;
+}
+
+.blue_tips {
+	padding: 5px 5px 5px 5px;
+	margin: 10px 10px 10px 10px;
+	border: solid 1px #1F79DF;
+	background: #96C6FD;
+	color: black;
+}
+
+.orange_tips {
+	padding: 5px 5px 5px 5px;
+	margin: 10px 10px 10px 10px;
+	border: solid 1px #FF9600;
+	background: #FFBF25;
+	color: black;
+}
+
+.red-text {
+	color: red;
+}
+
+.help {
+	padding: 5px 5px 5px 5px;
+	margin: 10px 10px 10px 10px;
+	border: solid 1px #eeeeee;
+	background: #F7F7F7;
+	color: black;
+}
+
+.img-tips {
+	display: block;
+	float: left;
+}
