@@ -43,7 +43,7 @@ class BobrConf extends Settings
 		'WEB_AUTHOR'			=>	'BOBR COPR',
 		'WEB_WEBMASTER'			=>	'BOBR PIČO',
 		'WEB_COPYRIGHT'			=>	'BOBR',
-		'WEB_FAVICON'			=>	'share/kubuntu.png',
+		'WEB_FAVICON'			=>	'/share/kubuntu.png',
 		'WEB_PAGEID_DEFAULT'	=>	'1',
 		'WEB_ROOT'				=>	'/cs/',
 		'WEB_LANG'				=>	'cs',
@@ -54,6 +54,16 @@ class BobrConf extends Settings
 		'LANG_SYMBOL_TO_URI'	=> TRUE,
 		// -------------------------------------
 		// Administrace default data
+		'ADMIN_TITLE'				=>	'Jsi v administraci a nadpis je defaultni',
+		// Pri dynamickem vytvareni titulku prevracet poradi
+		'ADMIN_TITLE_REVERT'	=>	FALSE,
+		'ADMIN_TITLE_SEPARATOR'	=>	'-',
+		'ADMIN_META_KEYWORDS'	=>	'bobr, copr, punk, junk',
+		'ADMIN_META_DESCRIPTION'=>	'BOBR Pičo je nejlepšejší a pošle všechno do COPRu i DRUPAListy ;)',
+		'ADMIN_AUTHOR'			=>	'BOBR COPR',
+		'ADMIN_WEBMASTER'		=>	'BOBR PIČO',
+		'ADMIN_COPYRIGHT'		=>	'BOBR',
+		'ADMIN_FAVICON'			=>	'/share/kubuntu.png',
 		'ADMIN_ROOT'			=>	'/bobradmin/cs/',
 		'ADMIN_LANG'			=>	'cs',
 		'ADMIN_PAGEID_DEFAULT'	=>	'3',

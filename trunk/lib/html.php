@@ -5,86 +5,99 @@
  */
 class HTML extends Object
 {
-	private static $instanc = FALSE;
-	
+	private static $instance = FALSE;
+
 	// pokud je potreba tak se nacte BobrConfig
 	private $config = NULL;
-	
+
 	// do teto promene se uklada prubezne vystup
 	private $outputHTML;
-	
+
 	// ukladame sem nadpis stranky
 	private $webTitle = array();
-	
+
 	private $metaKeywords;
 	private $metaDescription;
 	private $webAuthor;
 	private $webmaster;
 	private $copyright;
 	private $favicon;
-	
+
 	private $CSS	= array();
 	private $feed	= array();
 	private $script;
-	
-		
+
+	/**
+	 * Web Instance velkymi pismeny
+	 *
+	 * @var string
+	 */
+	private  $upperWebInstance;
+
+
 	/**
 	 * Vrati singleton instanci
 	 * @return Object
 	 */
 	public static function getSingleton() {
-		if( self::$instanc === FALSE ) {
-			self::$instanc = new HTML();
+		if( self::$instance === FALSE ) {
+			self::$instance = new HTML();
 		}
-		return self::$instanc;
+		return self::$instance;
 	}
-	
+
+	/**
+	 * Vrati vygenerovanou stranku jako parametr.
+	 *
+	 * @param void
+	 * @return string
+	 */
 	public function getPage()
 	{
 		$page = $this->getHead();
 		$page .= $this->getOutput();
 		$page .= $this->getFooter();
-		
-		print $page;
+
+		return $page;
 	}
-	
+
 	/**
 	 * Prida do "globalu" string
 	 *  take prida na konec stringu znacku konce radku
-	 * @return 
+	 * @return
 	 * @param $string Object
 	 */
 	public function addOutput( $string )
 	{
 		$this->outputHTML .= $string . "\r\n";
 	}
-	
+
 	/**
 	 * Prida string do pole titulku, ktere pak musi zpracovat
 	 * metoda getWebTitle
-	 * @return 
+	 * @return
 	 * @param $title String
 	 */
 	public function addWebTitle ( $title )
 	{
 		$this->webTitle[] = $title;
 	}
-	
+
 	/**
 	 * Prida cestu k css
 	 * zpracovava to metoda getCSS()
-	 * @return 
+	 * @return
 	 * @param $source string
 	 */
 	public function addCSS ( $source )
 	{
 		$this->CSS[] = $source;
 	}
-	
+
 	/**
 	 * Prida cestu a popis feedu
 	 * zpracovava metoda getFeed()
-	 * @return 
+	 * @return
 	 * @param $source string
 	 * @param $description string
 	 */
@@ -92,64 +105,76 @@ class HTML extends Object
 	{
 		$this->feed[] = array( 'source' => $source, 'description' => $description );
 	}
-	
+
 	/**
 	 * Prida string mezi ostatni
 	 * metoda getScript to zpracuje a da to v html do hlavicky
-	 * @return 
+	 * @return
 	 * @param $script Object
 	 */
 	public function addScript( $script )
 	{
 		$this->script .= $script;
 	}
-	
+
 	public function setMetaKeywords( $keywords )
 	{
 		$this->metaKeywords = $kewords;
 	}
-	
+
 	public function setMetaDescription( $description )
 	{
 		$this->metaDescription = $description;
 	}
-	
+
 	public function setWebAuthor ( $author )
 	{
 		$this->webAuthor = $author;
 	}
-	
+
 	public function setWebmaster( $webmaster )
 	{
 		$this->webmaster = $webmaster;
 	}
-	
+
 	public function setCopyright( $copyright )
 	{
 		$this->copyright = $copyright;
 	}
-	
+
 	public function setFavicon( $favicon )
 	{
 		$this->favicon = $favicon;
 	}
-	
-	
+
+	/**
+	 * Nastavi pro vnitrni ucely web instanci a zvetsi string.
+	 * Pouziva se pak pro volani hodnot v configu
+	 *
+	 * @param string
+	 * @return void
+	 */
+	public function setWebInstance( $webInstance )
+	{
+		$this->upperWebInstance = strtoupper( $webInstance );
+	}
+
+
 	/**
 	 * Vrati vlastnost outputHTML, do ktere se uklada veskery obsah
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getOutput()
 	{
 		return $this->outputHTML;
 	}
-	
+
 	/**
 	 * Vrati html hlavicku a postara se o naplneni prislusnymi daty
 	 * @return string
 	 */
-	private function getHead()
+	public function getHead()
 	{
 		/*
 		 * vytvorime si instanci configu a ulozime ji do objektu protoze
@@ -157,7 +182,7 @@ class HTML extends Object
 		 */
 		$this->config = BobrConf::getSingleton();
 		$output = "<?xml version=\"1.0\" encoding=\"" . BobrConf::WEB_ENCODING . "\"?>\n";
-		$output .= "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">  
+		$output .= "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html>
 	<head>
 		<title>" . $this->getWebTitle() . "</title>
@@ -178,8 +203,8 @@ class HTML extends Object
 	{
 		return "\n\t</body>\n</html>";
 	}
-	
-	
+
+
 	/**
 	 * Vygeneruje titulek stranky a vrati ho jako navratovou hodnotu
 	 * @return $webTitle string
@@ -188,67 +213,67 @@ class HTML extends Object
 	{
 		$config = BobrConf::getSingleton();
 		if ( empty( $this->webTitle ) ){
-			$webTitle = $config['WEB_TITLE'];
+			$webTitle = $config[$this->upperWebInstance. '_TITLE'];
 		}else {
-			
+
 			$webTitle = '';
-			if( TRUE === $config['WEB_TITLE_REVERT'] ){
-				$title = array_reverse( $this->webTitle );	
+			if( TRUE === $config[$this->upperWebInstance. '_TITLE_REVERT'] ){
+				$title = array_reverse( $this->webTitle );
 			}else {
 				$title = $this->webTitle;
 			}
-			
-			$separator = $config['WEB_TITLE_SEPARATOR'];
-				
+
+			$separator = $config[$this->upperWebInstance. '_TITLE_SEPARATOR'];
+
 			foreach ($title as $value){
 				!empty( $value ) ? $webTitle .= $value . ' ' . $separator . ' ' : NULL;
 			}
 			$webTitle = iconv_substr( $webTitle, 0,  iconv_strlen( $webTitle ) - 2) . ' ' . $separator . ' ' . $config['WEB_TITLE'];
 		}
-		
+
 		return $webTitle;
-		
+
 	}
-	
+
 	public function getMetaKeywords()
 	{
-		empty( $this->metaKeywords ) 
-			? $keyWords = $this->config['WEB_META_KEYWORDS']
+		empty( $this->metaKeywords )
+			? $keyWords = $this->config[$this->upperWebInstance. '_META_KEYWORDS']
 			: $keyWords = $this->metaKeywords;
 		return $keyWords;
 	}
 	public function MetaDescription()
 	{
 		empty( $this->metaDescrition )
-			? $description = $this->config['WEB_META_DESCRIPTION']
+			? $description = $this->config[$this->upperWebInstance. '_META_DESCRIPTION']
 			: $description = $this->metaDescription;
 		return $description;
 	}
 	public function getWebAuthor()
 	{
 		empty( $this->webAuthor )
-			? $author = $this->config['WEB_AUTHOR']
+			? $author = $this->config[$this->upperWebInstance. '_AUTHOR']
 			: $author = $this->webAuthor;
 		return $author;
 	}
 	public function getWebmaster()
 	{
 		empty( $this->webmaster )
-			? $webmaster = $this->config['WEB_WEBMASTER']
+			? $webmaster = $this->config[$this->upperWebInstance. '_WEBMASTER']
 			: $webmaster = $this->webmaster;
 		return $webmaster;
 	}
 	public function getCopyright()
 	{
 		empty( $this->copyright )
-			? $copyright = $this->config['WEB_COPYRIGHT']
+			? $copyright = $this->config[$this->upperWebInstance. '_COPYRIGHT']
 			: $copyright = $this->copyright;
 		return $copyright;
 	}
 	public function getFavicon()
 	{
 		empty( $this->favicon )
-			? $favicon = $this->config['WEB_FAVICON']
+			? $favicon = $this->config[$this->upperWebInstance. '_FAVICON']
 			: $favicon = $this->favicon;
 		return $favicon;
 	}
@@ -280,50 +305,50 @@ class HTML extends Object
 	{
 		return $this->script;
 	}
-	
+
 	public function delOutput()
 	{
 		$this->outputHTML = '';
 	}
-	
+
 	public static function tag($tag, $text, $other = NULL )
 	{
 		$output	= '';
 		$tag = mb_strtolower( $tag );
-		
-		$output.="<$tag"; 
-		if( is_array( $other ) ) 
+
+		$output.="<$tag";
+		if( is_array( $other ) )
 		{
 	    	foreach ( $other as $attr => $v ) {
 	    		$output .= " " . mb_strtolower( $attr ) ." = \"" . mb_strtolower( $v ) . "\" ";
 	    	}
 	    	$output .= ">$text</$tag>\n";
-	    	
+
 		} elseif( is_string( $other ) ) {
 			$output .= ' ' . $other .">$text</$tag>\n";
-			
+
 		} else {
 			$output .= ">$text</$tag>\n";
 		}
-		
+
 		return $output;
   	}
-	
-  	public static function tagOpen( $tag, $attributes = NULL ) 
+
+  	public static function tagOpen( $tag, $attributes = NULL )
 	{
 		$output	= '';
 		$output .= "<$tag";
 		$output .= self::checkTagAttributes( $attributes );
 		$output .= ">\n";
-		
+
 		return $output;
 	}
-	
+
 	public static function tagClose( $tag ) {
 		return is_string( $tag ) ? "</$tag>\n" : FALSE;
 	}
-	
-	
+
+
 	public static function tagSingle( $tag , $attributes = NULL ) {
     	$output = '';
 		$tag = mb_strtolower( $tag );
@@ -334,7 +359,7 @@ class HTML extends Object
 		$output .= "\" />\n";
 		return $output;
     }
-    
+
     public static function tagPair( $tag , $inTag, $attributes = NULL ) {
 		$output = '';
 		$tag = mb_strtolower( $tag );
@@ -345,7 +370,7 @@ class HTML extends Object
 		$output .= ">$inTag</$tag>\n";
 		return $output;
 	}
-    
+
     public static function checkTagAttributes( $attributes ) {
     	$output .= '';
     	if( is_array( $attributes ) ) {
@@ -359,11 +384,11 @@ class HTML extends Object
     }
 
 
-	
+
 	public static function aHref( $url, $text, $attributes = NULL )
 	{
 		$url	= mb_strtolower( $url );
-		
+
 		return ( NULL === $attributes )
 				? self::tagPair( 'a' , $text , array('href' => $url, 'title'=>$text ))
 				: self::tagPair( 'a' , $text , array('href' => $url, $attributes ));

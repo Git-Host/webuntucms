@@ -28,7 +28,9 @@ final class CreatePage extends Object
 		$fileName = __DIR__ . '/' . $this->process->pageTemplate;
 		if( file_exists( $fileName ) ){
 			$this->setPageHead();
+			ob_start('Api::flushPage');
 			require_once $fileName;
+			ob_end_flush();
 		}else{
 			throw new CreatePageException ('Nepodarilo se vlozit template: <b>' . $this->process->pageTemplate . '</b>');
 		}
@@ -47,8 +49,9 @@ final class CreatePage extends Object
 
 	private function setPageHead()
 	{
-		$this->css = BobrConf::SHARE_URL . $this->process->pageCss;
-		$this->title = 'Defaultni titulek, zaridit aby se generoval!!!';
+		$HTML = HTML::getSingleton();
+		$HTML->setWebInstance($this->process->webInstance);
+		$HTML->addCSS(BobrConf::SHARE_URL . $this->process->pageCss);
 	}
 
 	protected function getBlockList()

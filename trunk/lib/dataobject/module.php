@@ -63,12 +63,12 @@ class Module extends Object
 	{
 		$sql = "SELECT
 			m.id, m.module, m.description_id, m.administrationcategory_id,
-			mf.hash, mf.func, m.isdynamic, mf.pageid_id, mf.description_id as function_description_id
+			mf.id as function_id, mf.func, m.isdynamic, mf.pageid_id, mf.description_id as function_description_id
 			FROM " . BobrConf::DB_PREFIX . "module m
 			JOIN " . BobrConf::DB_PREFIX . "module_functions mf ON m.id = mf.module_id
 			WHERE status = 1";
 		//$this->moduleList = $this->cache->sqlData ( $sql, 'hash');
-		$this->allModuleList = $this->cache->loadData( self::CACHEID_MODULE_LIST, $sql, 'hash');
+		$this->allModuleList = $this->cache->loadData( self::CACHEID_MODULE_LIST, $sql, 'module,mf.function_id');
 		return $this->allModuleList;
 	}
 
@@ -87,12 +87,12 @@ class Module extends Object
 	 */
 	public function setDynamicModuleList( $webInstanceId )
 	{
-		$sql = "SELECT mf.hash, mf.func, dm.lang_id, dm.page_id
+		$sql = "SELECT mf.func, dm.lang_id, dm.page_id, m.module
 			FROM bobr_module_functions mf
 			JOIN bobr_dynamicmodule dm ON dm.module_functions_id = mf.id
+			JOIN bobr_module m ON mf.module_id = m.id
 			WHERE mf.webinstance_id = " . $webInstanceId;
-		$this->dynamicModuleList = $this->cache->loadData( self::CACHEID_DYNAMIC_MODULE_LIST . $webInstanceId, $sql, 'hash');
-
+		$this->dynamicModuleList = $this->cache->loadData( self::CACHEID_DYNAMIC_MODULE_LIST . $webInstanceId, $sql, 'module');
 		return $this->validateDynamicModuleList();
 	}
 
@@ -118,13 +118,16 @@ class Module extends Object
 
 	public function setGroupFunctionsList( $groupsId )
 	{
-		$sql = "SELECT gf.group_id, gf.module_id, gf.module_function_id, mf.hash, mf.func , mf.administration, mf.description_id
-				FROM " . BobrConf::DB_PREFIX  . "group_functions gf
-				JOIN " . BobrConf::DB_PREFIX  . "module_functions mf ON mf.id = gf.module_function_id
-				WHERE group_id  IN(" . $groupsId . ")
-				ORDER BY module_id, module_function_id, group_id";
+		$sql = "SELECT gf.group_id, gf.module_id, gf.module_function_id,
+					mf.hash, mf.func , mf.administration, mf.description_id,
+					m.module
+					FROM " . BobrConf::DB_PREFIX . "group_functions gf
+					JOIN " . BobrConf::DB_PREFIX . "module_functions mf ON mf.id = gf.module_function_id
+					JOIN " . BobrConf::DB_PREFIX . "module m ON mf.module_id = m.id
+					WHERE group_id  IN(" . $groupsId . ")
+					ORDER BY module_id, module_function_id, group_id";
 		//$this->groupFunctionsList = $this->cache->sqlData( $sql, 'hash');
-		$this->groupFunctionsList = $this->cache->loadData( self::CACHEID_GROUP_FUNCTIONS_LIST . Api::cacheId( $groupsId ), $sql, 'hash' );
+		$this->groupFunctionsList = $this->cache->loadData( self::CACHEID_GROUP_FUNCTIONS_LIST . Api::cacheId( $groupsId ), $sql, 'module,module_function_id' );
 		return $this->groupFunctionsList;
 	}
 

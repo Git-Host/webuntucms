@@ -6,20 +6,20 @@ class Api
 	public static function errorMessage( $text )
 	{
 
-		$output	= "\n<div class=\"error-message\">\n";
-		$output	.= "<img src=\"/share/icons/default/actions/error.png\" class=\"img-tips\" />\n";
-		$output	.= "<div class=\"pad\">\n" . $text ." </div>\n";
-		$output	.= "\n</div>\n";
+		$output	= "\n\t\t<div class=\"error-message\">\n";
+		$output	.= "\t\t\t<img src=\"/share/icons/default/actions/error.png\" class=\"img-tips\" width=\"54\" height=\"54\"/>\n";
+		$output	.= "\t\t\t<div class=\"pad\">\n" . $text ." </div>\n";
+		$output	.= "\n\t\t</div>\n";
 
 		return $output;
 	}
 
 	public static function tipMessage( $text )
 	{
-		$output	= "\n<div class=\"tip-message\">\n";
-		$output	.= "<img src=\"themes/admin/images/icon/question.png\" class=\"img-tips\" />\n";
-		$output	.= "<div class=\"pad\">\n".$text."</div><!--/pad-->\n";
-		$output	.= "\n</div><!--/yellow_tips-->\n";
+		$output	= "\n\t\t<div class=\"tip-message\">\n";
+		$output	.= "\t\t\t<img src=\"themes/admin/images/icon/question.png\" class=\"img-tips\" />\n";
+		$output	.= "\t\t\t<div class=\"pad\">\n".$text."</div><!--/pad-->\n";
+		$output	.= "\n\t\t</div><!--/yellow_tips-->\n";
 
 		return $output;
 	}
@@ -32,10 +32,10 @@ class Api
 	 */
 	public static function fatalMessage( $text )
 	{
-		$output	= "\n<div class=\"fatal-message\">\n";
-		$output	.= "<img src=\"/share/icons/default/actions/alarm.png\" class=\"img-tips\" width=\"54\" height=\"54\"/>\n";
-		$output	.= "<div class=\"pad\">\n" . $text ." </div>\n";
-		$output	.= "\n</div>\n";
+		$output	= "\n\t\t<div class=\"fatal-message\">\n";
+		$output	.= "\t\t\t<img src=\"/share/icons/default/actions/alarm.png\" class=\"img-tips\" width=\"54\" height=\"54\"/>\n";
+		$output	.= "\t\t\t<div class=\"pad\">\n" . $text ." </div>\n";
+		$output	.= "\n\t\t</div>\n";
 
 		return $output;
 	}
@@ -188,5 +188,18 @@ class Api
   public static function cacheId( $ids )
   {
   	return str_replace( ',', '_', $ids );
+  }
+
+  /**
+   * Prida k bufferovanemu vystupu hlavicku a vyhodi ho jako parametr
+   *
+   * @param string
+   * @return string
+   */
+  public static function flushPage( $output )
+  {
+  	$HTML = HTML::getSingleton();
+	$HTML->addOutput($output);
+  	return $HTML->getPage();
   }
 }

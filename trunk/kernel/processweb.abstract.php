@@ -136,6 +136,7 @@ abstract class ProcessWeb extends Request
 		parent::__construct( $session );
 		$this->config = BobrConf::getSingleton();
 
+		$this->setWebInstance();
 		$this->setRoot();
 
 		$this->requestVariable = $this->setVariable();
@@ -195,12 +196,13 @@ abstract class ProcessWeb extends Request
 	protected function isDynamicUri( $uri )
 	{
 		// pomoci heashoveho klice vyhledavame v poli
-		$hashKey = md5( $uri );
-		if ( array_key_exists( $hashKey, $this->getDynamicUriList() ) ){
-			$module = explode('/', $uri );
-			$this->command =	$module[0] . '/' . $this->dynamicUriList[ $hashKey ]['func'];
-			$this->pageId	=	$this->config['WEB_PAGEID_DEFAULT'];
-			$this->lang		=	$this->setDefaultLang();
+		$command = explode( '/', $uri );
+		$this->setDynamicUriList();
+		if ( isset( $this->dynamicUriList[$command[0]] ) ){
+			$this->command =	$command;
+			$upperWebInstance = strtoupper($this->webInstance);
+			$this->pageId	=	$this->dynamicUriList[$command[0]]['page_id'];
+			$this->lang		=	$this->langList[$this->dynamicUriList[$command[0]]['lang_id']]['symbol'];
 			$this->getPage( $this->pageId );
 			return TRUE;
 		}else {
@@ -217,11 +219,10 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function defaultPage(){
 		try{
-
 			$this->command	= 'default';
-			//$this->lang     = $this->langList[ $this->config['WEB_LANG'] ];
 			$this->lang		= $this->setDefaultLang();
-			$this->getPage( $this->config['WEB_PAGEID_DEFAULT'] );
+			$upperWebInstance = strtoupper($this->webInstance);
+			$this->getPage( $this->config[$upperWebInstance . '_PAGEID_DEFAULT'] );
 			/**
 			 * Pokud pri nastavovani defaultni stranky nadojde k zadnemu konfliktu
 			 * vratime true.
@@ -375,7 +376,8 @@ abstract class ProcessWeb extends Request
 		){
 			return $this->lang = $this->LANG;
 		}else{
-			return $this->lang = $this->config['WEB_LANG'];
+			$upperWebInstance = strtoupper($this->webInstance);
+			return $this->lang = $this->config[$upperWebInstance . '_LANG'];
 		}
 	}
 
@@ -463,7 +465,8 @@ abstract class ProcessWeb extends Request
 
 	protected function setRoot()
 	{
-		$this->root = $this->config['WEB_ROOT'];
+		$upperWebInstance = strtoupper($this->webInstance);
+		$this->root = $this->config[$upperWebInstance . '_ROOT'];
 	}
 	/**
 	 * Vrati seznam dynamickych URI
@@ -476,22 +479,21 @@ abstract class ProcessWeb extends Request
 		if( FALSE === empty( $this->dynamicUriList ) ){
 			return $this->dynamicUriList;
 		}else {
-			$webInstanceList = WebInstance::getSingleton()->getWebInstanceList();
-			if( isset($webInstanceList[ $this->getWebInstance() ] ) ){
-				return $this->setDynamicUriList( $webInstanceList[ $this->webInstance ]['id'] );
-			}else{
-				throw new LogicException('Modul neni urcen pro tuto webinstanci.' . Ladenka::var_dumper($webInstanceList));
-			}
-
+			return $this->setDynamicUriList();
 		}
 	}
 	/**
 	 * vygeneruje pole dynamickych uri
 	 * @return
 	 */
-	protected function setDynamicUriList( $webInstanceId )
+	protected function setDynamicUriList()
 	{
-		return $this->dynamicUriList = Module::getSingleton()->setDynamicModuleList( $webInstanceId );
+		$webInstanceList = WebInstance::getSingleton()->getWebInstanceList();
+		if( isset($webInstanceList[ $this->getWebInstance() ] ) ){
+			return $this->dynamicUriList = Module::getSingleton()->setDynamicModuleList( $webInstanceList[ $this->webInstance ]['id'] );
+		}else{
+			throw new LogicException('Modul neni urcen pro tuto webinstanci.' . Ladenka::var_dumper($webInstanceList));
+		}
 	}
 
 	protected function getModuleList()
@@ -517,6 +519,17 @@ abstract class ProcessWeb extends Request
 	protected function failedUriMessage()
 	{
 		Message::addError( 'Byla zadana chybna url' );
+	}
+
+	/**
+	 * Nastavi web instanci
+	 *
+	 * @param void
+	 * @return string
+	 */
+	private function setWebInstance()
+	{
+		return $this->getWebInstance();
 	}
 
 	/**

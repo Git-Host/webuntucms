@@ -1,7 +1,7 @@
 <?php
 /**
  * Abstraktni trida pro Moduly
- * 
+ *
  * Vzdy po zdedeni teto tridy je potreba volat rodicovsky
  * konstruktor, ktery naplni objekt zakladnimi daty.
  */
@@ -16,12 +16,12 @@ abstract class AbstractModule extends Object implements IModule
 
 				// WebInstance
 	protected	$webInstance = 'web';
-			
+
 	/**
 	 * Toto se provadi vzdy a proto by to
 	 * melo byt uniformni.
 	 * Provedeni v modulu se zaridi volanim rodicovskeho konstruktoru
-	 * 
+	 *
 	 * @param $block array - Konkretni block, ktery mame vykonat
 	 * @return void
 	 */
@@ -29,9 +29,9 @@ abstract class AbstractModule extends Object implements IModule
 	{
 		$this->block = $block;
 		$this->command = $this->block['command'];
-		
+
 		$this->description = Description::getDescription( $this->block['description_id'] );
-		
+
 		$this->init();
 	}
 
@@ -42,12 +42,12 @@ abstract class AbstractModule extends Object implements IModule
 	 * @return void
 	 */
 	protected function init()
-	{	
+	{
 	}
-	
+
 	/**
 	 * Loadne a vypise sablonu pro block
-	 * 
+	 *
 	 * @param void
 	 * @return void
 	 */
