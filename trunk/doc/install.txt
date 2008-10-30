@@ -1,15 +1,15 @@
 1)
 V rootu je potreba si udelat adresare:
-local/cache
-local/cache/admin
-local/cache/admin/data
-local/cache/admin/data/kernel
+/local/cache
+/local/cache/admin
+/local/cache/admin/data
+/local/cache/admin/data/kernel
 
-local/cache/index
-local/cache/index/data
-local/cache/index/data/kernel
+/local/cache/index
+/local/cache/index/data
+/local/cache/index/data/kernel
 
-local/err
+/local/err
 /local/tmp/
 /local/tmp/uploads
 /local/tmp/sessions
@@ -17,8 +17,10 @@ local/err
 
 To plati pro kazdou web instanci.
 
-2) Naiportovat si z /doc/database 
+2) Naiportovat si z /doc/database
 strukturu a data databaze
+POZOR v soucasne dobe neni struktura a data shodna a tak to nefunguje!!!
+Nahraj si backup
 
-3) nastavit si pripojeni k databazi stejne jako v 
-/kernel/config/config.php
+3) Nastavit realne hodnoty do lokalniho konfigu z /doc/localconfig.sample.php
+a vlozit ho do /kernel/cofig/localconfig.php
