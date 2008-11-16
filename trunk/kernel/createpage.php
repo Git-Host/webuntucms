@@ -21,8 +21,8 @@ final class CreatePage extends Object
 
 	private function init()
 	{
-		$this->block = Block::getSingleton();
-		$this->moduleDelegator = ModuleDelegator::getSingleton( $this->process->webInstance, $this->process->command );
+		$this->block = Block::getInstance();
+		$this->moduleDelegator = ModuleDelegator::getInstance( $this->process->webInstance, $this->process->command );
 
 		// @todo lepe kontolovat cestu
 		$fileName = __DIR__ . '/' . $this->process->pageTemplate;
@@ -49,7 +49,7 @@ final class CreatePage extends Object
 
 	private function setPageHead()
 	{
-		$HTML = HTML::getSingleton();
+		$HTML = HTML::getInstance();
 		$HTML->setWebInstance($this->process->webInstance);
 		$HTML->addCSS(BobrConf::SHARE_URL . $this->process->pageCss);
 	}

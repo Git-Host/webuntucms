@@ -198,7 +198,7 @@ class Api
    */
   public static function flushPage( $output )
   {
-  	$HTML = HTML::getSingleton();
+  	$HTML = HTML::getInstance();
 	$HTML->addOutput($output);
   	return $HTML->getPage();
   }

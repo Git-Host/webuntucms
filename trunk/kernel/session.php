@@ -22,7 +22,7 @@ final class Session extends Object
 	// Do teto promene se ukladaji data z globalu / prehodit na private
 	private		$SESSION	=	array();
 
-	public static function getSingleton() {
+	public static function getInstance() {
 		if(FALSE == self::$instance) {
 			return self::$instance = new self::$classname;
 		} else {
@@ -41,7 +41,7 @@ final class Session extends Object
 
 			$this->logoutSession();
 			// @todo resit inteligentneji
-			$config = BobrConf::getSingleton();
+			$config = BobrConf::getInstance();
 			Request::redirect( $config['WEB_ROOT'] );
 
 		}
@@ -126,7 +126,7 @@ final class Session extends Object
 	 */
 	public function tryLogin($nick,$pass)
 	{
-		return $this->loginSession(User::getSingleton($nick,$pass,$this));
+		return $this->loginSession(User::getInstance($nick,$pass,$this));
 	}
 
 	/**

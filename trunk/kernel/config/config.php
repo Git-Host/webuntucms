@@ -74,7 +74,7 @@ class BobrConf extends Settings
 
 	);
 
-	public static function getSingleton() {
+	public static function getInstance() {
 		if( self::$instance === FALSE ) {
 			self::$instance = new BobrConf();
 		}

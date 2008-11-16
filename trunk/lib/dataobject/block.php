@@ -5,16 +5,16 @@ class Block extends Object
 			// Objekt Cache
 		 	$cache,
 		 	$blockList;
-	
+
 	private static $instance = FALSE;
-	 
-	public static function getSingleton() {
+
+	public static function getInstance() {
 		if(self::$instance === FALSE) {
 			self::$instance = new Block();
 		}
 		return self::$instance;
 	}
-	
+
 	private function __construct()
 	{
 		$this->cache = new Cache('data/kernel/');
@@ -34,10 +34,10 @@ class Block extends Object
 			$this->initDescription( $result );
 			$this->blockList = $result;
 		}
-		
+
 		return $this->blockList;
 	}
-	
+
 	private function validBlockId( $blocksId )
 	{
 		if( strlen( $blocksId ) > 0 ){
@@ -46,12 +46,12 @@ class Block extends Object
 			throw new BlockException("Pozadovana stranka nema blocky." .  $blocksId)  ;
 		}
 	}
-	
+
 	/**
 	 * Vezme si z pole ktere generuje metoda
-	 * loadBlockByIds vsechny description_id a zavola si 
+	 * loadBlockByIds vsechny description_id a zavola si
 	 * module Description, ktery se postara o zbytek.
-	 * 
+	 *
 	 * @param $block array - pole blocku
 	 * @return void
 	 */
@@ -68,7 +68,7 @@ class Block extends Object
 			Description::setDescriptionList( $descriptionsId );
 		}
 	}
-	
+
 	public function getBlockList()
 	{
 		return $this->blockList;

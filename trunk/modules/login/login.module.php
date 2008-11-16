@@ -1,28 +1,28 @@
 <?php
-class Login_Module 
+class Login_Module
 {
 	public static $className = __CLASS__;
 	public static $instance = FALSE;
 	public static $value;
 	public $blockList;
 	public $output;
-	
-	
+
+
 	public function __construct( $command = NULL ) {
 		$method = $command[1].'Web';
 		return $this->$method();
 	}
-		
+
 	public function showWeb() {
-		
+
 		$output = '';
-		
+
 		//otestovani defaultnich hodnot anonymouse
-		if( 	FALSE		===	$_SESSION['user']['logged'] 
+		if( 	FALSE		===	$_SESSION['user']['logged']
 			&&	"anonymous" === $_SESSION['user']['nick']
-			&&	0			=== $_SESSION['user']['privilege']  ) 
+			&&	0			=== $_SESSION['user']['privilege']  )
 		{
-			$form = 
+			$form =
 					'<div id="login">
 						<form action="" method="post" name="loginForm">
 							<label>Login</label><input type="text" id="login" name="login" value="user" />
@@ -32,15 +32,15 @@ class Login_Module
 					</div>
 					<a href="/">Odkaz na root webu</a>
 					';
-			
+
 			$this->output .= $form;
-		} 
+		}
 		// otestovani zalogovaneho uzivatele
-		elseif( FALSE			!=	$_SESSION['user']['logged'] 
+		elseif( FALSE			!=	$_SESSION['user']['logged']
 				&&	"anonymous" != 	$_SESSION['user']['nick']
-				&&	0			< 	count($_SESSION['user']['groups'])  ) 
+				&&	0			< 	count($_SESSION['user']['groups'])  )
 		{
-				$form = 
+				$form =
 						'<div id="logout">
 							<form action="/" method="post" name="logoutForm">
 								<input type="hidden" name="logout" />
@@ -49,26 +49,26 @@ class Login_Module
 						</div>
 						<a href="/">Odkaz na root webu</a> | <a href="/bobradmin">Administrace</a>
 						';
-				
-				
-				$this->output .= $form;		
+
+
+				$this->output .= $form;
 		}
-		
+
 		return $output;
-		
+
 	}
-	
+
 	public static function showAdmin() {
-		
-		$HTML = HTML::getSingleton();
-		
+
+		$HTML = HTML::getInstance();
+
 		//otestovani defaultnich hodnot anonymouse
-		if( 	FALSE		===	$_SESSION['user']['logged'] 
+		if( 	FALSE		===	$_SESSION['user']['logged']
 			&&	"anonymous" === $_SESSION['user']['nick']
-			&&	0			=== $_SESSION['user']['privilege']  ) 
+			&&	0			=== $_SESSION['user']['privilege']  )
 		{
-		
-			$form = 
+
+			$form =
 					'<div id="login">
 						<form action="" method="post" name="loginForm">
 							<label>Login</label><input type="text" id="login" name="login" value="user" />
@@ -78,15 +78,15 @@ class Login_Module
 					</div>
 					<a href="/">Odkaz na root webu</a>
 					';
-			
+
 			$HTML->addOutput( $form );
-		} 
+		}
 		// otestovani zalogovaneho uzivatele
-		elseif( FALSE			!=	$_SESSION['user']['logged'] 
+		elseif( FALSE			!=	$_SESSION['user']['logged']
 				&&	"anonymous" != 	$_SESSION['user']['nick']
-				&&	0			< 	count($_SESSION['user']['groups'])  ) 
+				&&	0			< 	count($_SESSION['user']['groups'])  )
 		{
-				$form = 
+				$form =
 						'<div id="logout">
 							<form action="/" method="post" name="logoutForm">
 								<input type="hidden" name="logout" />
@@ -95,22 +95,22 @@ class Login_Module
 						</div>
 						<a href="/">Odkaz na root webu</a> | <a href="/bobradmin">Administrace</a>
 						';
-				
-				$HTML->addOutput( $form );		
+
+				$HTML->addOutput( $form );
 		}
-		
+
 	}
-	
+
 	public static function setValue( $value )
 	{
 		self::$value = $value;
 	}
-	
+
 	public function setBlockList( $blockList )
 	{
 		$this->blockList = $blockList;
 	}
-	
+
 	public function getHtmlOutput()
 	{
 		$output = $this->output;

@@ -56,7 +56,7 @@ class NetteLoader extends AutoLoader
 		'moduledelegator'	=> '/kernel/moduledelegator.php',
 		'imodule'	=>	'/lib/imodule.php',
 		'abstractmodule'	=>	'/lib/abstractmodule.abstract.php',
-		'administration'	=>	'/lib/administration.php',
+		'administration'	=>	'/lib/dataobject/administration.php',
 		'database'	=>	'/lib/database.php',
 		'cache'		=>	'/lib/cache.php',
 		'object'	=>	'/lib/Nette/Object.php',

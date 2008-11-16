@@ -39,7 +39,7 @@ class HTML extends Object
 	 * Vrati singleton instanci
 	 * @return Object
 	 */
-	public static function getSingleton() {
+	public static function getInstance() {
 		if( self::$instance === FALSE ) {
 			self::$instance = new HTML();
 		}
@@ -64,12 +64,13 @@ class HTML extends Object
 	/**
 	 * Prida do "globalu" string
 	 *  take prida na konec stringu znacku konce radku
-	 * @return
 	 * @param $string Object
+	 * @return mixed $this
 	 */
 	public function addOutput( $string )
 	{
 		$this->outputHTML .= $string . "\r\n";
+		return $this;
 	}
 
 	/**
@@ -81,6 +82,7 @@ class HTML extends Object
 	public function addWebTitle ( $title )
 	{
 		$this->webTitle[] = $title;
+		return $this;
 	}
 
 	/**
@@ -92,6 +94,7 @@ class HTML extends Object
 	public function addCSS ( $source )
 	{
 		$this->CSS[] = $source;
+		return $this;
 	}
 
 	/**
@@ -104,6 +107,7 @@ class HTML extends Object
 	public function addFeed ( $source, $description )
 	{
 		$this->feed[] = array( 'source' => $source, 'description' => $description );
+		return $this;
 	}
 
 	/**
@@ -115,36 +119,43 @@ class HTML extends Object
 	public function addScript( $script )
 	{
 		$this->script .= $script;
+		return $this;
 	}
 
 	public function setMetaKeywords( $keywords )
 	{
 		$this->metaKeywords = $kewords;
+		return $this;
 	}
 
 	public function setMetaDescription( $description )
 	{
 		$this->metaDescription = $description;
+		return $this;
 	}
 
 	public function setWebAuthor ( $author )
 	{
 		$this->webAuthor = $author;
+		return $this;
 	}
 
 	public function setWebmaster( $webmaster )
 	{
 		$this->webmaster = $webmaster;
+		return $this;
 	}
 
 	public function setCopyright( $copyright )
 	{
 		$this->copyright = $copyright;
+		return $this;
 	}
 
 	public function setFavicon( $favicon )
 	{
 		$this->favicon = $favicon;
+		return $this;
 	}
 
 	/**
@@ -157,6 +168,7 @@ class HTML extends Object
 	public function setWebInstance( $webInstance )
 	{
 		$this->upperWebInstance = strtoupper( $webInstance );
+		return $this;
 	}
 
 
@@ -180,7 +192,7 @@ class HTML extends Object
 		 * vytvorime si instanci configu a ulozime ji do objektu protoze
 		 * vetsina get metod config pouzije tak at ho nemusej instancovat zvlast
 		 */
-		$this->config = BobrConf::getSingleton();
+		$this->config = BobrConf::getInstance();
 		$output = "<?xml version=\"1.0\" encoding=\"" . BobrConf::WEB_ENCODING . "\"?>\n";
 		$output .= "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html>
@@ -211,7 +223,7 @@ class HTML extends Object
 	 */
 	public function getWebTitle ()
 	{
-		$config = BobrConf::getSingleton();
+		$config = BobrConf::getInstance();
 		if ( empty( $this->webTitle ) ){
 			$webTitle = $config[$this->upperWebInstance. '_TITLE'];
 		}else {

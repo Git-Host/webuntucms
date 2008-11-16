@@ -134,7 +134,7 @@ abstract class ProcessWeb extends Request
 	{
 		// Do rodicovskeho konstruktoru predavame session kvuli overeni
 		parent::__construct( $session );
-		$this->config = BobrConf::getSingleton();
+		$this->config = BobrConf::getInstance();
 
 		$this->setWebInstance();
 		$this->setRoot();
@@ -336,7 +336,7 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function setLangList()
 	{
-		return $this->langList = Lang::getSingleton()->langList;
+		return $this->langList = Lang::getInstance()->langList;
 	}
 	/**
 	 * Nastavi jazyk
@@ -370,7 +370,7 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function setDefaultLang()
 	{
-		$this->symbolLangList = Lang::getSingleton()->symbolLangList;
+		$this->symbolLangList = Lang::getInstance()->symbolLangList;
 		if ( ( TRUE === $this->config['BROWSER_PREFERED_LANG'] )
 		&& ( TRUE === array_key_exists( $this->LANG, $this->symbolLangList ) )
 		){
@@ -440,7 +440,7 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function setSymbolLangList()
 	{
-		return $this->symbolLangList = Lang::getSingleton()->symbolLangList;
+		return $this->symbolLangList = Lang::getInstance()->symbolLangList;
 	}
 	/**
 	 * provadi kontrolu zda-li na poslednim miste v uri je lomitko, paklize ano tak ho orizne a presmeruje
@@ -488,9 +488,9 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function setDynamicUriList()
 	{
-		$webInstanceList = WebInstance::getSingleton()->getWebInstanceList();
+		$webInstanceList = WebInstance::getInstance()->getWebInstanceList();
 		if( isset($webInstanceList[ $this->getWebInstance() ] ) ){
-			return $this->dynamicUriList = Module::getSingleton()->setDynamicModuleList( $webInstanceList[ $this->webInstance ]['id'] );
+			return $this->dynamicUriList = Module::getInstance()->setDynamicModuleList( $webInstanceList[ $this->webInstance ]['id'] );
 		}else{
 			throw new LogicException('Modul neni urcen pro tuto webinstanci.' . Ladenka::var_dumper($webInstanceList));
 		}
@@ -498,7 +498,7 @@ abstract class ProcessWeb extends Request
 
 	protected function getModuleList()
 	{
-		$this->moduleList = Module::getSingleton()->getGroupFunctionsList();
+		$this->moduleList = Module::getInstance()->getGroupFunctionsList();
 	}
 
 	/**
@@ -508,7 +508,7 @@ abstract class ProcessWeb extends Request
 	 */
 	protected function setPageIdList()
 	{
-		return $this->pageIdList = PageId::getSingleton()->pageIdList;
+		return $this->pageIdList = PageId::getInstance()->pageIdList;
 	}
 
 	/**

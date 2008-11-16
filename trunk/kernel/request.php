@@ -1,13 +1,13 @@
 <?php
 /**
- * Request slouzi jako 
+ * Request slouzi jako
  * kolekce metod pro ovladani requestu
- *  
+ *
  */
 class Request extends Object
 {
 	// Do techto promenych se ukladaji data z globalu
-	protected	
+	protected
 				$GET,
 				$POST,
 				/**
@@ -46,7 +46,7 @@ class Request extends Object
 				 * REDIRECT_URL
 				 */
 				$REDIRECT_URL;
-					
+
 	protected function __construct( $session )
 	{
 		$this->setRequest();
@@ -54,9 +54,9 @@ class Request extends Object
 		 * Zjistujem jestli v postu je login a pass.
 		 * Konsnstruktor teto tridy se dedi dal.
 		 */
-		$config = BobrConf::getSingleton();
+		$config = BobrConf::getInstance();
 		if( isset( $this->POST['login'] ) ){
-			( TRUE === $session->tryLogin( $this->POST['login'], $this->POST['pass']) ) 
+			( TRUE === $session->tryLogin( $this->POST['login'], $this->POST['pass']) )
 			? $this->redirect( $config['ADMIN_ROOT'])
 			: NULL;
 		}
@@ -66,10 +66,10 @@ class Request extends Object
 			: NULL;
 		}
 	}
-	
+
 	/**
 	 * Nastavi request do promenych a odnastavi globalni promene GET a POST
-	 * @return 
+	 * @return
 	 */
 	private function setRequest()
 	{
@@ -78,7 +78,7 @@ class Request extends Object
 		// odnastavime globalni pole at s nim nemuze nikdo manipulovat
 		unset( $_GET );
 		unset( $_POST );
-		
+
 		// Ziskame hlavicky serveru
 		if (function_exists('apache_request_headers')) {
 			$this->HEADERS = array_change_key_case(apache_request_headers(), CASE_LOWER);
@@ -92,26 +92,26 @@ class Request extends Object
 		$this->IP			=	$_SERVER['REMOTE_ADDR'];
 		isset($_SERVER['HTTP_REFERER']) ? $this->REFERER = $_SERVER['HTTP_REFERER'] : $this->REFERER = NULL;
 		$this->PORT			=	$_SERVER['SERVER_PORT'];
-		$this->PROTOCOL		=	$_SERVER['SERVER_PROTOCOL'];	
+		$this->PROTOCOL		=	$_SERVER['SERVER_PROTOCOL'];
 		$this->DOCUMENTROOT	=	$_SERVER['DOCUMENT_ROOT'];
-		
+
 		$lang = explode( ';' , $this->HEADERS['accept-language'] );
 		$lang = explode( ',', $lang[0] );
 		$this->LANG			=	$lang[0];
 		$this->REDIRECT_URL	=	isset( $_SERVER['REDIRECT_URL'] ) ? $_SERVER['REDIRECT_URL'] : NULL;
-		
+
 		/*
-		 * Pri odesilani Ajaxovejch requestu pouzivame specialni hlavicku diky 
+		 * Pri odesilani Ajaxovejch requestu pouzivame specialni hlavicku diky
 		 * zde muzem identifikovat Ajaxovej poazadavek.
 		 */
 		if ( array_search('XMLHttpRequest', $this->HEADERS) ){
 			 $this->ISAJAX = TRUE;
 		}
 	}
-	
+
 	/**
 	 * Provede redirect pokud jiz nebyla odeslana hlavicka
-	 * @return 
+	 * @return
 	 * @param $location string
 	 * @param $response integer cislo hlavicky ( 302 je redirect )
 	 */
@@ -125,7 +125,7 @@ class Request extends Object
 			throw new HeaderException ( 'Nelze presmerovat protoze jiz byla odeslana hlavicka!!! Smůla co???' );
 		}
 	}
-	
+
 	public function getGET()
 	{
 		return $this->GET;

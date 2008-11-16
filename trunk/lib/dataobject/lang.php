@@ -1,6 +1,6 @@
 <?php
 
-class Lang extends Object 
+class Lang extends Object
 {
 			// pole jazyku klicem je id jazyka
 	private $langList,
@@ -10,21 +10,21 @@ class Lang extends Object
 			$cache;
 	const CACHEID_LANG_LIST = 'lang_lang_list';
 	const CACHEID_SYMBOL_LANG_LIST = 'lang_symbol_lang_list';
-				
+
 	private static $instance = FALSE;
-	 
-	public static function getSingleton() {
+
+	public static function getInstance() {
 		if(self::$instance === FALSE) {
 			self::$instance = new Lang();
 		}
 		return self::$instance;
 	}
-	
+
 	private function __construct()
 	{
 		$this->cache = new Cache('data/kernel/');
 	}
-	
+
 	public function getLangList()
 	{
 		if( $this->langList ){
@@ -33,7 +33,7 @@ class Lang extends Object
 			return $this->setLangList();
 		}
 	}
-	
+
 	/**
 	 * Nacte dosupne pole jazyku.
 	 */
@@ -44,7 +44,7 @@ class Lang extends Object
 		$this->langList = $this->cache->loadData( self::CACHEID_LANG_LIST, $sql, 'id');
 		return $this->langList;
 	}
-	
+
 	public function getSymbolLangList()
 	{
 		if( NULL === $this->symbolLangList ){
@@ -53,7 +53,7 @@ class Lang extends Object
 			return $this->symbolLangList;
 		}
 	}
-	
+
 	private function setSymbolLangList()
 	{
 		$sql =  "SELECT id, symbol, country as name FROM " . BobrConf::DB_PREFIX ."lang";

@@ -5,24 +5,24 @@
 class Administration extends Object
 {
 	private $administrationCategoryList;
-	
+
 	private $cache;
 	private static $instance = FALSE;
-	
+
 	const CACHEID_ADMINSTRATION_CATEGORY_LIST = 'administration_administration_category_list';
-	 
-	public static function getSingleton() {
+
+	public static function getInstance() {
 		if(self::$instance === FALSE) {
 			self::$instance = new Administration();
 		}
 		return self::$instance;
 	}
-	
+
 	private function __construct()
 	{
 		$this->cache = new Cache('data/kernel/');
 	}
-	
+
 	public function getAdministrationCategoryList()
 	{
 		if( NULL === $this->administrationCategoryList ){
@@ -31,7 +31,7 @@ class Administration extends Object
 			return $this->administrationCategoryList;
 		}
 	}
-	
+
 	private function setAdministrationCategoryList()
 	{
 		$sql = "SELECT id, description_id, pageid_id, url, weight FROM " . BobrConf::DB_PREFIX . "administrationcategory";

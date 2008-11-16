@@ -3,7 +3,7 @@
 	require_once __DIR__ . '/lib/Nette/loader.php';
 	try{
 		// Nastavime kodovani serveru pro iconv
-		$config = BobrConf::getSingleton();
+		$config = BobrConf::getInstance();
 
 		if( TRUE === BobrConf::DEBUG_MODE ){
 			Debug::enable( E_ALL | E_STRICT | E_NOTICE , FALSE );
@@ -17,8 +17,8 @@
 			Debug::dump( $e );
 		}
 		// Nejake ty susenky a validace
-		$session = Session::getSingleton();
-		$validator = Validator::getSingleton();
+		$session = Session::getInstance();
+		$validator = Validator::getInstance();
 		// A zacneme se hejbat... podivame se na zoubek url
 		$processMethod = Api::getProcessMethod();
 		if( FALSE === $validator->processAccess( $processMethod ) ){

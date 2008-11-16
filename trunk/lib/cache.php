@@ -1,21 +1,21 @@
 <?php
 /**
  * Cache
- * 
+ *
  * Pri ukladani do Cache se vzdy vytvari instance
- * teto tridy a do konstruktoru se prida $storage ( string ). 
+ * teto tridy a do konstruktoru se prida $storage ( string ).
  * $storage je konkretni slozka dane instance.
  * Objekt si sam zjisti jaka je instance a nastavi "cache root" do konkretni instance.
  * $storage je napriklad 'data' nebo 'template'.
- * 
+ *
  * Pr.:
  * $cache =  new Cache('data');
  * Ulozeni serializovanych dat do cache:
  * $cache->save( 'f7fayfya0f07f87f6a987fa98d7fa8f6a', $data, TRUE );
- * 
+ *
  * Nacteni serializovanych dat:
  * $cache->load( 'f7fayfya0f07f87f6a987fa98d7fa8f6a', TRUE );
- * 
+ *
  * Znevalidneni cache:
  * $cache->invalid( 'f7fayfya0f07f87f6a987fa98d7fa8f6a' );
  *
@@ -24,7 +24,7 @@
  */
 class Cache extends  Object
 {
-			// cesta ke slozce cache	
+			// cesta ke slozce cache
 	private $storage,
 			// koncovka souboru
 			$fileType = 'php',
@@ -32,21 +32,21 @@ class Cache extends  Object
 			$logCache,
 			// pokud se ma logovat prace s cachi uklada se pole sem
 			$fileCacheList = array();
-	
-	
+
+
 	/**
 	 * Do konstruktoru se pridava konkretni slozka do ktere se v ramci instance bude cachovat.
 	 */
 	public function __construct( $storage )
 	{
 		$this->storage = __DIR__ . BobrConf::CACHE_ROOT . Api::getProcessMethod() . '/' . $storage;
-		$config = BobrConf::getSingleton();
+		$config = BobrConf::getInstance();
 		$this->logCache = $config['LOGGING_CACHE'];
 	}
-	
+
 	/**
 	 * Ulozi data do cache
-	 * 
+	 *
 	 * $fileName string - Nazev souboru
 	 * $data mixed - Data ktere ukladame
 	 * $serialize bool - ukladat serializovane bo ne, default je FALSE
@@ -63,10 +63,10 @@ class Cache extends  Object
 			throw new CacheException( 'Nepodarilo se vytvorit ' . $fileName . ' pro zapsani do cache.');
 		}
 	}
-	
+
 	/**
 	 * Nacte data z cache
-	 * 
+	 *
 	 * $fileName string - nazev souboru
 	 * $unserialize bool - nacist deserializovane
 	 */
@@ -83,10 +83,10 @@ class Cache extends  Object
 			return FALSE;
 		}
 	}
-	
+
 	/**
 	 * Vrati data v asspociatyvnim poli. Pokud nejsou v cachi nacte si je.
-	 * 
+	 *
 	 * $sql string - SQL prikaz, ktery se nacachuje
 	 * $key string - pokud ma byt pole nejak serazene
 	 */
@@ -98,17 +98,17 @@ class Cache extends  Object
 			$result = dibi::query( $sql );
 			$result = $result->fetchAssoc( $key );
 			$this->save( $cacheName, $result, TRUE );
-			
+
 			return $result;
 		}else{
 			return $data;
 		}
 	}
-	
+
 	/**
 	 * Pokud je v cachi $caheName tak ho loadne
 	 * pokud ne loadne ho z databaze, pokud je zadan $key seradi vysledek pole dle nej
-	 * 
+	 *
 	 * @param $cacheName string - jemeno kesovanych dat
 	 * @param $sql string - SQL prikaz, ktery se provede v pripade nepritomnosti dat v cachi
 	 * @param $key string - klice v poli dle kterych se bude radit vysledek
@@ -121,16 +121,16 @@ class Cache extends  Object
 			$result = dibi::query( $sql );
 			$result = $result->fetchAssoc( $key );
 			$this->save( $cacheName, $result, TRUE );
-			
+
 			return $result;
 		}else{
 			return $data;
 		}
 	}
-	
+
 	/**
 	 * Znevalidni cachovi soubor
-	 * 
+	 *
 	 * $fileName string - Nazev souboru
 	 */
 	public function invalid( $fileName )
@@ -138,13 +138,13 @@ class Cache extends  Object
 		$fileName = $this->fileName( $fileName, 'invalid' );
 		return unlink( $fileName );
 	}
-	
+
 	/**
 	 * Vytvori nazev souboru a pripoji ktomu i cestu do storage.
 	 * Pokud je zapnute logovani cache prida do pole vystupni jmeno.
-	 * 
+	 *
 	 * $fileName string - jmeno souboru
-	 * $type bool / string - string slouzi jako klic v poli pro logovani 
+	 * $type bool / string - string slouzi jako klic v poli pro logovani
 	 */
 	private function fileName ( $fileName, $type =  FALSE )
 	{
@@ -154,7 +154,7 @@ class Cache extends  Object
 		}
 		return $fileSource;
 	}
-	
+
 	/**
 	 * @todo dodelat logovaci tridu
 	 */

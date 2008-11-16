@@ -20,7 +20,7 @@ class Module extends Object
 
 	private static $instance = FALSE;
 
-	public static function getSingleton() {
+	public static function getInstance() {
 		if(self::$instance === FALSE) {
 			self::$instance = new Module();
 		}

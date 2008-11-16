@@ -15,7 +15,7 @@ class ModuleDelegator extends Object
 				$groupFunctionsList;
 
 
-	public static function getSingleton( $webInstance, $GETCommand ) {
+	public static function getInstance( $webInstance, $GETCommand ) {
 		if(FALSE == self::$instance) {
 			return self::$instance = new self::$selfName( $webInstance, $GETCommand );
 		} else {
@@ -25,8 +25,8 @@ class ModuleDelegator extends Object
 
 	private function __construct( $webInstance, $GETCommand )
 	{
-		$this->validator = Validator::getSingleton();
-		$this->module = Module::getSingleton();
+		$this->validator = Validator::getInstance();
+		$this->module = Module::getInstance();
 		$this->webInstance = $webInstance;
 		$this->GETCommand = $GETCommand;
 		$this->setGroupFunctionsList();
