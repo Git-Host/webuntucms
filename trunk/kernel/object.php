@@ -21,9 +21,6 @@
 /*namespace Nette;*/
 
 
-require_once dirname(__FILE__) . '/exceptions.php';
-
-
 
 /**
  * Nette::Object is the ultimate ancestor of all instantiable classes.

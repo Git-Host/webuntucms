@@ -169,6 +169,17 @@ final class Session extends Object
 		}
 	}
 
+	/**
+	 * Ulozi data do session
+	 *
+	 * @param viod
+	 * @return void
+	 */
+	public function saveSession()
+	{
+		$_SESSION = $this->SESSION;
+	}
+
 }
 
 ?>

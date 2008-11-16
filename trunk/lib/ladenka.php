@@ -237,7 +237,7 @@ class Ladenka
 	{
 		$trace = $exception->getTrace();
 		// vytvorime si stranku
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		$HTML->addWebTitle( $exception->getMessage() );
 		$HTML->addCss('/share/other/exception.css');

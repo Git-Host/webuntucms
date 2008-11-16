@@ -11,7 +11,7 @@ class Addresser_Module
 
 	public static function showWeb() {
 
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		$show =
 				'<div id="addresser">
@@ -26,7 +26,7 @@ class Addresser_Module
 
 	public static function editWeb() {
 
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		$show =
 				'<div id="addresser">
@@ -42,7 +42,7 @@ class Addresser_Module
 
 	public static function showAdmin() {
 
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		$show =
 				'<div id="addresser">
@@ -57,7 +57,7 @@ class Addresser_Module
 
 	public static function newOneAdmin() {
 
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		$show =
 				'<div id="addresser">
@@ -76,7 +76,7 @@ class Addresser_Module
 
 	public static function newItemAdmin() {
 
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		$show =
 				'<div id="addresser">
@@ -95,7 +95,7 @@ class Addresser_Module
 
 	public static function editAdmin() {
 
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		$show =
 				'<div id="addresser">

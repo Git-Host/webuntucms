@@ -39,9 +39,6 @@ require_once dirname(__FILE__) . '/libs/DibiDataSource.php';
 require_once dirname(__FILE__) . '/libs/DibiFluent.php';
 
 
-
-
-
 /**
  * Interface for database drivers.
  *

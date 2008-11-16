@@ -22,10 +22,6 @@
 
 
 
-require_once dirname(__FILE__) . '/exceptions.php';
-
-
-
 /**
  * Debug static class.
  *
@@ -393,7 +389,7 @@ final class Debug
 	public static function paintBlueScreen(Exception $exception)
 	{
 		$colophons = self::$colophons;
-		require dirname(__FILE__) . '/Debug.templates/bluescreen.phtml';
+		require dirname(__FILE__) . '/debug.templates/bluescreen.phtml';
 	}
 
 
@@ -426,7 +422,7 @@ final class Debug
 		if ($sender === 'bluescreen') {
 			$arr[] = 'PHP ' . PHP_VERSION;
 			if (isset($_SERVER['SERVER_SOFTWARE'])) $arr[] = htmlSpecialChars($_SERVER['SERVER_SOFTWARE']);
-			$arr[] = 'Nette Framework ' . Framework::VERSION . ' (revision ' . Framework::REVISION . ')';
+			$arr[] = 'Nette Framework ';
 			$arr[] = 'Report generated at ' . @strftime('%c', Debug::$time); // intentionally @
 		}
 		return $arr;
@@ -548,7 +544,7 @@ final class Debug
 	public static function paintProfiler()
 	{
 		$colophons = self::$colophons;
-		require dirname(__FILE__) . '/Debug.templates/profiler.phtml';
+		require __DIR__ . '/lib/debug/debug.templates/profiler.phtml';
 	}
 
 }

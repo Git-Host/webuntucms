@@ -60,7 +60,7 @@ class Menu_Module
 
 	public static function showAdmin() {
 
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 
 		//otestovani defaultnich hodnot anonymouse
 		if( 	FALSE		===	$_SESSION['user']['logged']

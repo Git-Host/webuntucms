@@ -49,7 +49,7 @@ final class CreatePage extends Object
 
 	private function setPageHead()
 	{
-		$HTML = HTML::getInstance();
+		$HTML = PageHtml::getInstance();
 		$HTML->setWebInstance($this->process->webInstance);
 		$HTML->addCSS(BobrConf::SHARE_URL . $this->process->pageCss);
 	}

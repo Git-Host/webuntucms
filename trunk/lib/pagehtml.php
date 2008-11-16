@@ -1,9 +1,10 @@
+
 <?php
 /**
  * HTML Singleton
  * Trida slouzi k vypisovani HTML
  */
-class HTML extends Object
+class PageHtml extends Object
 {
 	private static $instance = FALSE;
 
@@ -41,7 +42,7 @@ class HTML extends Object
 	 */
 	public static function getInstance() {
 		if( self::$instance === FALSE ) {
-			self::$instance = new HTML();
+			self::$instance = new PageHtml();
 		}
 		return self::$instance;
 	}

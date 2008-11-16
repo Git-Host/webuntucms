@@ -19,6 +19,7 @@
  */
 
 
+require_once __DIR__ . '/lib/dibi/IDebuggable.php';
 
 /**
  * dibi common exception.
