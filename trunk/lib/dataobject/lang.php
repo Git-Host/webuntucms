@@ -2,18 +2,20 @@
 
 class Lang extends Object
 {
-			// pole jazyku klicem je id jazyka
-	private $langList,
-			// pole jazyku kde klicem je symbol jazyka
-			$symbolLangList,
-			// objekt cache
-			$cache;
+	// pole jazyku - klicem je id jazyka
+	private $langList;
+	// pole jazyku - klicem je symbol jazyka
+	private	$symbolLangList;
+	// objekt cache
+	private $cache;
+
 	const CACHEID_LANG_LIST = 'lang_lang_list';
 	const CACHEID_SYMBOL_LANG_LIST = 'lang_symbol_lang_list';
 
 	private static $instance = FALSE;
 
-	public static function getInstance() {
+	public static function getInstance()
+	{
 		if(self::$instance === FALSE) {
 			self::$instance = new Lang();
 		}
@@ -27,9 +29,9 @@ class Lang extends Object
 
 	public function getLangList()
 	{
-		if( $this->langList ){
+		if($this->langList) {
 			return $this->langList;
-		}else{
+		} else {
 			return $this->setLangList();
 		}
 	}
@@ -39,26 +41,26 @@ class Lang extends Object
 	 */
 	private function setLangList()
 	{
-		$sql =  "SELECT id, symbol, country as name FROM " . BobrConf::DB_PREFIX ."lang";
-		//$this->langList = $this->cache->sqlData( $sql, 'id');
-		$this->langList = $this->cache->loadData( self::CACHEID_LANG_LIST, $sql, 'id');
+		$sql = "SELECT id, symbol, country as name FROM ".BobrConf::DB_PREFIX."lang";
+		//$this->langList = $this->cache->sqlData($sql, 'id');
+		$this->langList = $this->cache->loadData(self::CACHEID_LANG_LIST, $sql, 'id');
 		return $this->langList;
 	}
 
 	public function getSymbolLangList()
 	{
-		if( NULL === $this->symbolLangList ){
+		if(NULL === $this->symbolLangList) {
 			return $this->setSymbolLangList();
-		}else {
+		} else {
 			return $this->symbolLangList;
 		}
 	}
 
 	private function setSymbolLangList()
 	{
-		$sql =  "SELECT id, symbol, country as name FROM " . BobrConf::DB_PREFIX ."lang";
-		//$this->langList = $this->cache->sqlData( $sql, 'id');
-		$this->langList = $this->cache->loadData( self::CACHEID_SYMBOL_LANG_LIST, $sql, 'symbol');
+		$sql = "SELECT id, symbol, country as name FROM ".BobrConf::DB_PREFIX."lang";
+		//$this->langList = $this->cache->sqlData($sql, 'id');
+		$this->langList = $this->cache->loadData(self::CACHEID_SYMBOL_LANG_LIST, $sql, 'symbol');
 		return $this->langList;
 	}
 }

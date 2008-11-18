@@ -25,18 +25,24 @@ class Administration extends Object
 
 	public function getAdministrationCategoryList()
 	{
-		if( NULL === $this->administrationCategoryList ){
+		if(NULL === $this->administrationCategoryList) {
 			return $this->setAdministrationCategoryList();
-		}else{
+		} else {
 			return $this->administrationCategoryList;
 		}
 	}
 
 	private function setAdministrationCategoryList()
 	{
-		$sql = "SELECT id, description_id, pageid_id, url, weight FROM " . BobrConf::DB_PREFIX . "administrationcategory";
-		//$this->administrationCategoryList = $this->cache->sqlData( $sql, 'url');
-		$this->administrationCategoryList = $this->cache->loadData( self::CACHEID_ADMINSTRATION_CATEGORY_LIST, $sql, 'url' );
+		$sql =
+			"SELECT id, description_id, pageid_id, url, weight
+			FROM ".BobrConf::DB_PREFIX."administrationcategory";
+		//$this->administrationCategoryList = $this->cache->sqlData($sql, 'url');
+		$this->administrationCategoryList = $this->cache->loadData(
+			self::CACHEID_ADMINSTRATION_CATEGORY_LIST,
+			$sql,
+			'url'
+		);
 		return $this->administrationCategoryList;
 	}
 }
