@@ -31,4 +31,5 @@ class GroupsList extends Object
 	{
 		return $this->items;
 	}
+
 }

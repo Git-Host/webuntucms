@@ -13,4 +13,8 @@ class FunctionsList extends Object
 
 		return $this;
 	}
+	public function getItems()
+	{
+		return $this->items;
+	}
 }

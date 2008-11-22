@@ -4,7 +4,7 @@ class Group extends Object
 {
 	private $id = 0;
 	private $pid = 0;
-	private $title = '';
+	private $name = '';
 	private $description = '';
 
 	private $webInstanceList = array();
@@ -16,7 +16,7 @@ class Group extends Object
 	{
 		$this->id	=	$record['id'];
 		$this->pid	=	$record['pid'];
-		$this->title=	$record['title'];
+		$this->name =	$record['title'];
 		$this->description	=	$record['description'];
 	}
 
@@ -37,6 +37,22 @@ class Group extends Object
 
 		$this->webInstanceList = new WebInstanceList;
 		$this->webInstanceList->loadByGroupId($this->id);
+		return $this->webInstanceList;
+	}
+
+	public function getWebInstance()
+	{
+		return $this->getWebInstanceList()->items;
+	}
+
+	public function getModulesId()
+	{
+		return array_keys($this->getModulesList()->items);
+	}
+
+	public function getModules()
+	{
+		return $this->getModulesList()->items;
 	}
 
 	public function getModulesList()
@@ -56,5 +72,6 @@ class Group extends Object
 
 		$this->modulesList = new ModuleList;
 		$this->modulesList->loadByGroupId($this->id);
+		return $this->modulesList;
 	}
 }

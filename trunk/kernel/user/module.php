@@ -28,4 +28,14 @@ class Module extends Object
 
 		return $this;
 	}
+
+	public function getFunctionIds()
+	{
+		return array_keys($this->functionsList->items);
+	}
+
+	public function getFunctions()
+	{
+		return $this->functionsList->items;
+	}
 }

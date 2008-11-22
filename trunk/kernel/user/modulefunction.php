@@ -4,7 +4,7 @@ class ModuleFunction extends Object
 {
 	private $id = 0;
 	private $moduleId	= 0;
-	private	$func	= 0;
+	private	$command	= 0;
 	private $descriptionId	= 0;
 	private	$author	= '';
 	private $funcVersion	= '';
@@ -15,7 +15,7 @@ class ModuleFunction extends Object
 	{
 		$this->id				=	$record['id'];
 		$this->moduleId			=	$record['module_id'];
-		$this->func				=	$record['func'];
+		$this->command			=	$record['func'];
 		$this->descriptionId	=	$record['description_id'];
 		$this->author			=	$record['author'];
 		$this->funcVersion		=	$record['funcversion'];
@@ -23,5 +23,10 @@ class ModuleFunction extends Object
 		$this->webInstanceId	=	$record['webinstance_id'];
 
 		return $this;
+	}
+
+	public function getCommand()
+	{
+		return $this->command;
 	}
 }

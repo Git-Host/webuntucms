@@ -4,6 +4,9 @@ class ModuleList extends Object
 {
 	private $items = array();
 
+	/**
+	 * K sestaveni mouleListu je potreba si nejdriva sahnout pro veskere funkce ktere jsou dostupne
+	 */
 	public function loadByGroupId($id)
 	{
 		$query = "SELECT mf.`id`, mf.`module_id`, mf.`func`, mf.`description_id`, mf.`author`, mf.`funcversion`, mf.`bobrversion`, mf.`webinstance_id`
@@ -44,5 +47,10 @@ class ModuleList extends Object
 		}
 
 		return $this;
+	}
+
+	public function getItems()
+	{
+		return $this->items;
 	}
 }
