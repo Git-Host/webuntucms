@@ -26,7 +26,7 @@
 		RewriteRule ^bobradmin/(.*)$ /admin.php?q=$1 [L,QSA]
 
 		RewriteRule ^blog$ /blog/ [R=301,QSA,L]
-		RewriteRule ^blog(.*)$ /blog.php?q=$1 [L,QSA]
+		RewriteRule ^blog/(.*)$ /blog.php?q=$1 [L,QSA]
 
 
 		# Tato podminka prepisuje krasne url na neco cemu BOBR bude rozumnet :D
