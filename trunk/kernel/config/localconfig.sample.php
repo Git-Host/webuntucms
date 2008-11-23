@@ -16,7 +16,7 @@ class Config implements ArrayAccess
 		'DBPORT'	=>	'5432',
 		'DBNAME'	=>	'bobr_devel',
 		'DBUSER'	=>	'postgres',
-		'DBPASSWORD'=>	'webuntu',
+		'DBPASSWORD'=>	'******',
 		'DBPERSISTENT'	=>	TRUE,
 		'DBCONNECTIONNAME'	=>	'default',
 		'CAHEROOT'	=>	'/local/cache/',
