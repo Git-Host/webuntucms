@@ -19,7 +19,7 @@ class Config implements ArrayAccess
 		'DBPASSWORD'=>	'******',
 		'DBPERSISTENT'	=>	TRUE,
 		'DBCONNECTIONNAME'	=>	'default',
-		'CAHEROOT'	=>	'/local/cache/',
+		'FILESTORAGE'	=>	'/local/cache/',
 		'DEBUGMODE'	=>	TRUE,
 		'SHAREROOT'	=>	'/',
 	);

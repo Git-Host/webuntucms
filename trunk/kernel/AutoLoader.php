@@ -21,7 +21,7 @@
 /*namespace Nette::Loaders;*/
 
 
-require_once __WEB_ROOT__ . '/kernel/object.php';
+require_once __WEB_ROOT__ . '/kernel/Object.php';
 
 
 

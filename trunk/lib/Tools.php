@@ -10,6 +10,7 @@ class Tools
 	 * @todo provadet kontrolu oproti databazovym webInstancim jestli vubec takova existuje
 	 *
 	 * @return string $matches[1] vrati nazev scriptu oriznute o php
+     * @throws Exception
 	 */
 	public static function getWebInstance()
 	{
