@@ -53,7 +53,7 @@ class BobrLoader extends AutoLoader
 		'httpheader'=>	'/kernel/request/httpheader.php',
 		'file'		=>	'/kernel/request/file.php',
 		'lang'		=>	'/kernel/lang.php',
-		'lib'		=>	'/lib/lib.php',
+		'tools'		=>	'/lib/tools.php',
 		'dibi'		=>	'/lib/dibi/dibi.php',
 		'debug'		=>	'/lib/debug/debug.php',
 		'sample'	=>	'/sample.php',

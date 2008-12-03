@@ -1,10 +1,10 @@
 <?php
 
-require_once __WEB_ROOT__ . '/lib/lib.php';
+require_once __WEB_ROOT__ . '/lib/tools.php';
 
 require_once __WEB_ROOT__ . '/kernel/config/defaultconfig.php';
 
-require_once __WEB_ROOT__ . '/kernel/config/' . Lib::getWebInstance() . 'config.php';
+require_once __WEB_ROOT__ . '/kernel/config/' . Tools::getWebInstance() . 'config.php';
 
 class Config implements ArrayAccess
 {

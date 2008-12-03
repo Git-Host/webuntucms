@@ -51,7 +51,7 @@ class Bobr extends Object
 		$user = Session::getInstance()->user;
 
 		$webInstanceValidatdor = new WebInstanceValidator();
-		if (TRUE === $webInstanceValidatdor->validate(Lib::getWebInstance())) {
+		if (TRUE === $webInstanceValidatdor->validate(Tools::getWebInstance())) {
 			echo '<p>Uzivatel ma pristup na tuto web instanci</p>';
 		} else {
 			echo '<p>Uzivatel NEMA pristup na tuto web instanci</p>';
