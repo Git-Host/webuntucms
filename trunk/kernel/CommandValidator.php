@@ -6,7 +6,7 @@ class CommandValidator
 
 	private $matchPattern = '';
 
-	public function __construct()
+    public function __construct()
 	{
 		$user = Session::getInstance()->user;
 		if (empty($user->commands)) {
@@ -33,4 +33,20 @@ class CommandValidator
 	{
 		return $this->matchPattern = '@' . implode('|', $this->commandList) . '@';
 	}
+
+    /**
+     * Vrati konkretni command na zaklade functionId.
+     * Pokud command nenajde uzivatel nema pravo na konkretni funkcnost a vraci NULL.
+     *
+     * @param integer $functionId
+     * @return mixed
+     */
+    public function getCommand($functionId)
+    {
+        if (isset($this->commandList[$functionId])) {
+            return $this->commandList[$functionId];
+        } else {
+            return NULL;
+        }
+    }
 }

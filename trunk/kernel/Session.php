@@ -10,7 +10,12 @@ final class Session //extends Object
 
 	private static $instance;
 
-	public static function getInstance() {
+	/**
+     * Vrati vlastni instanci.
+     *
+     * @return Session
+     */
+    public static function getInstance() {
 		if(NULL === self::$instance) {
 			return self::$instance = new Session;
 		} else {

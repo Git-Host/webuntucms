@@ -8,7 +8,7 @@ abstract class HttpProperty implements IHttpProperty
 		if (isset($this->{$this->propertyName}[$name])) {
 			return $this->{$this->propertyName}[$name];
 		} else {
-			throw new InvalidArgumentException("Promena $name neexistuje.");
+			throw new InvalidArgumentException("Promena $name neexistuje." . $this->propertyName);
 		}
 	}
 

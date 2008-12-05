@@ -1,13 +1,11 @@
 <?php
 
-class HttpGet extends HttpProperty
+class HttpGet
 {
 	private static $isAssigned = FALSE;
 
 	private $get = array();
-
-	private $propertyName = 'get';
-
+    
 	public function assign(array $GET)
 	{
 		if (FALSE === self::$isAssigned) {
@@ -16,5 +14,19 @@ class HttpGet extends HttpProperty
 		} else {
 			throw new Exception('$_GET jiz byl nacten.');
 		}
+	}
+
+    public function __get($name)
+	{
+		if (isset($this->get[$name])) {
+			return $this->get[$name];
+		} else {
+			throw new InvalidArgumentException("Promena $name neexistuje.");
+		}
+	}
+
+	public function __isset($name)
+	{
+		return isset($this->get[$name]);
 	}
 }

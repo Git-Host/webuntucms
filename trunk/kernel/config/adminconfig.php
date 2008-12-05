@@ -1,11 +1,11 @@
 <?php
 
-class DefaultConfig implements ArrayAccess
+class AdminConfig implements ArrayAccess
 {
 
 	private $settings = array(
-		'KUBULA'	=>	'DefaultConfig',
-		'EMANUEL'	=>	'Default Emanuel'
+		'CACHEMODE'	=>	TRUE,
+		'EMIL'		=>	'IndexEmil'
 	);
 
 	public function offsetExists( $name )
@@ -20,7 +20,8 @@ class DefaultConfig implements ArrayAccess
 		if(isset($this->settings[$value])){
 			return $this->settings[ $value ];
 		}else{
-            throw new Exception("Vlastnost $name neexistuje v zadnem configuracnim souboru.");
+			$defaultConfig = new DefaultConfig;
+			return $defaultConfig[$name];
 		}
 	}
 

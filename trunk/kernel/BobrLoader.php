@@ -52,11 +52,20 @@ class BobrLoader extends AutoLoader
 		'httpfile'	=>	'/kernel/request/HttpFile.php',
 		'httpheader'=>	'/kernel/request/HttpHeader.php',
 		'file'		=>	'/kernel/request/File.php',
+        'process'   =>  '/kernel/Process.php',
+        'route'     =>  '/kernel/request/Route.php',
+        'dynamicroute'  =>  '/kernel/request/DynamicRoute.php',
 		'lang'		=>	'/kernel/Lang.php',
 		'tools'		=>	'/lib/Tools.php',
 		'dibi'		=>	'/lib/dibi/dibi.php',
 		'debug'		=>	'/lib/debug/debug.php',
 		'sample'	=>	'/sample.php',
+        'cache'     =>  '/kernel/cache/Cache.php',
+        'dataobject' => '/kernel/cache/DataObject.php',
+        'idataobject' => '/kernel/cache/IDataObject.php',
+        'icacheadapter' => '/kernel/cache/ICacheAdapter.php',
+        'filestorage'   =>  '/kernel/cache/FileStorage.php',
+        'messanger' =>  '/lib/Messanger.php',
 	);
 
 /**

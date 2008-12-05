@@ -4,8 +4,9 @@ class IndexConfig implements ArrayAccess
 {
 
 	private $settings = array(
-		'KUBULA'	=>	'IndexKubula',
-		'EMIL'		=>	'IndexEmil'
+		'DEFAULTPAGEID'	=>	1,
+		'DEFAULTLANG'	=>	'cs',
+        'WEBROOT'       =>  '/',
 	);
 
 	public function offsetExists( $name )

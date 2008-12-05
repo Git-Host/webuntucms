@@ -29,4 +29,9 @@ class ModuleFunction extends Object
 	{
 		return $this->command;
 	}
+
+    public function getId()
+    {
+        return $this->id;
+    }
 }

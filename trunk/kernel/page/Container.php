@@ -1,16 +1,48 @@
 <?php
+/**
+ * Container je uloziste pro Blocky
+ *
+ * @author rbas
+ */
 class Container extends Object
 {
 
+    /**
+     * Id Containeru.
+     *
+     * @var integer
+     */
 	private $id = 0;
 
-	private $name = '';
+	/**
+     * Jmeno kontejneru. Jmeno musi byt ve tvaru jako URI.
+     *
+     * @var string
+     */
+    private $name = '';
 
+    /**
+     * Popis Containeru.
+     * Popis slouzi predevsim administratorovi webu, proto se nepreklada.
+     *
+     * @var string
+     */
 	private $description = '';
 
-	private $blocksList = array();
+	/**
+     * Pole objektu Block.
+     *
+     * @var array
+     */
+    private $blocksList = array();
 
-	public function importRecord(array $record)
+	/**
+     * Naimportuje do sebe $record.
+     *
+     * @param array $record
+     * @return Container
+     */
+    public function importRecord(array $record)
 	{
 		$this->id = $this->setId($record['id']);
 		$this->name = $this->setName($record['title']);
@@ -19,6 +51,11 @@ class Container extends Object
 		return $this;
 	}
 
+    /**
+     * Naimportuje do vlastnosti $blocksList objekt BlockList.
+     *
+     * @param array $blocks
+     */
 	public function importBlocks(array $blocks)
 	{
 		$this->blocksList = new BlocksList;

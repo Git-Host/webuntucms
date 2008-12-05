@@ -17,6 +17,11 @@ class HttpRequest extends Object
 
 	private static $instance = NULL;
 
+    /**
+     * Vraci vlastni instanci
+     *
+     * @return HttpRequest
+     */
 	public static function getInstance() {
 		if(NULL === self::$instance) {
 			return self::$instance = new HttpRequest;
@@ -54,6 +59,39 @@ class HttpRequest extends Object
 		}
 	}
 
+    /**
+     * Zjisti jestli se jedna o ajaxovej request
+     *
+     * @return boolen
+     */
+    public function isAjax()
+    {
+        return $this->getHeader('X-Requested-With') === 'XMLHttpRequest';
+    }
+
+    /**
+     * Vrati request Uri
+     *
+     * @return string
+     */
+    public function getUri()
+    {
+        return $_SERVER['REQUEST_URI'];
+    }
+
+    public static function redirect($url, $responseCode = '302')
+    {
+        $url = htmlspecialchars($url);
+        header('Location: ' . $url, $responseCode);
+        echo '<p><a href="' .$url . '">Prosim nasledujte tento link.</a>';
+    }
+
+    /**
+     * Vrati objekt HttpGet.
+     * Pokud neni nastaven nastavi jej.
+     *
+     * @return HttpGet
+     */
 	public function getGet()
 	{
 		if (NULL === $this->get) {
@@ -69,6 +107,12 @@ class HttpRequest extends Object
 		unset($_GET);
 	}
 
+    /**
+     * Vrati HttpPost.
+     * Pokud neni nastaven nastavi ho.
+     *
+     * @return return HttpPost
+     */
 	public function getPost()
 	{
 		if(NULL === $this->post) {
@@ -117,18 +161,28 @@ class HttpRequest extends Object
 		unset($_FILES);
 	}
 
-	public function getHeader()
+    
+	public function getHeader($header = NULL)
 	{
 		if (NULL === $this->header) {
 			$this->setHeader();
 		}
 
-		return $this->header;
+        if (NULL === $header) {
+            return $this->header;
+        }
+
+
+        if (isset($this->header->$header)) {
+            return $this->header->$header;
+        }
+
+        return FALSE;
 	}
 
 	private function setHeader()
 	{
-		$this->header = new HttpHeader;
+		$this->header = new HttpHeader();
 		$this->header->assign();
 	}
 

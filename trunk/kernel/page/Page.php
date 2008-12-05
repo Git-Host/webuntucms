@@ -2,32 +2,92 @@
 /**
  * Obsahuje v sobe veskere objekty potrebne pro vypsani stranky
  */
-class Page extends Object
+class Page extends DataObject
 {
 
-	private $id = 0;
+	/**
+     * Id stranky.
+     *
+     * @var integer
+     */
+    private $id = 0;
 
-	private $template = '';
+	/**
+     * Cesta k template.
+     *
+     * @var string
+     */
+    private $template = '';
 
-	private $pageNodeId = 0;
+	/**
+     * Id pageNodeId. 
+     *
+     * @var integer
+     */
+    private $pageNodeId = 0;
 
-	private $blockIds = '';
+	/**
+     * Idecka blocku oddelene carkou.
+     *
+     * @var string
+     */
+    private $blockIds = '';
 
-	private $description = '';
+	/**
+     * Popis stranky.
+     *
+     * @var string
+     */
+    private $description = '';
 
+    /**
+     * Titulek stranky.
+     *
+     * @var string
+     */
 	private $title = '';
 
-	private $favicon = '';
+	/**
+     * Cesta k favicone.
+     *
+     * @var string
+     */
+    private $favicon = '';
 
-	private $metaTagList = array();
+	/**
+     * Objekt MetaTagList
+     *
+     * @var MetaTagList
+     */
+    private $metaTagList = NULL;
 
-	private $cssList = array();
+	/**
+     * Objekt CssList
+     *
+     * @var CssList
+     */
+    private $cssList = NULL;
 
-	private $javaScriptList = array();
+	/**
+     * Objekt JavaScriptList
+     *
+     * @var JavaScriptList
+     */
+    private $javaScriptList = NULL;
 
-	private $feedList = array();
+	/**
+     * Objekt FeedList.
+     *
+     * @var FeedList
+     */
+    private $feedList = NULL;
 
-	private $containerList = array();
+    /**
+     * Objekt ContainerList.
+     *
+     * @var ContainerList
+     */
+	private $containerList = NULL;
 
 
 
@@ -38,13 +98,16 @@ class Page extends Object
 
 	public function loadById($id)
 	{
-		$query = "SELECT p.`id`, p.`pageid_node_id`, p.`block_ids`, p.`description`, pn.`css`, pn.`template`
-			FROM `" . Config::DB_PREFIX . "pageid` p
-			JOIN `" . Config::DB_PREFIX . "pageid_node` pn ON p.`pageid_node_id` = pn.`id`
-			WHERE p.`id` = " . $id
-			. "LIMIT 1";
-		$result = dibi::query($query)->fetch();
-		$this->importRecord($result);
+        if(FALSE === $this->loadFromCache()) {
+            $query = "SELECT p.`id`, p.`pageid_node_id`, p.`block_ids`, p.`description`, pn.`css`, pn.`template`
+                FROM `" . Config::DB_PREFIX . "pageid` p
+                JOIN `" . Config::DB_PREFIX . "pageid_node` pn ON p.`pageid_node_id` = pn.`id`
+                WHERE p.`id` = " . $id
+                . "LIMIT 1";
+            $result = dibi::query($query)->fetch();
+            $this->importRecord($result);
+            $this->saveToCache();
+        }
 	}
 
 	private function importRecord($record)
@@ -372,4 +435,8 @@ class Page extends Object
 		$this->description = $description;
 	}
 
+    public function getCacheId()
+    {
+        return '/kernel/page/' . $this->getClass() . '/' . $this->id;
+    }
 }

@@ -95,8 +95,22 @@ class User extends Object
 		return $functions;
 	}
 
+    /**
+     * Vrati pole kde jako index jsou ID funkci.
+     *
+     * @return array
+     */
+    public function getFunctionsId()
+    {
+        $id = array();
+        foreach ($this->getFunctions() as $module) {
+            $id = array_merge($id, array_keys($module));
+        }
+        $id = array_flip($id);
+        return $id;
+    }
 	/**
-	 * Vrati pole commandu na ktere ma uzivatel pravo
+	 * Vrati pole commandu na ktere ma uzivatel pravo jako klic je functionId
 	 *
 	 * @param void
 	 * @return array - command
@@ -110,7 +124,7 @@ class User extends Object
 
 		foreach ($moduleFunctions as $functions) {
 			foreach($functions as $function){
-				$command[] = $function->command;
+				$command[$function->id] = $function->command;
 			}
 		}
 		return $command;

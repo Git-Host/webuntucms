@@ -1,20 +1,61 @@
 <?php
+/**
+ * Block, je fragment Containeru.
+ *
+ * @author rbas
+ */
 class Block extends Object
 {
 
-	private $id = 0;
+	/**
+     * Id blocku.
+     *  
+     * @var integer
+     */
+    private $id = 0;
 
-	private $moduleId = 0;
+	/**
+     * Id modulu, ktery se stara o obsah.
+     *
+     * @var integer
+     */
+    private $moduleId = 0;
 
-	private $containerId = 0;
+	/**
+     * Id Containeru do ktereho block patri.
+     *
+     * @var integer
+     */
+    private $containerId = 0;
 
-	private $command = '';
+	/**
+     * Command. Je to regularni vyraz, ktery dava prikazy modulu co ma delat.
+     *
+     * @var string
+     */
+    private $command = '';
 
-	private $descriptionId = 0;
+	/**
+     * ID popisovace.
+     *
+     * @var integer
+     */
+    private $descriptionId = 0;
 
-	private $weight = 0;
+	/**
+     * Vaha blocku.
+     *
+     * @var integer
+     */
+    private $weight = 0;
 
-	public function importRecord(array $record)
+	/**
+     * Naimportuje do sebe record.
+     *
+     * @param array $record
+     * @return Block
+     */
+    public function importRecord(array $record)
 	{
 		$this->id = $this->setId($record['id']);
 		$this->moduleId = $this->setModuleId($record['module_id']);
