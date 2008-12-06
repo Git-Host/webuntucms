@@ -120,19 +120,19 @@ class ClassGenerator
 			case 'integer':
 				$bool = "! is_numeric($" . $propertyName . ")";
 				$exceptionText = "Promena $" . $propertyName . " musi byt datoveho typu integer.";
-				$reType = "(int)";
+				$reType = "(integer) ";
 			break;
 
 			case 'string':
 				$bool = "! is_string($" . $propertyName . ") && ! is_numeric($" . $propertyName . ")";
 				$exceptionText = "Promena $" . $propertyName . " musi byt datoveho typu string.";
-				$reType = "(string)";
+				$reType = "(string) ";
 			break;
 
 			case 'array':
 				$bool = "! is_array($" . $propertyName . ")";
 				$exceptionText = "Promena $" . $propertyName . " musi byt datoveho typu array.";
-				$reType = "(array)";
+				$reType = "(array) ";
 			break;
 
 			default:
@@ -147,15 +147,15 @@ class ClassGenerator
 		$output .= "\t * Nastavi hodnotu vlastnosti $" . "$propertyName\n";
 		$output .= "\t *\n";
 		$output .= "\t * @param $dataType\n";
-		$output .= "\t * @return $dataType\n";
+		$output .= "\t * @return " . $this->request['className'] . "\n";
 		$output .= "\t */\n";
-		$output .= "\tprivate function set" . ucfirst($propertyName) . "($" . $propertyName . ")\n";
+		$output .= "\tpublic function set" . ucfirst($propertyName) . "($" . $propertyName . ")\n";
 		$output .= "\t{\n";
 			$output .= "\t\tif ($bool) {\n";
 				$output .= "\t\t\tthrow new InvalidArgumentException('$exceptionText');\n";
 			$output .= "\t\t}\n";
 			$output .= "\t\t$" . $propertyName . " = $reType$" . $propertyName . ";\n";
-			$output .= "\t\treturn $" . "this->$propertyName = $" . $propertyName . ";\n";
+			$output .= "\t\treturn $" . "this;\n";
 		$output .= "\t}\n";
 		$this->addMethodOutput($output);
 		return $this;

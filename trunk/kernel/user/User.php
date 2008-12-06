@@ -173,4 +173,9 @@ class User extends Object
 		$this->groupsList = $groups->loadGroupsByUserId($this->id);
 		return $this->groupsList;
 	}
+
+    public function getNick()
+    {
+        return $this->nick;
+    }
 }

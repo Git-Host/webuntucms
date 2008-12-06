@@ -8,6 +8,7 @@
 function print_re($expression)
 {
 	echo "\n<pre>\n";
-		print_r($expression);
+	print_r($expression);
 	echo "\n</pre>\n";
+    
 }

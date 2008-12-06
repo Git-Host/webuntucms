@@ -103,9 +103,9 @@ class ContainerList extends DataObject
 
 		foreach ($containerArray as $id => $container) {
 			// Vytvorime Container.
-            $this->items[$id] = new Container;
+            $this->items[$container['title']] = new Container;
             // Naimportujem do nej data.
-			$this->items[$id]->importRecord($container)->importBlocks($blocksArray[$id]);
+			$this->items[$container['title']]->importRecord($container)->importBlocks($blocksArray[$id]);
 		}
 	}
 

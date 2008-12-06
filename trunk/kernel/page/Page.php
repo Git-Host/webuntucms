@@ -137,7 +137,7 @@ class Page extends DataObject
 	 * @param integer
 	 * @return void
 	 */
-	private function setId($id)
+	protected function setId($id)
 	{
 		if (! is_numeric($id)) {
 			throw new InvalidArgumentException('Promena $id musi byt datoveho typu integer.');
@@ -163,7 +163,7 @@ class Page extends DataObject
 	 * @param string
 	 * @return void
 	 */
-	private function setTemplate($template)
+	protected function setTemplate($template)
 	{
 		if (! is_string($template) && ! is_numeric($template)) {
 			throw new InvalidArgumentException('Promena $template musi byt datoveho typu string.');
@@ -189,7 +189,7 @@ class Page extends DataObject
 	 * @param string
 	 * @return void
 	 */
-	private function setTitle($title)
+	protected function setTitle($title)
 	{
 		if (! is_string($title) && ! is_numeric($title)) {
 			throw new InvalidArgumentException('Promena $title musi byt datoveho typu string.');
@@ -215,7 +215,7 @@ class Page extends DataObject
 	 * @param string
 	 * @return void
 	 */
-	private function setFavicon($favicon)
+	protected function setFavicon($favicon)
 	{
 		if (! is_string($favicon) && ! is_numeric($favicon)) {
 			throw new InvalidArgumentException('Promena $favicon musi byt datoveho typu string.');
@@ -241,7 +241,7 @@ class Page extends DataObject
 	 * @param array
 	 * @return void
 	 */
-	private function setMetaTagList($metaTagList)
+	protected function setMetaTagList($metaTagList)
 	{
 		if (! is_array($metaTagList)) {
 			throw new InvalidArgumentException('Promena $metaTagList musi byt datoveho typu array.');
@@ -254,7 +254,7 @@ class Page extends DataObject
 	 * Vrati hodnotu vlastnosti $cssList
 	 *
 	 * @param void
-	 * @return array
+	 * @return Css
 	 */
 	public function getCssList()
 	{
@@ -267,7 +267,7 @@ class Page extends DataObject
 	 * @param array
 	 * @return void
 	 */
-	private function setCssList($cssList)
+	protected function setCssList($cssList)
 	{
 		if (! is_array($cssList)) {
 			throw new InvalidArgumentException('Promena $cssList musi byt datoveho typu array.');
@@ -293,7 +293,7 @@ class Page extends DataObject
 	 * @param array
 	 * @return void
 	 */
-	private function setJavaScriptList($javaScriptList)
+	protected function setJavaScriptList($javaScriptList)
 	{
 		if (! is_array($javaScriptList)) {
 			throw new InvalidArgumentException('Promena $javaScriptList musi byt datoveho typu array.');
@@ -319,7 +319,7 @@ class Page extends DataObject
 	 * @param array
 	 * @return void
 	 */
-	private function setFeedList($feedList)
+	protected function setFeedList($feedList)
 	{
 		if (! is_array($feedList)) {
 			throw new InvalidArgumentException('Promena $feedList musi byt datoveho typu array.');
@@ -349,7 +349,7 @@ class Page extends DataObject
 	 * @param array
 	 * @return void
 	 */
-	private function setContainerList()
+	protected function setContainerList()
 	{
 		if(empty($this->blockIds)){
 			throw new InvalidArgumentException('Nemuzu nastavit kontejnery proze neznam bloky.');
@@ -374,7 +374,7 @@ class Page extends DataObject
 	 * @param integer
 	 * @return void
 	 */
-	private function setPageNodeId($pageNodeId)
+	protected function setPageNodeId($pageNodeId)
 	{
 		if (! is_numeric($pageNodeId)) {
 			throw new InvalidArgumentException('Promena $pageNodeId musi byt datoveho typu integer.');
@@ -400,7 +400,7 @@ class Page extends DataObject
 	 * @param string
 	 * @return void
 	 */
-	private function setBlockIds($blockIds)
+	protected function setBlockIds($blockIds)
 	{
 		if (! is_string($blockIds) && ! is_numeric($blockIds)) {
 			throw new InvalidArgumentException('Promena $blockIds musi byt datoveho typu string.');
@@ -426,7 +426,7 @@ class Page extends DataObject
 	 * @param string
 	 * @return void
 	 */
-	private function setDescription($description)
+	protected function setDescription($description)
 	{
 		if (! is_string($description) && ! is_numeric($description)) {
 			throw new InvalidArgumentException('Promena $description musi byt datoveho typu string.');
@@ -437,6 +437,6 @@ class Page extends DataObject
 
     public function getCacheId()
     {
-        return '/kernel/page/' . $this->getClass() . '/' . $this->id;
+        return '/kernel/page/' . $this->id. '/' . $this->getClass();
     }
 }

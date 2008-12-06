@@ -140,4 +140,8 @@ class Container extends Object
 		return $this->description = $description;
 	}
 
+    public function getBlocksList()
+    {
+        return $this->blocksList;
+    }
 }

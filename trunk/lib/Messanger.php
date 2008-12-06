@@ -15,22 +15,23 @@ class Messanger
         self::store();
     }
 
-    public static function flush()
+    public static function flush($return = FALSE)
     {
+       $output = '';
        foreach(self::$notes as $message) {
-            self::printMessage($message, 'Note');
-            unset(Session::getInstance()->messanger);
+            $output .= "\n<p><b>$message</b><p>\n";
         }
-       
+        //unset(Session::getInstance()->messanger);
+
+       if (TRUE === $output) {
+           return $output;
+       } else {
+           echo $output;
+       }
     }
 
     private static function store()
     {
         Session::getInstance()->messanger  = new self;
-    }
-
-    private static function printMessage($message, $type)
-    {
-        echo "\n<p class=\"$type\"><b>$type: $message</b><p>\n";
     }
 }

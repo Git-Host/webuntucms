@@ -32,6 +32,8 @@ class BobrLoader extends AutoLoader
 		'modulefunction'	=>	'/kernel/user/ModuleFunction.php',
 		'webinstancelist'	=> '/kernel/user/WebInstanceList.php',
 		'webinstance'	=>	'/kernel/user/WebInstance.php',
+        'template'  =>  '/kernel/page/Template.php',
+        'pagebuilder'   =>  '/kernel/page/PageBuilder.php',
 		'page'		=>	'/kernel/page/Page.php',
 		'csslist'	=>	'/kernel/page/CssList.php',
 		'css'		=>	'/kernel/page/Css.php',
@@ -66,6 +68,9 @@ class BobrLoader extends AutoLoader
         'icacheadapter' => '/kernel/cache/ICacheAdapter.php',
         'filestorage'   =>  '/kernel/cache/FileStorage.php',
         'messanger' =>  '/lib/Messanger.php',
+        'moduledelegator'   =>  '/kernel/page/ModuleDelegator.php',
+        'description'   =>  '/kernel/Description.php',
+        'descriptionlist'   => '/kernel/DescriptionList.php',
 	);
 
 /**

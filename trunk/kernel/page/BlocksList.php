@@ -28,8 +28,15 @@ class BlocksList extends Object
                 $this->items[$id] = new Block;
                 // Naimportujem do nej data.
 				$this->items[$id]->importRecord($block);
-			}
+			} else {
+                print_re($block);
+            }
 			// @todo udelat nejake logovani zakazanych blocku v debug modu bo tak nejak
 		}
 	}
+
+    public function getItems()
+    {
+        return $this->items;
+    }
 }

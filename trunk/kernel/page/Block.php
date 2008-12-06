@@ -62,6 +62,7 @@ class Block extends Object
 		$this->containerId = $this->setContainerId($record['container_id']);
 		$this->command = $this->setCommand($record['command']);
 		$this->descriptionId = $this->setDescriptionId($record['description_id']);
+        DescriptionList::addId($this->descriptionId);
 		$this->weight = $this->setWeight($record['weight']);
 
 		return $this;

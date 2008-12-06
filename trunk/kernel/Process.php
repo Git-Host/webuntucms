@@ -15,13 +15,6 @@ class Process extends Object
 
     private $lang = '';
 
-    /**
-     * Informace jestli jsou zajisteny potrebne data
-     * @todo toto neni dobre reseni navrhnot lepsi.
-     *
-     * @var boolean
-     */
-    private $isCreated = FALSE;
 
     /**
      * id stranky ktera se ma nacist.
