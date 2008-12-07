@@ -85,6 +85,7 @@ class Bobr extends Object
         if (0 < $process->pageId) {
 
             $description = DescriptionList::getInstance($process->getLang(), $process->getPageId());
+            LinkCreator::setLang($process->getLang());
             
             $pageBuilder = new PageBuilder($process->pageId);
             $pageBuilder->createPage($process->getCommand());
@@ -92,8 +93,8 @@ class Bobr extends Object
         } else {
             Messanger::addNote('Strasna chyba z nejakeho duvodu jsem nenasel pageID a proto nic neudelam. Oprav me prosiiim ;)');
         }
-        
 
+        
         echo $this->getErrorOutput($errorOutput);
 
     }

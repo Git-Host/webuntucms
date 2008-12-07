@@ -5,13 +5,33 @@
 class Lang extends Object
 {
 
+    /**
+     * Id langu.
+     *
+     * @var integer
+     */
 	private $id = 0;
 
-	private $symbol = '';
+	/**
+     * Symbol jazyka (cs,en,de)
+     *
+     * @var string
+     */
+    private $symbol = '';
 
+    /**
+     * Nazev jazyka.
+     *
+     * @var string
+     */
 	private $name = '';
 
-	private $langList = array();
+    public function importRecord(array $record)
+    {
+        $this->setId($record['id'])
+        ->setSymbol($record['symbol'])
+        ->setName($record['country']);
+    }
 
 	/**
 	 * Vrati hodnotu vlastnosti $id
@@ -28,15 +48,12 @@ class Lang extends Object
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return void
+	 * @return Lang
 	 */
 	private function setId($id)
 	{
-		if (! is_numeric($id)) {
-			throw new InvalidArgumentException('Promena $id musi byt datoveho typu integer.');
-		}
-		$id = (int)$id;
-		$this->id = $id;
+		$this->id = (integer) $id;
+		return $this;
 	}
 
 	/**
@@ -54,15 +71,12 @@ class Lang extends Object
 	 * Nastavi hodnotu vlastnosti $symbol
 	 *
 	 * @param string
-	 * @return void
+	 * @return Lang
 	 */
 	private function setSymbol($symbol)
 	{
-		if (! is_string($symbol) && ! is_numeric($symbol)) {
-			throw new InvalidArgumentException('Promena $symbol musi byt datoveho typu string.');
-		}
-		$symbol = (string)$symbol;
-		$this->symbol = $symbol;
+		$this->symbol = (string) $symbol;
+		return $this;
 	}
 
 	/**
@@ -80,41 +94,12 @@ class Lang extends Object
 	 * Nastavi hodnotu vlastnosti $name
 	 *
 	 * @param string
-	 * @return void
+	 * @return Lang
 	 */
 	private function setName($name)
 	{
-		if (! is_string($name) && ! is_numeric($name)) {
-			throw new InvalidArgumentException('Promena $name musi byt datoveho typu string.');
-		}
-		$name = (string)$name;
-		$this->name = $name;
-	}
-
-	/**
-	 * Vrati hodnotu vlastnosti $langList
-	 *
-	 * @param void
-	 * @return array
-	 */
-	public function getLangList()
-	{
-		return $this->langList;
-	}
-
-	/**
-	 * Nastavi hodnotu vlastnosti $langList
-	 *
-	 * @param array
-	 * @return void
-	 */
-	private function setLangList($langList)
-	{
-		if (! is_array($langList)) {
-			throw new InvalidArgumentException('Promena $langList musi byt datoveho typu array.');
-		}
-		$langList = (array)$langList;
-		$this->langList = $langList;
+		$this->name = (string) $name;
+		return $this;
 	}
 
 }

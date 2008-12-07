@@ -48,8 +48,8 @@ class PageBuilder extends Page
         foreach ($container->blocksList->items as $block) {
             $moduleDelegator = new ModuleDelegator;
             $description = DescriptionList::getInstance()->getDescription($block->descriptionId);
-            $output .= "\n<div title=\"" .$description->description . "\">\n";
-            $output .= "<h3>" . $description->title . "</h3>\n";
+            $output .= "\n<div title=\"" .$description->getDescription() . "\">\n";
+            $output .= "<h3>" . $description->getTitle() . "</h3>\n";
             $output .= $moduleDelegator->createBlock($block, $this->command);
             $output .= "\n</div>";
         }

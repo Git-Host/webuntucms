@@ -6,13 +6,12 @@
  */
 class Process extends Object
 {
+
     /**
-     * Promena getu ktera ovlada bobra ;)
+     * Symbol jazyka se kterym se pracuje.
      *
      * @var string
      */
-    const VARIABLE = 'q';
-
     private $lang = '';
 
 
@@ -36,20 +35,20 @@ class Process extends Object
 
     private function init()
     {
+        $request = HttpRequest::getInstance();
         // Zjistime co mame za jazyk.
         $this->setLang();
 
-        $request = HttpRequest::getInstance();
+        
         // Pokud je to ajaxovej request...
         if (TRUE === $request->isAjax()) {
             throw new Exception('Ajaxove requesty nejsou implementovany.');
         }
 
         // Je get prazdnej?
-        $uri = substr($request->getUri(), 1);
-        if (empty($uri)) {
+        $uri = $request->getUri();
+        if ($uri === '') {
             // Nastavime defaultni stranku.
-            
             $this->setDefaultPage();
         } else {
             $this->setPage();
@@ -63,26 +62,32 @@ class Process extends Object
      */
     private function setLang()
     {
-        $this->lang = Session::getInstance()->lang;
-        if (empty($this->lang)) {
-            $config = new Config;
-            switch ($config->remoteLangFrom) {
-                case 'config':
-                    $this->lang = $config->defaultLang;
-                    break;
-                case 'browser':
-                    throw new Exception('fycura neni jeste napsana.');
-                    break;
-                case 'uri':
-                    throw new Exception('fycura neni jeste napsana.');
-                    break;
-                default:
-                    $this->lang = $config->defaultLang;
-                    break;
-            }
+        $config = new Config;
+        switch ($config->remoteLangFrom) {
+            case 'config':
+                $this->lang = $config->defaultLang;
+                break;
+            case 'browser':
+                throw new Exception('fycura prebrani jazyku z prohlizece neni jeste napsana.');
+                break;
+            case 'uri':
+                // Nactem si lang z GETu
+                $lang = HttpRequest::lang();
+                if (empty($lang)) {
+                    // Lang byl prazdny presmerujem ho na url s defaultnim langem
+                    HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
+                } else {
+                    $this->lang = $lang;
+                }
+                
+                break;
+            default:
+                $this->lang = $config->defaultLang;
+                break;
         }
         // @todo mela by probehnout nejake validace langu.
         Session::getInstance()->lang = $this->lang;
+        
         return $this;
     }
 
@@ -106,7 +111,7 @@ class Process extends Object
     private function checkDynamicRoute()
     {
         $dynamicRoute = new DynamicRoute($this->lang);
-        $uri = substr(HttpRequest::getInstance()->getUri(), 1);
+        $uri = HttpRequest::getInstance()->getUri();
         foreach ($dynamicRoute->items as $route) {
             // Pokud se to projde regularem mame lokalizovanou dinamickou routu.
             // Routa se ale jeste musi projet command validatorem. Jestli na ni ma user pravo.
@@ -119,12 +124,13 @@ class Process extends Object
                     // Pokud se uri neshoduje je v ni neco navic
                     if ($uri !== $matches[0]) {
                         Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
-                        HttpRequest::redirect('/'.$matches[0]);
+                        $config = new Config;
+                        HttpRequest::redirect($config->webRoot . $matches[0]);
                     }
                     // Odstranime prvni polozku z pole, ta nas nezajima.
                     array_shift($matches);
                     // Mergneme lokalizovany command za vychozi.
-                    $command = $this->mergeCommand($command, $matches);
+                    $command = Tools::mergeCommand($command, $matches);
                     // A nastavime hodnoty pro dalsi praci.
                     $this->setCommand($command);
                     $this->setPageId($route->pageId);
@@ -142,33 +148,6 @@ class Process extends Object
         return FALSE;
     }
 
-
-
-    /**
-     * Vlozi do CommandPattern argumenty.
-     *
-     * @param string $commandPattern Command ktery se ma uzpusobit.
-     * @param array $matches Pole argumentu ktere se maji margnout do commandu.
-     * @return string
-     */
-    private function mergeCommand($commandPattern, $matches)
-    {
-        // Rozzerem si command.
-        $explodeCommand = explode('/', $commandPattern);
-        $matchCounter = 0;
-        $commandCounter = 0;
-        foreach ($explodeCommand as $value) {
-            // Pokud jsme na necem kde je zavorka je to promenlivy argument.
-            if (0 < preg_match('@^\(.*@', $value)) {
-                // Zmenime jeho hodnotu.
-                $explodeCommand[$commandCounter] = $matches[$matchCounter];
-                $matchCounter ++;
-            }
-            $commandCounter ++;
-        }
-        return implode('/', $explodeCommand);
-    }
-
     /**
      * Zjisti zda-li se jedna o statickou routu.
      * Pokud ano nastavi ji a vrati TRUE.
@@ -178,7 +157,7 @@ class Process extends Object
     private function checkStaticRoute()
     {
         $route = new Route;
-        $uri  = substr(HttpRequest::getInstance()->getUri(), 1);
+        $uri  = HttpRequest::getInstance()->getUri();
         if (NULL !== $route->loadByUri($uri, $this->lang)) {
             $this->setPageId($route->pageId);
             $this->setCommand($route->command);

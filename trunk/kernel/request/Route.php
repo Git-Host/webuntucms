@@ -25,6 +25,10 @@ class Route extends Object
      */
     public function loadByUri($uri, $lang)
     {
+        if (empty($lang)) {
+            throw new ErrorException ('Nemam nastaven jazyk, nemuzu zjistovat o jaky druh routy se jenda.');
+        }
+        
         $query = "SELECT `id`, `pageid_id`, `command`, `uri`
             FROM `" . Config::DB_PREFIX . "routestatic_" . $lang . "`
             WHERE `uri` = '" . $uri . "'

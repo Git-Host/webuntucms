@@ -27,4 +27,31 @@ class Tools
 		}
 
 	}
+
+    /**
+     * Funkce vlozi do commandu argumenty.
+     * @todo nekontroluje se spravnost argumentu.
+     *
+     * @param string $command Command ktery se ma naplnit
+     * @param array $arguments Argumenty
+     * @return string
+     */
+    public static function mergeCommand($command, array $arguments)
+    {
+        // Rozzerem si command.
+        $eCommand = explode('/', $command);
+        $argumentCounter = 0;
+        $commandCounter = 0;
+        // Projdem command a budem v nem hledat misto na vlozeni argumentu
+        foreach ($eCommand as $value) {
+            // Pokud jsme na necem kde je zavorka je to promenlivy argument.
+            if (0 < preg_match('@^\(.*@', $value)) {
+                // Zmenime jeho hodnotu.
+                $eCommand[$commandCounter] = $arguments[$argumentCounter];
+                $argumentCounter ++;
+            }
+            $commandCounter ++;
+        }
+        return implode('/', $eCommand);
+    }
 }

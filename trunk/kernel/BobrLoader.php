@@ -15,6 +15,7 @@ class BobrLoader extends AutoLoader
 		'bobrloader'=>	'/kernel/BobrLoader.php',
 		'autoloader'=>	'/kernel/AutoLoader.php',
 		'config'	=>	'/kernel/config/localconfig.php',
+        'abstractconfig' => '/kernel/config/AbstractConfig.php',
 		'defaultconfig' => '/kernel/config/defaultconfig.php',
 		'indexconfig'	=> '/kernel/config/indexconfig.php',
 		'adminconfig'	=> '/kernel/config/adminconfig.php',
@@ -58,6 +59,7 @@ class BobrLoader extends AutoLoader
         'route'     =>  '/kernel/request/Route.php',
         'dynamicroute'  =>  '/kernel/request/DynamicRoute.php',
 		'lang'		=>	'/kernel/Lang.php',
+        'langlist'  =>  '/kernel/LangList.php',
 		'tools'		=>	'/lib/Tools.php',
 		'dibi'		=>	'/lib/dibi/dibi.php',
 		'debug'		=>	'/lib/debug/debug.php',
@@ -71,6 +73,8 @@ class BobrLoader extends AutoLoader
         'moduledelegator'   =>  '/kernel/page/ModuleDelegator.php',
         'description'   =>  '/kernel/Description.php',
         'descriptionlist'   => '/kernel/DescriptionList.php',
+        'link'  =>  '/lib/Link.php',
+        'linkcreator'   => '/lib/LinkCreator.php',
 	);
 
 /**

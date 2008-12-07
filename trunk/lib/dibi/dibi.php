@@ -240,7 +240,7 @@ class dibi
 	 * Generates and executes SQL query - Monostate for DibiConnection::query().
 	 *
 	 * @param  array|mixed      one or more arguments
-	 * @return DibiResult|NULL  result set object (if any)
+	 * @return DibiResult |NULL  result set object (if any)
 	 * @throws DibiException
 	 */
 	public static function query($args)

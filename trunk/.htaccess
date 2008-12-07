@@ -23,16 +23,16 @@
 
 
 		RewriteRule ^bobradmin$ /bobradmin/ [R=301,QSA,L]
-		RewriteRule ^bobradmin/(.*)$ /admin.php?q=$1 [L,QSA]
+		RewriteRule ^bobradmin/(.*)$ /admin.php?bobrquery=$1 [L,QSA]
 
 		RewriteRule ^blog$ /blog/ [R=301,QSA,L]
-		RewriteRule ^blog/(.*)$ /blog.php?q=$1 [L,QSA]
+		RewriteRule ^blog/(.*)$ /blog.php?bobrquery=$1 [L,QSA]
 
 
 		# Tato podminka prepisuje krasne url na neco cemu BOBR bude rozumnet :D
 		RewriteCond %{REQUEST_FILENAME} !-f
 		RewriteCond %{REQUEST_FILENAME} !-d
-		RewriteRule ^(.*)$ /index.php?q=$1 [L,QSA]
+		RewriteRule ^(.*)$ /index.php?bobrquery=$1 [L,QSA]
 
 </IfModule>
 # Verze .htacces je kompatibilni s verzi BOBR COPR 2.0 DEVEL

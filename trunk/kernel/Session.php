@@ -48,6 +48,16 @@ final class Session //extends Object
 		}
 	}
 
+    /**
+     * Vrati aktualni lang ktery je v session
+     *
+     * @return string
+     */
+    public static function lang()
+    {
+        return Session::getInstance()->lang;
+    }
+
 	private function init()
 	{
 		$this->SESSION = $_SESSION;

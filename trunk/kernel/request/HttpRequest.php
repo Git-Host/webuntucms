@@ -12,6 +12,13 @@ class HttpRequest extends Object
 
 	private $header = NULL;
 
+    /**
+     * Promena se kterou se pracuje v ramci getu, ovlada celeho BOBRa :)
+     *
+     * @var string
+     */
+    const GET_VARIABLE = 'bobrquery';
+
 
 	private static $isInitialize = FALSE;
 
@@ -76,14 +83,25 @@ class HttpRequest extends Object
      */
     public function getUri()
     {
-        return $_SERVER['REQUEST_URI'];
+        return $this->getGet()->{self::GET_VARIABLE};
     }
 
     public static function redirect($url, $responseCode = '302')
     {
         $url = htmlspecialchars($url);
         header('Location: ' . $url, $responseCode);
+        // Pro pripad, ze by byla odeslana hlavicka.
         echo '<p><a href="' .$url . '">Prosim nasledujte tento link.</a>';
+    }
+
+    /**
+     * Vrati aktualni lang v GETu
+     *
+     * @return string
+     */
+    public static function lang()
+    {
+        return HttpRequest::getInstance()->getGet()->getLang();
     }
 
     /**
