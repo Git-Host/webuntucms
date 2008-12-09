@@ -29,6 +29,8 @@ class Process extends Object
      */
     private $command = '';
 
+    private $webRoot = '';
+
     public function  __construct() {
         $this->init();
     }
@@ -46,8 +48,8 @@ class Process extends Object
         }
 
         // Je get prazdnej?
-        $uri = $request->getUri();
-        if ($uri === '') {
+        $uri = HttpRequest::uri();
+        if ($uri === '' || empty($uri)) {
             // Nastavime defaultni stranku.
             $this->setDefaultPage();
         } else {
@@ -66,6 +68,7 @@ class Process extends Object
         switch ($config->remoteLangFrom) {
             case 'config':
                 $this->lang = $config->defaultLang;
+                $this->webRoot = $config->webRoot;
                 break;
             case 'browser':
                 throw new Exception('fycura prebrani jazyku z prohlizece neni jeste napsana.');
@@ -75,7 +78,8 @@ class Process extends Object
                 $lang = HttpRequest::lang();
                 if (empty($lang)) {
                     // Lang byl prazdny presmerujem ho na url s defaultnim langem
-                    HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
+                    $this->webRoot = $config->webRoot . $config->defaultLang . '/';
+                    HttpRequest::redirect($this->webRoot);
                 } else {
                     $this->lang = $lang;
                 }
@@ -83,11 +87,11 @@ class Process extends Object
                 break;
             default:
                 $this->lang = $config->defaultLang;
+                $this->webRoot = $config->webRoot;
                 break;
         }
         // @todo mela by probehnout nejake validace langu.
         Session::getInstance()->lang = $this->lang;
-        
         return $this;
     }
 
@@ -98,7 +102,7 @@ class Process extends Object
             // Zjistime jestli se jedna o statickou routu.
             if (FALSE === $this->checkStaticRoute()) {
                 $config = new Config;
-                HttpRequest::redirect($config->webRoot);
+                HttpRequest::redirect($this->webRoot);
             }
         }
     }
@@ -111,7 +115,7 @@ class Process extends Object
     private function checkDynamicRoute()
     {
         $dynamicRoute = new DynamicRoute($this->lang);
-        $uri = HttpRequest::getInstance()->getUri();
+        $uri = HttpRequest::uri();
         foreach ($dynamicRoute->items as $route) {
             // Pokud se to projde regularem mame lokalizovanou dinamickou routu.
             // Routa se ale jeste musi projet command validatorem. Jestli na ni ma user pravo.
@@ -124,8 +128,7 @@ class Process extends Object
                     // Pokud se uri neshoduje je v ni neco navic
                     if ($uri !== $matches[0]) {
                         Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
-                        $config = new Config;
-                        HttpRequest::redirect($config->webRoot . $matches[0]);
+                        HttpRequest::redirect($this->webRoot . $matches[0]);
                     }
                     // Odstranime prvni polozku z pole, ta nas nezajima.
                     array_shift($matches);
@@ -138,8 +141,7 @@ class Process extends Object
                     return TRUE;
                 } else {
                     Messanger::addNote('Nemate pravo na pristup na tuto stranku.');
-                    $config = new Config;
-                    HttpRequest::redirect($config->webRoot);
+                    HttpRequest::redirect($this->webRoot);
                     return FALSE;
                 }
             }
@@ -157,7 +159,7 @@ class Process extends Object
     private function checkStaticRoute()
     {
         $route = new Route;
-        $uri  = HttpRequest::getInstance()->getUri();
+        $uri  = HttpRequest::uri();
         if (NULL !== $route->loadByUri($uri, $this->lang)) {
             $this->setPageId($route->pageId);
             $this->setCommand($route->command);

@@ -54,11 +54,11 @@ class HttpGet
                     print_Re($this);
                     return TRUE;
                 }
+                $this->get[self::GET_LANG_VARIABLE] = $config->defaultLang;
                 HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
-                // @todo Tohle proverit a znicit nemuze se to zde takto usmrcovat aby se provedl redirect
-                die('jak to ze jsem tady');
             } else {
-                HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
+                throw new ErrorException('Neni podpora pro jazyky.');
+                //HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
             }
         }
     }

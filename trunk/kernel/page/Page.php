@@ -354,7 +354,7 @@ class Page extends DataObject
 		if(empty($this->blockIds)){
 			throw new InvalidArgumentException('Nemuzu nastavit kontejnery proze neznam bloky.');
 		}
-		$this->containerList = new ContainerList($this->blockIds);
+		$this->containerList = new ContainerList($this->blockIds, $this->getId());
 	}
 
 	/**

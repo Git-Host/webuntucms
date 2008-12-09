@@ -23,13 +23,22 @@ class ContainerList extends DataObject
      */
     private $cacheId = '';
 
+    /**
+     * PageId, tento identifikator se pouziva kvuli cache id.
+     * Diky tomu je mozne znevalidnovat celou page se vsim co k ni nalezi.
+     *
+     * @var integer
+     */
+    private $pageId = 0;
+
 	/**
      * Vytvori cacheId, a nacte data.
      *
      * @param string $blockIds 
      */
-    public function __construct($blockIds)
+    public function __construct($blockIds, $pageId)
 	{
+        $this->setPageId($pageId);
         $this->cacheId = md5($blockIds);
         $this->load($blockIds);
 	}
@@ -143,6 +152,23 @@ class ContainerList extends DataObject
         $this->items = $items;
         return $this;
     }
+    
+    public function getPageId()
+    {
+        return $this->pageId;
+    }
+
+    /**
+     * Nastavi hodnotu vlastnosti pageId
+     *
+     * @param integer $pageId
+     * @return ContainerList
+     */
+    public function setPageId($pageId)
+    {
+        $this->pageId = (integer) $pageId;
+        return $this;
+    }
 
     /**
      * Vrati svoje cacheId obohacene o cestu.
@@ -151,7 +177,7 @@ class ContainerList extends DataObject
      */
     public function getCacheId()
     {
-        return '/kernel/page/' . $this->getClass() . '/' . $this->cacheId;
+        return '/kernel/page/' . $this->pageId . '/' . $this->getClass() . '/' . $this->cacheId;
     }
 
     /**

@@ -109,7 +109,7 @@ class DescriptionList extends DataObject
 
     public function getCacheId()
     {
-        return '/kernel/page/' . $this->pageId . '/' . $this->lang . '/' . $this->getClass();
+        return '/kernel/page/' . $this->pageId . '/' . $this->getClass() . '/' . $this->lang;
     }
 
     public function  __destruct() {

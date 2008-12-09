@@ -40,6 +40,14 @@ class Bobr extends Object
         $config = new Config;
         if( TRUE === $config->debugMode ){
             Debug::enable( E_ALL | E_STRICT | E_NOTICE , FALSE );
+            ini_set('xdebug.extended_info', 0);
+            ini_set('xdebug.auto_trace', 1);
+            ini_set('xdebug.trace_output_dir', '/local/xdebug/');
+            ini_set('xdebug.collect_includes' , 1);
+            ini_set('xdebug.profiler_enable', 1);
+            ini_set('xdebug.collect_params', 4);
+            ini_set('xdebug.show_mem_delta', 'On');
+            //xdebug_start_trace();
         }
         return $this;
     }

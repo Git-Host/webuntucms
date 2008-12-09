@@ -58,11 +58,11 @@ class HttpRequest extends Object
 	private function init()
 	{
 		if (FALSE === self::$isInitialize) {
-			$this->setGet();
-			$this->setPost();
-			$this->setCookie();
-			$this->setFile();
-			$this->setHeader();
+            $this->setGet()
+                ->setPost()
+                ->setCookie()
+                ->setFile()
+                ->setHeader();
 		}
 	}
 
@@ -104,6 +104,11 @@ class HttpRequest extends Object
         return HttpRequest::getInstance()->getGet()->getLang();
     }
 
+    public static function uri()
+    {
+        return HttpRequest::getInstance()->getUri();
+    }
+
     /**
      * Vrati objekt HttpGet.
      * Pokud neni nastaven nastavi jej.
@@ -118,11 +123,17 @@ class HttpRequest extends Object
 		return $this->get;
 	}
 
+    /**
+     * Nastavi objekt HttpGet a odnastavi globalni promenou $_GET
+     *
+     * @return HttpRequest
+     */
 	private function setGet()
 	{
 		$this->get = new HttpGet;
 		$this->get->assign($_GET);
 		unset($_GET);
+        return $this;
 	}
 
     /**
@@ -140,11 +151,17 @@ class HttpRequest extends Object
 		return $this->post;
 	}
 
+    /**
+     * Nastavi objekt HttpGet a odnastavi globalni promenou $_POST
+     *
+     * @return HttpRequest
+     */
 	private function setPost()
 	{
 		$this->post = new HttpPost;
 		$this->post->assign($_POST);
 		unset($_POST);
+        return $this;
 	}
 
 	public function getCookie()
@@ -156,11 +173,17 @@ class HttpRequest extends Object
 		return $this->cookie;
 	}
 
+    /**
+     * Nastavi objekt HttpCookie a odnastavi globalni promenou $_COOKIE
+     *
+     * @return HttpRequest
+     */
 	private function setCookie()
 	{
 		$this->cookie = new HttpCookie;
 		$this->cookie->assign($_COOKIE);
 		unset($_COOKIE);
+        return $this;
 	}
 
 	public function getFile()
@@ -172,11 +195,17 @@ class HttpRequest extends Object
 		return $this->file;
 	}
 
+    /**
+     * Nastavi objekt HttpFile a odnastavi globalni promenou $_FILES
+     *
+     * @return HttpRequest
+     */
 	private function setFile()
 	{
 		$this->file = new HttpFile;
 		$this->file->assign($_FILES);
 		unset($_FILES);
+        return $this;
 	}
 
     
@@ -198,10 +227,16 @@ class HttpRequest extends Object
         return FALSE;
 	}
 
+    /**
+     * Nastavi objekt HttpHeader
+     *
+     * @return HttpRequest
+     */
 	private function setHeader()
 	{
 		$this->header = new HttpHeader();
 		$this->header->assign();
+        return $this;
 	}
 
 }
