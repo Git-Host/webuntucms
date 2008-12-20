@@ -32,4 +32,14 @@ class CssList extends Object
 	{
 		$this->items[] = new Css($cssLink);
 	}
+
+    public function getCss()
+    {
+        $output = '';
+        $config = new Config;
+        foreach( $this->items as $css) {
+            $output .= '<link href="' . $config->share . $css->getCss() . '" rel="stylesheet" type="text/css" />';
+        }
+        return $output;
+    }
 }

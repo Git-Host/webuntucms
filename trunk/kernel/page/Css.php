@@ -22,4 +22,9 @@ class Css extends Object
 	{
 		$this->css = $css;
 	}
+
+    public function getCss()
+    {
+        return $this->css;
+    }
 }

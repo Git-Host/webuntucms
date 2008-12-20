@@ -7,15 +7,15 @@
 class PageBuilder extends Page
 {
 
-    private $bufferHeader = '';
+    private $bufferTemplate = '';
 
     private $command = '';
 
     public function createPage($command)
     {
-        $this->setTitle('Chromak bosak');
+        $this->setTitle('BOBR 2.0 devel cr.3');
         $this->command = $command;
-        $this->cssList->addCss('picunda');
+        $this->cssList->addCss('themes/default/css/console.css');
         // Sestavime kontainer list pokud jeste nebyl sestaven.
         $this->getContainerList();
         // Loadneme vsechny popisky z page
@@ -63,18 +63,36 @@ class PageBuilder extends Page
 
     private function loadBaseTemplate()
     {
-        $template = __WEB_ROOT__ . '/' . $this->template;
+        $config = new Config;
+        $template = __WEB_ROOT__ . $config->share . $this->template;
         if (file_exists($template)) {
             ob_start();
                 require_once $template;
-            $this->bufferHeader = ob_get_contents();
+            $this->bufferTemplate = ob_get_contents();
             ob_end_clean();
         } else {
-            echo 'pica neexistuje ->' . $template;
+            echo 'Template neexistuje ->' . $template;
         }
+    }
+
+    private function getHeader()
+    {
+        
+        $output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>' . $this->title . '</title>
+        <meta name="keywords" content="" />
+        <meta name="description" content="" />
+        ' . $this->cssList->getCss() . '
+        </head>
+        ';
+        return $output;
     }
     
     public function  __toString() {
-        return $this->bufferHeader;
+        $document = $this->getHeader() . $this->bufferTemplate;
+        return $document;
     }
 }

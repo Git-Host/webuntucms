@@ -41,7 +41,7 @@ class DynamicRoute extends DataObject
     private function loadAll()
     {
         // @todo odchytavat vyjimky z dibi pro pripad neexistujici tabulky.
-        $query = "SELECT `module_functions_id`, `pageid_id`, `command` FROM `" . Config::DB_PREFIX . 'dynamicroute_' . $this->langSymbol . "`";
+        $query = "SELECT `module_functions_id`, `webinstance_id`, `pageid_id`, `command` FROM `" . Config::DB_PREFIX . 'routedynamic_' . $this->langSymbol . "`";
         $record = dibi::query($query)->fetchAll();
         $this->importRecord($record);
     }

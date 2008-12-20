@@ -81,6 +81,7 @@ class Process extends Object
                     $this->webRoot = $config->webRoot . $config->defaultLang . '/';
                     HttpRequest::redirect($this->webRoot);
                 } else {
+                    $this->webRoot = $config->webRoot . $config->defaultLang . '/';
                     $this->lang = $lang;
                 }
                 
@@ -98,7 +99,7 @@ class Process extends Object
     private function setPage()
     {
         // Zjistime jestli se jedna o dynamickou routu.
-        if (FALSE ===$this->checkDynamicRoute()) {
+        if (FALSE === $this->checkDynamicRoute()) {
             // Zjistime jestli se jedna o statickou routu.
             if (FALSE === $this->checkStaticRoute()) {
                 $config = new Config;
@@ -124,7 +125,13 @@ class Process extends Object
                 $command = $commandValidator->getCommand($route->moduleFunctionId);
                 // Pokud by byl command null znamenalo by to, ze uzivatel nema pravo na dany command.
                 if (NULL !== $command) {
-                   // var_dump($uri !== $matches[0]);
+                    // Zjistime jestli jsme na spravne webInstanci
+                    $webInstanceValidator = new WebInstanceValidator;
+                    if (FALSE === $webInstanceValidator->isCurrent($route->getWebInstanceId())) {
+                        var_dump($webInstanceValidator->isCurrent($route->getWebInstanceId()));
+                        Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
+                        HttpRequest::redirect($this->webRoot);
+                    }
                     // Pokud se uri neshoduje je v ni neco navic
                     if ($uri !== $matches[0]) {
                         Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
@@ -137,7 +144,6 @@ class Process extends Object
                     // A nastavime hodnoty pro dalsi praci.
                     $this->setCommand($command);
                     $this->setPageId($route->pageId);
-
                     return TRUE;
                 } else {
                     Messanger::addNote('Nemate pravo na pristup na tuto stranku.');

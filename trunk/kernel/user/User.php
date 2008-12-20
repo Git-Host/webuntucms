@@ -133,8 +133,8 @@ class User extends Object
 	public function getWebInstance()
 	{
 		foreach ($this->getGroups() as $groupId => $group) {
-			foreach ($group->webInstance as $webInstance) {
-				$webInstances[] = $webInstance->name;
+			foreach ($group->webInstance as $id => $webInstance) {
+				$webInstances[$id] = $webInstance->name;
 			}
 		}
 		return $webInstances;

@@ -24,6 +24,23 @@ class WebInstanceValidator
 		}
 	}
 
+    /**
+     * Zjisti jestli se jedna o konkretni spustenou webInstanci
+     *
+     * @param mixed $webInstance
+     * @return boolean
+     */
+    public function isCurrent($webInstance)
+    {
+        if (is_integer($webInstance) && (Tools::getWebInstance() === $this->webInstanceList[$webInstance])) {
+            return TRUE;
+        } elseif (is_string($webInstance) && (Tools::getWebInstance() === $webInstance)) {
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
 	private function setMatchPattern()
 	{
 		return $this->matchPattern = '@' . implode('|', $this->webInstanceList) . '@';

@@ -42,7 +42,7 @@ class Config implements ArrayAccess
         // Zapnuti|vypnuti debub modu
 		'DEBUGMODE'	=>	TRUE,
         // Cesta k slozce share
-		'SHAREROOT'	=>	'/',
+		'SHARE'	=>	'/share',
         // Odkud se ma prebrat informace o langu.
         'REMOTELANGFROM' => 'config', // browser, uri, config
         // Defaultni symbol jazyka.

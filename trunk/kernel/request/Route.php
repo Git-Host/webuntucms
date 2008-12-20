@@ -10,6 +10,8 @@ class Route extends Object
 
     private $moduleFunctionId = 0;
 
+    private $webInstanceId = 0;
+
 	private $pageId = 0;
 
 	private $command = '';
@@ -29,7 +31,7 @@ class Route extends Object
             throw new ErrorException ('Nemam nastaven jazyk, nemuzu zjistovat o jaky druh routy se jenda.');
         }
         
-        $query = "SELECT `id`, `pageid_id`, `command`, `uri`
+        $query = "SELECT `id`, `webinstance_id`, `pageid_id`, `command`, `uri`
             FROM `" . Config::DB_PREFIX . "routestatic_" . $lang . "`
             WHERE `uri` = '" . $uri . "'
             LIMIT 1";
@@ -51,6 +53,10 @@ class Route extends Object
 
         if (isset($record['module_functions_id'])) {
             $this->setModuleFunctionId($record['module_functions_id']);
+        }
+
+        if (isset($record['webinstance_id'])) {
+            $this->setWebInstanceId($record['webinstance_id']);
         }
 
         if (isset($record['pageid_id'])) {
@@ -107,6 +113,28 @@ class Route extends Object
         $this->moduleFunctionId = (int) $moduleFunctionId;
 		return $this;
 	}
+
+    /**
+     * Vrati hotnotu vlastnosti webInstanceId
+     *
+     * @return integer
+     */
+    public function getWebInstanceId()
+    {
+        return $this->webInstanceId;
+    }
+
+    /**
+     * Nastavi hodnotu vlastnosti webInstanceId
+     *
+     * @param integer $webInstanceId
+     * @return Route
+     */
+    private function setWebInstanceId($webInstanceId)
+    {
+        $this->webInstanceId = (integer)$webInstanceId;
+        return $this;
+    }
 
 	/**
 	 * Vrati hodnotu vlastnosti $pageId

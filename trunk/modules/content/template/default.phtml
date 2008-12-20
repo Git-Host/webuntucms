@@ -1,9 +1,11 @@
 <div>
-    <p>
+    
+    <img src="/share/themes/earthling/css/images/img5.jpg" alt="" width="102" height="102" class="image" />
+    <p class="indent">
         Tohle je vygenerovanej lokalizovanej link, kdyz se z configu odebere hodnota remoteLangFrom = 'uri' odebere se z linku informace o langu.<br />
         WebRoot se tam taktez dodava autoaticky.<br />
         Link se generuje pomoci staticke metody build tridy Link<br />
-        <b>Link::<i>build</i>('content/show/45');</b> =>
+        <a href="<?php echo Link::build('content/show/45') ?>" title="Odkaz"><b>Link::<i>build</i>('content/show/45');</b></a> =>
         <?php echo $this->data ?>
     </p>
 </div>

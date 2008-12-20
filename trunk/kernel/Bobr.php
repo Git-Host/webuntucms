@@ -92,11 +92,15 @@ class Bobr extends Object
 
         if (0 < $process->pageId) {
 
+            // Nastavime jazyk pro popiskovac a dame mu i informaci o pageId kvuli cachovani
             $description = DescriptionList::getInstance($process->getLang(), $process->getPageId());
+            // Nastavime jazyk generatoru linku
             LinkCreator::setLang($process->getLang());
-            
+
+            // Vytvorime si stranku
             $pageBuilder = new PageBuilder($process->pageId);
             $pageBuilder->createPage($process->getCommand());
+            
             echo $pageBuilder;
         } else {
             Messanger::addNote('Strasna chyba z nejakeho duvodu jsem nenasel pageID a proto nic neudelam. Oprav me prosiiim ;)');

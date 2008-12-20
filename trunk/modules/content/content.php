@@ -4,20 +4,17 @@
  *
  * @author rbas
  */
-class Content
+class Content extends AbstractModule
 {
-    public $command = '';
-    public $data;
-
-    public function  __construct($command) {
-        $this->command = $command;
-        $this->init();
-    }
-
-    private function init()
+    protected function showAction()
     {
         $this->data = Link::build('content/show/45');
         require_once 'template/default.phtml';
+    }
+
+    protected function defaultAction()
+    {
+        echo 'Vitej v bobroid';
     }
 
     public function  __toString()

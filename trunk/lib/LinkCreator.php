@@ -19,7 +19,7 @@ class LinkCreator extends DataObject
 
             $query = "SELECT  mf.`func` as `pattern`, dr.`command` as `localize`
                 FROM `" . Config::DB_PREFIX . "module_functions` mf
-                JOIN `" . Config::DB_PREFIX . "dynamicroute_" . self::$lang . "` dr ON mf.`id` = dr.`module_functions_id`
+                JOIN `" . Config::DB_PREFIX . "routedynamic_" . self::$lang . "` dr ON mf.`id` = dr.`module_functions_id`
                 ORDER BY mf.`module_id`, mf.`id`";
             $record = dibi::query($query)->fetchAssoc('pattern');
             if (!empty($record)) {
