@@ -97,7 +97,7 @@ class Bobr extends Object
 
                 
             } else {
-                echo 'Z nejakeho duvodu se nepovedlo nacist stranku.';
+                throw new BobrException('Z nejakeho duvodu se nepovedlo nacist stranku.');
             }
             
         } catch (PageException $e) {
@@ -106,19 +106,7 @@ class Bobr extends Object
         } catch (TemplateExceptino $e) {
             throw new BobrException($e->getMessage());
         }
-        
 
-        if (FALSE) {
-            // Vytvorime si stranku
-            $pageBuilder = new PageBuilder($process->pageId);
-            $pageBuilder->createPage($process->getCommand());
-            
-            echo $pageBuilder;
-        } else {
-            Messanger::addNote('Strasna chyba z nejakeho duvodu jsem nenasel pageID a proto nic neudelam. Oprav me prosiiim ;)');
-        }
-
-        
         echo $this->getErrorOutput($errorOutput);
 
     }

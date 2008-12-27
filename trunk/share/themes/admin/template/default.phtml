@@ -12,7 +12,8 @@
             <div id="right"><?php echo $this->getContainer('right') ?></div>
             <div id="center">
                 <?php
-                    echo $this->getContainer('center');
+                echo Messanger::flush();
+                echo $this->getContainer('center');
                 ?>
             </div>
             

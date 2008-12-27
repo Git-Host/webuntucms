@@ -1,6 +1,17 @@
 <?php
-final class Session //extends Object
+/**
+ * Veskera prace se session se provadi prostrednictvim teto tridy.
+ * Primy zapis do globalniho pole $_SESSION je ignorovan a smazan.
+ */
+final class Session
 {
+    /**
+     * Defaultni zivotnost 3 hodiny.
+     *
+     * @var integer
+     */
+	const DEFAULT_LIFETIME = 10800;
+    
 	/**
 	 * @var bool
 	 */
@@ -26,6 +37,21 @@ final class Session //extends Object
 
 	private function __construct()
 	{
+        ini_set('session.cookie_lifetime', '0');
+		ini_set('session.cookie_path', '/');
+		//ini_set('session.cookie_domain', '.' . $request->get('domain'));
+		ini_set('session.cookie_secure', '0');
+		ini_set('session.cookie_httponly', '1');
+		ini_set('session.use_only_cookies', '1');
+		ini_set('session.use_trans_sid', '0');
+		ini_set('url_rewriter.tags', '');
+
+        ini_set('session.gc_maxlifetime', self::DEFAULT_LIFETIME);// 3 hours
+		ini_set('session_cache_limiter', 'none');// do not affect caching
+		ini_set('session_cache_expire' , NULL);   // (default "180")
+		ini_set('session.hash_function', NULL);  // (default "0", means MD5)
+		ini_set('session.hash_bits_per_character', NULL); // (default "4")
+
 		$this->start();
 		$this->init();
 	}
@@ -56,6 +82,25 @@ final class Session //extends Object
     public static function lang()
     {
         return Session::getInstance()->lang;
+    }
+
+    public static function getNamespace($namespace)
+    {
+        if (isset(Session::getInstance()->SESSION['bobr'][$namespace])) {
+            return Session::getInstance()->SESSION['bobr'][$namespace];
+        } else {
+            return NULL;
+        }
+    }
+
+    public static function addNamesapce($namespace)
+    {
+        Session::getInstance()->SESSION['bobr'][$namespace] = array();
+    }
+
+    public static function setNamesapce($namespace, $value)
+    {
+        Session::getInstance()->SESSION['bobr'][$namespace] = $value;
     }
 
 	private function init()
