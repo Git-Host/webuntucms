@@ -30,6 +30,7 @@ class BlocksList extends Object
 				$this->items[$id]->importRecord($block);
 			} else {
                 print_re($block);
+                echo 'Na tento block nema uzivatel pravo.';
             }
 			// @todo udelat nejake logovani zakazanych blocku v debug modu bo tak nejak
 		}

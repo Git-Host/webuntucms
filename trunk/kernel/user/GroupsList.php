@@ -11,7 +11,7 @@ class GroupsList extends Object
 			JOIN  `" . Config::DB_PREFIX . "groups` g ON g.`id` = ug.`group_id`
 			WHERE ug.`user_id` = " . $id;
 		$result = dibi::query($query)->fetchAssoc('id');
-
+        
 		$this->importRecord($result);
 
 		return $this;

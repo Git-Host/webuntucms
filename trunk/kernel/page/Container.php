@@ -1,71 +1,116 @@
 <?php
 /**
- * Container je uloziste pro Blocky
+ * Nese v sobe hlavickove udaje o kontejnerech a obsahuje v sobe kolekci
+ * objektu Block.
  *
  * @author rbas
  */
-class Container extends Object
+class Container extends Colection
 {
 
-    /**
-     * Id Containeru.
+	/**
+     * Unikatni ciselny identifikator kontejneru.
      *
      * @var integer
      */
-	private $id = 0;
+    private $id = 0;
 
 	/**
-     * Jmeno kontejneru. Jmeno musi byt ve tvaru jako URI.
+     * Unikatni slovni identifikator kontejneru.
+     * Tento string je ident musi tedy byt bez diakritiky a podobnej veci...
      *
      * @var string
      */
     private $name = '';
 
-    /**
-     * Popis Containeru.
-     * Popis slouzi predevsim administratorovi webu, proto se nepreklada.
+	/**
+     * Popis kontejneru. Slouzi pro administraci.
      *
      * @var string
      */
-	private $description = '';
-
-	/**
-     * Pole objektu Block.
-     *
-     * @var array
-     */
-    private $blocksList = array();
-
-	/**
-     * Naimportuje do sebe $record.
-     *
-     * @param array $record
-     * @return Container
-     */
-    public function importRecord(array $record)
-	{
-		$this->id = $this->setId($record['id']);
-		$this->name = $this->setName($record['title']);
-		$this->description = $this->setDescription($record['description']);
-
-		return $this;
-	}
+    private $description = '';
 
     /**
-     * Naimportuje do vlastnosti $blocksList objekt BlockList.
+     * Nastavi importovaci pole a tridu.
+     * V pripade ze je zadana vstupni hodnota a neni 0 zavola metodu loadContainer.
      *
-     * @param array $blocks
+     * @param integer $id 
      */
-	public function importBlocks(array $blocks)
-	{
-		$this->blocksList = new BlocksList;
-		$this->blocksList->importBlocks($blocks);
-	}
+    public function __construct($id = 0)
+    {
+        $importProperties = array('id' => 'id', 'name' => 'name', 'description' => 'description');
+        $this->setImportProperties($importProperties);
+        $this->setColectionClass('Block');
+
+        if (0 != $id) {
+            $this->setId($id);
+            $this->loadContainer();
+        }
+    }
+
+    /**
+     * Nacte blocky a naimportuje je do sebe.
+     * Tento dotaz se nekesuje. Kes se provede v objektu ContainerColection.
+     *
+     *
+     * @param string $blockIds Cisla blocku ktere chcem nacist oddelene carkou.
+     * @throws ContainerException Pokud neexistuje ani jeden z blcku.
+     * @return Container
+     */
+    public function loadBlockByIds($blockIds)
+    {
+        $query = 'SELECT `id`, `command`, `description`
+            FROM `' . Config::DB_PREFIX . 'block`
+            WHERE `id` IN (' . $blockIds . ')';
+        $record = dibi::query($query)->fetchAll();
+
+        if (empty($record)) {
+            throw new ContainerException('Blocky ' . $blockIds . ' neexistuji.');
+        }
+
+        $this->importColection($record);
+
+        return $this;
+    }
+
+    /**
+     * Nacte container z databaze.
+     *
+     * @throws InvalidArgumentException Pokud neni vyplnena vlastnost id.
+     * @throws ContainerException Pokud nenajde zadne data.
+     * @return Container
+     */
+    public function loadContainer()
+    {
+        if (0 > $this->Id) {
+                throw new InvalidArgumentException('Neni zadano id kontejneru ktery se ma nacist.');
+        }
+
+        
+        $query = 'SELECT `name`, `description` FROM `' . Config::DB_PREFIX . 'container` WHERE id = ' . $this->id . ' LIMT 1';
+        $record = dibi::query($query)->fetch();
+
+        if (empty($record)) {
+            throw new ContainerException('Container id ' . $this->id . ' neexistuje.');
+        }
+
+
+        return $this;
+    }
+
+    /**
+     * Vrati cach identifikator.
+     *
+     * @return string
+     */
+    public function getCacheId()
+    {
+        return '/kernel/page/container/' . $this->id;
+    }
 
 	/**
 	 * Vrati hodnotu vlastnosti $id
 	 *
-	 * @param void
 	 * @return integer
 	 */
 	public function getId()
@@ -77,21 +122,17 @@ class Container extends Object
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return integer
+	 * @return Container
 	 */
-	private function setId($id)
+	public function setId($id)
 	{
-		if (! is_numeric($id)) {
-			throw new InvalidArgumentException('Promena $id musi byt datoveho typu integer.');
-		}
-		$id = (int)$id;
-		return $this->id = $id;
+		$this->id = (integer)$id;
+		return $this;
 	}
 
 	/**
 	 * Vrati hodnotu vlastnosti $name
 	 *
-	 * @param void
 	 * @return string
 	 */
 	public function getName()
@@ -103,21 +144,17 @@ class Container extends Object
 	 * Nastavi hodnotu vlastnosti $name
 	 *
 	 * @param string
-	 * @return string
+	 * @return Container
 	 */
-	private function setName($name)
+	public function setName($name)
 	{
-		if (! is_string($name) && ! is_numeric($name)) {
-			throw new InvalidArgumentException('Promena $name musi byt datoveho typu string.');
-		}
-		$name = (string)$name;
-		return $this->name = $name;
+		$this->name = (string)$name;
+		return $this;
 	}
 
 	/**
 	 * Vrati hodnotu vlastnosti $description
 	 *
-	 * @param void
 	 * @return string
 	 */
 	public function getDescription()
@@ -129,19 +166,12 @@ class Container extends Object
 	 * Nastavi hodnotu vlastnosti $description
 	 *
 	 * @param string
-	 * @return string
+	 * @return Container
 	 */
-	private function setDescription($description)
+	public function setDescription($description)
 	{
-		if (! is_string($description) && ! is_numeric($description)) {
-			throw new InvalidArgumentException('Promena $description musi byt datoveho typu string.');
-		}
-		$description = (string)$description;
-		return $this->description = $description;
+		$this->description = (string)$description;
+		return $this;
 	}
 
-    public function getBlocksList()
-    {
-        return $this->blocksList;
-    }
 }

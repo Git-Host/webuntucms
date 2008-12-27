@@ -6,21 +6,18 @@
  */
 class Content extends AbstractModule
 {
-    protected function showAction()
-    {
-        $this->data = Link::build('content/show/45');
-        require_once 'template/default.phtml';
-    }
-
     protected function defaultAction()
     {
-        echo 'Vitej v bobroid';
+        return 'Vitej v bobroid';
     }
 
-    public function  __toString()
+    protected function showAction()
     {
-        //$output = print_r($this,true);
-        //return $output;
-        return '';
+        return $this->loadTemplate('template/default.phtml');
+    }
+
+    protected function newAction()
+    {
+        return 'Udelat novej clanek';
     }
 }

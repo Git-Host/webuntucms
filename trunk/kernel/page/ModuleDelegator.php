@@ -17,10 +17,11 @@ class ModuleDelegator extends Object
      */
     public function createBlock(Block $block, $command)
     {
-        $blockCommand = explode('/', $block->getCommand());
+        $blockCommand = $block->getCommand()->toArray();
+        
         $requestCommand = explode('/', $command);
-        $moduleName = $blockCommand[0];
-        if (FALSE === (!isset($blockCommand[1]) && ($blockCommand[0] === $requestCommand[0]))) {
+        $moduleName = $block->getCommand()->getModule();
+        if (FALSE === (!isset($blockCommand[1]) && ($moduleName === $requestCommand[0]))) {
            $command = $block->getCommand();
         }
         ob_start();

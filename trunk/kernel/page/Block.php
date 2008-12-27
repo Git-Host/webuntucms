@@ -1,77 +1,77 @@
 <?php
 /**
- * Block, je fragment Containeru.
+ * Description of Block
  *
  * @author rbas
  */
-class Block extends Object
+class Block extends DataObject
 {
 
 	/**
-     * Id blocku.
-     *  
+     * Unikatni id blocku
+     *
      * @var integer
      */
     private $id = 0;
 
 	/**
-     * Id modulu, ktery se stara o obsah.
+     * Prikaz pro modul.
      *
-     * @var integer
+     * @var Command
      */
-    private $moduleId = 0;
+    private $command = NULL;
 
 	/**
-     * Id Containeru do ktereho block patri.
-     *
-     * @var integer
-     */
-    private $containerId = 0;
-
-	/**
-     * Command. Je to regularni vyraz, ktery dava prikazy modulu co ma delat.
+     * Popis blocku, slouzi k administraci.
      *
      * @var string
      */
-    private $command = '';
+    private $description = '';
 
-	/**
-     * ID popisovace.
-     *
-     * @var integer
-     */
-    private $descriptionId = 0;
+    public function __construct($id = 0)
+    {
+        $importProperties = array('id' => 'id', 'command' => 'command', 'description' => 'description');
+        $this->setImportProperties($importProperties);
+        if (0 != $id) {
+            $this->setId($id);
+            $this->load();
+        }
+    }
 
-	/**
-     * Vaha blocku.
+    /**
+     * Nacte block z cache nebo databaze.
+     * Tento dotaz se nekesuje. Kesovani se provadi v objectu ContainerColection.
      *
-     * @var integer
-     */
-    private $weight = 0;
-
-	/**
-     * Naimportuje do sebe record.
-     *
-     * @param array $record
      * @return Block
+     * @throws InvalidArgumentException Pokud neni vyplnena vlastnost id.
+     * @throws BlockException Pokud se nenejdou zadne data.
      */
-    public function importRecord(array $record)
-	{
-		$this->id = $this->setId($record['id']);
-		$this->moduleId = $this->setModuleId($record['module_id']);
-		$this->containerId = $this->setContainerId($record['container_id']);
-		$this->command = $this->setCommand($record['command']);
-		$this->descriptionId = $this->setDescriptionId($record['description_id']);
-        DescriptionList::addId($this->descriptionId);
-		$this->weight = $this->setWeight($record['weight']);
+    public function load()
+    {
+        if (0 > $this->id) {
+            throw new InvalidArgumentException('Neni nastaveno id blocku, ktery se ma nacist.');
+        }
 
-		return $this;
-	}
+        $query = 'SELECT `id`, `command`, `description` FROM `' . Config::DB_PREFIX . 'block` WHERE `id` = ' . $this->id . ' LIMIT 1';
+        $record = dibi::query($query)->fetch();
 
+        if (empty ($record)) {
+            throw new BlockException('Block id ' . $this->id . ' neexistuje.');
+        }
+
+        // Naimportujem data a ulozime do kese.
+        $this->importRecord($record);
+
+        return $this;
+    }
+
+    public function getCacheId()
+    {
+        return '/kernel/page/' . $this->getClass() . '/' . $this->id;
+    }
 	/**
 	 * Vrati hodnotu vlastnosti $id
 	 *
-	 * @param void
 	 * @return integer
 	 */
 	public function getId()
@@ -83,74 +83,18 @@ class Block extends Object
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return integer
+	 * @return Block
 	 */
-	private function setId($id)
+	public function setId($id)
 	{
-		if (! is_numeric($id)) {
-			throw new InvalidArgumentException('Promena $id musi byt datoveho typu integer.');
-		}
-		$id = (int)$id;
-		return $this->id = $id;
-	}
-
-	/**
-	 * Vrati hodnotu vlastnosti $moduleId
-	 *
-	 * @param void
-	 * @return integer
-	 */
-	public function getModuleId()
-	{
-		return $this->moduleId;
-	}
-
-	/**
-	 * Nastavi hodnotu vlastnosti $moduleId
-	 *
-	 * @param integer
-	 * @return integer
-	 */
-	private function setModuleId($moduleId)
-	{
-		if (! is_numeric($moduleId)) {
-			throw new InvalidArgumentException('Promena $moduleId musi byt datoveho typu integer.');
-		}
-		$moduleId = (int)$moduleId;
-		return $this->moduleId = $moduleId;
-	}
-
-	/**
-	 * Vrati hodnotu vlastnosti $containerId
-	 *
-	 * @param void
-	 * @return integer
-	 */
-	public function getContainerId()
-	{
-		return $this->containerId;
-	}
-
-	/**
-	 * Nastavi hodnotu vlastnosti $containerId
-	 *
-	 * @param integer
-	 * @return integer
-	 */
-	private function setContainerId($containerId)
-	{
-		if (! is_numeric($containerId)) {
-			throw new InvalidArgumentException('Promena $containerId musi byt datoveho typu integer.');
-		}
-		$containerId = (int)$containerId;
-		return $this->containerId = $containerId;
+		$this->id = (integer)$id;
+		return $this;
 	}
 
 	/**
 	 * Vrati hodnotu vlastnosti $command
 	 *
-	 * @param void
-	 * @return string
+	 * @return Command
 	 */
 	public function getCommand()
 	{
@@ -161,67 +105,34 @@ class Block extends Object
 	 * Nastavi hodnotu vlastnosti $command
 	 *
 	 * @param string
+	 * @return Block
+	 */
+	public function setCommand($command)
+	{
+		$this->command = new Command($command);
+		return $this;
+	}
+
+	/**
+	 * Vrati hodnotu vlastnosti $description
+	 *
 	 * @return string
 	 */
-	private function setCommand($command)
+	public function getDescription()
 	{
-		if (is_array($command)) {
-			throw new InvalidArgumentException('Promena $command musi byt datoveho typu string.');
-		}
-		$command = (string)$command;
-		return $this->command = $command;
+		return $this->description;
 	}
 
 	/**
-	 * Vrati hodnotu vlastnosti $descriptionId
+	 * Nastavi hodnotu vlastnosti $description
 	 *
-	 * @param void
-	 * @return integer
+	 * @param string
+	 * @return Block
 	 */
-	public function getDescriptionId()
+	public function setDescription($description)
 	{
-		return $this->descriptionId;
-	}
-
-	/**
-	 * Nastavi hodnotu vlastnosti $descriptionId
-	 *
-	 * @param integer
-	 * @return integer
-	 */
-	private function setDescriptionId($descriptionId)
-	{
-		if (! is_numeric($descriptionId)) {
-			throw new InvalidArgumentException('Promena $descriptionId musi byt datoveho typu integer.');
-		}
-		$descriptionId = (int)$descriptionId;
-		return $this->descriptionId = $descriptionId;
-	}
-
-	/**
-	 * Vrati hodnotu vlastnosti $weight
-	 *
-	 * @param void
-	 * @return integer
-	 */
-	public function getWeight()
-	{
-		return $this->weight;
-	}
-
-	/**
-	 * Nastavi hodnotu vlastnosti $weight
-	 *
-	 * @param integer
-	 * @return integer
-	 */
-	private function setWeight($weight)
-	{
-		if (! is_numeric($weight)) {
-			throw new InvalidArgumentException('Promena $weight musi byt datoveho typu integer.');
-		}
-		$weight = (int)$weight;
-		return $this->weight = $weight;
+		$this->description = (string)$description;
+		return $this;
 	}
 
 }

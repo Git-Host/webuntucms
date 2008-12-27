@@ -9,9 +9,9 @@ abstract class AbstractModule extends Object implements IModule
     /**
      * Command.
      *
-     * @var strig
+     * @var Command
      */
-    protected $command = '';
+    protected $command = NULL;
 
     /**
      * Akce ktera se ma provadet.
@@ -32,14 +32,14 @@ abstract class AbstractModule extends Object implements IModule
      *
      * @var string
      */
-    protected $data = '';
+    protected $output = '';
 
     /**
      * Nastavi objektu zakladni vlastnosti
      *
-     * @param string $command 
+     * @param Command $command
      */
-    public function  __construct($command)
+    public function  __construct(Command $command)
     {
         $this->setCommand($command)
             ->assignCommand()
@@ -51,7 +51,7 @@ abstract class AbstractModule extends Object implements IModule
      */
     protected function init()
     {
-        $this->data = $this->{$this->action . 'Action'}();
+        $this->output = $this->{$this->action . 'Action'}();
     }
     
     /**
@@ -66,7 +66,7 @@ abstract class AbstractModule extends Object implements IModule
      */
     protected function assignCommand()
     {
-        $command = explode('/', $this->command);
+        $command = $this->command->toArray();
         array_shift($command);
         if (isset($command[0])) {
             $this->setAction($command[0]);
@@ -82,9 +82,45 @@ abstract class AbstractModule extends Object implements IModule
     }
 
     /**
+     * Prida do sablony promenou a jeji hodnotu.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function addToTemplate($name, $value)
+    {
+        Template::add($name, $value);
+        return $this;
+    }
+
+    /**
+     * Nacte sablonu.
+     *
+     * @param string $fileName Cesta se udava od korenoveho adresare modulu.
+     * @return string
+     */
+    protected function loadTemplate($fileName)
+    {
+        $template = Template::getInstance();
+        return $template->load($this->getFileName($fileName));
+    }
+
+    /**
+     * Vrati absolutni cestu k souboru.
+     *
+     * @param string $fileName
+     * @return string
+     */
+    protected function getFileName($fileName)
+    {
+        return __WEB_ROOT__ . '/modules/' . strtolower($this->getClass()) . '/' . $fileName;
+    }
+
+    /**
      * Vrati hodnotu vlastnosti command
      *
-     * @return string
+     * @return Command
      */
     protected function getCommand()
     {
@@ -97,9 +133,9 @@ abstract class AbstractModule extends Object implements IModule
      * @param string $command
      * @return Module
      */
-    protected function setCommand($command)
+    protected function setCommand(Command $command)
     {
-        $this->command = (string)$command;
+        $this->command = $command;
         return $this;
     }
 
@@ -145,5 +181,10 @@ abstract class AbstractModule extends Object implements IModule
     {
         $this->params = $params;
         return $this;
+    }
+
+    public function  __toString()
+    {
+        return $this->output;
     }
 }

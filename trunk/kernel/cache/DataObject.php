@@ -14,6 +14,37 @@ abstract class DataObject extends Object implements IDataObject
      */
     protected $storage = '';
 
+    /**
+     * Pole nazvu vlastnosti a jeji databazovych protejsku.
+     * Pozor musi zde byt kazda privatni vlastnost.
+     *
+     * @example array('block_id' => 'blockId');
+     * @var array
+     */
+    protected $importProperties = array();
+
+    /**
+     * Naimportuje do sebe vlastnosti ktere jsou v seznamu importProperties.
+     *
+     * @param array $record
+     * @throws DataObjectIAException Pokud je vlastnost importProperties prazdna.
+     * @return DataObject
+     */
+    public function importRecord(array $record)
+    {
+        if (empty($this->importProperties)) {
+            throw new DataObjectIAException('Ve tride ' . $this->getClass() . ' neni nadefinovano pole $importProperties. Nemuzu naimportovat data.');
+        }
+        // Projdeme si record
+        foreach ($record as $name => $value) {
+            // Pokud klic existuje muzem ho nastavit
+            if (isset($this->importProperties[$name])) {
+                $methodName = 'set' . ucfirst($this->importProperties[$name]);
+                $this->$methodName($value);
+            }
+        }
+        return $this;
+    }
     
     /**
      * Nacist se z cache
@@ -102,6 +133,28 @@ abstract class DataObject extends Object implements IDataObject
     protected function setStorage($storage = Cache::FILE_STORAGE)
     {
         $this->storage = $storage;
+        return $this;
+    }
+
+    /**
+     * Vrati hodnotu vlastnosti importProperties.
+     *
+     * @return array
+     */
+    protected function getImportProperties()
+    {
+        return $this->importProperties;
+    }
+    
+    /**
+     * Nastavi hodnotu vlastnosti importProperties.
+     *
+     * @param array $importProperties
+     * @return DataObject
+     */
+    protected function setImportProperties(array $importProperties)
+    {
+        $this->importProperties = $importProperties;
         return $this;
     }
 

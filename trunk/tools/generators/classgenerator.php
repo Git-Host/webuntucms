@@ -102,7 +102,6 @@ class ClassGenerator
 		$output = "\n\t/**\n";
 		$output .= "\t * Vrati hodnotu vlastnosti $" . "$propertyName\n";
 		$output .= "\t *\n";
-		$output .= "\t * @param void\n";
 		$output .= "\t * @return $dataType\n";
 		$output .= "\t */\n";
 		$output .= "\tpublic function get" . ucfirst($propertyName);
@@ -115,24 +114,25 @@ class ClassGenerator
 	}
 	private function setMethodSetter($propertyName, $dataType)
 	{
-
+        $redeclare = "";
 		switch ($dataType){
 			case 'integer':
 				$bool = "! is_numeric($" . $propertyName . ")";
 				$exceptionText = "Promena $" . $propertyName . " musi byt datoveho typu integer.";
-				$reType = "(integer) ";
+				$reType = "(integer)";
 			break;
 
 			case 'string':
 				$bool = "! is_string($" . $propertyName . ") && ! is_numeric($" . $propertyName . ")";
 				$exceptionText = "Promena $" . $propertyName . " musi byt datoveho typu string.";
-				$reType = "(string) ";
+				$reType = "(string)";
 			break;
 
 			case 'array':
 				$bool = "! is_array($" . $propertyName . ")";
 				$exceptionText = "Promena $" . $propertyName . " musi byt datoveho typu array.";
-				$reType = "(array) ";
+				$reType = "(array)";
+                $redeclare = "array ";
 			break;
 
 			default:
@@ -149,12 +149,9 @@ class ClassGenerator
 		$output .= "\t * @param $dataType\n";
 		$output .= "\t * @return " . $this->request['className'] . "\n";
 		$output .= "\t */\n";
-		$output .= "\tpublic function set" . ucfirst($propertyName) . "($" . $propertyName . ")\n";
+		$output .= "\tpublic function set" . ucfirst($propertyName) . "(" . $redeclare . "$" . $propertyName . ")\n";
 		$output .= "\t{\n";
-			$output .= "\t\tif ($bool) {\n";
-				$output .= "\t\t\tthrow new InvalidArgumentException('$exceptionText');\n";
-			$output .= "\t\t}\n";
-			$output .= "\t\t$" . $propertyName . " = $reType$" . $propertyName . ";\n";
+			$output .= "\t\t$" . "this->" . $propertyName . " = $reType$" . $propertyName . ";\n";
 			$output .= "\t\treturn $" . "this;\n";
 		$output .= "\t}\n";
 		$this->addMethodOutput($output);

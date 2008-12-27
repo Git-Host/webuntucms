@@ -6,7 +6,12 @@ final class UserValidator extends Object
 	{
 	}
 
-	public function validate()
+	/**
+     * Zvaliduje jestli v session je paltny objekt User.
+     *
+     * @return boolean
+     */
+    public function validate()
 	{
 		$session = Session::getInstance();
 		if(isset($session->user) && $session->user instanceof User){
@@ -15,4 +20,15 @@ final class UserValidator extends Object
 			return FALSE;
 		}
 	}
+
+    /**
+     * Vytvori ze vstupni hodnoty hash.
+     *
+     * @param string $password
+     * @return string
+     */
+    public static function generatePassword($password)
+    {
+        return sha1($password);
+    }
 }

@@ -28,19 +28,23 @@ class Link extends Object
      * @param string $link
      * @return string
      */
-    public static function build($link)
+    public static function build($link, $isStatic = FALSE)
     {
-        // Nactem si lokalizovane linky a jejich matchovaci protejsky
-        $linkCreator = new LinkCreator;
-        // @todo logovat ktere linky se na dane pageId pouzivaji a cechovat to
-        // at se neprovadi tento proces neustale dokola.
-        $linkCreator->load();
-        foreach ($linkCreator->getLinkPatterns() as $pattern) {
-            if (0 < preg_match('@' . $pattern['pattern'] . '@i', $link, $matches)) {
-                array_shift($matches);
-                return self::getWebRoot() . Tools::mergeCommand($pattern['localize'], $matches);
+        if (FALSE === $isStatic) {
+            // Nactem si lokalizovane linky a jejich matchovaci protejsky
+            $linkCreator = new LinkCreator;
+            // @todo logovat ktere linky se na dane pageId pouzivaji a cechovat to
+            // at se neprovadi tento proces neustale dokola.
+            $linkCreator->load();
+            foreach ($linkCreator->getLinkPatterns() as $pattern) {
+                if (0 < preg_match('@' . $pattern['pattern'] . '@i', $link, $matches)) {
+                    array_shift($matches);
+                    return self::getWebRoot() . Tools::mergeCommand($pattern['localize'], $matches);
+                }
             }
+            return 'Link neni lokalizovan';
+        } else {
+            return self::getWebRoot() . $link;
         }
-        return 'Link neni lokalizovan';
     }
 }

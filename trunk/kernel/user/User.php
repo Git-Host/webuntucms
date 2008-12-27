@@ -9,38 +9,104 @@ class User extends Object
 	private $statusId	= 0;
 	private $groupsList = array();
 
-	const ANONYMOUS_USER_ID		= 2;
+	const ANONYMOUS_USER_ID = 2;
 
-	public function __construct($id = NULL)
+	public function __construct($id = 0)
 	{
-		if(NULL === $id){
-			$this->setAnonymous();
-		}else{
+		if(0 != $id){
 			$this->loadUserInfo($id);
 		}
 	}
 
-	private function setAnonymous()
+    /**
+     * Nacte uzivatele podle nicku
+     *
+     * @param string $nick
+     * @return User
+     */
+    public function loadByNick($nick)
+    {
+        $this->setNick($nick);
+
+        $query = "SELECT `id`, `pass`, `email`, `status_id`
+            FROM `" . Config::DB_PREFIX . "users`
+            WHERE nick = '" . $this->nick . "'
+            LIMIT 1";
+        $data = dibi::query($query)->fetch();
+        if (empty($data)) {
+            throw new UserNotExistException('Uzivatelske jmeno ' . $this->nick . ' neexistuje.');
+        }
+        $this->importRecord($data);
+        
+        return $this;
+    }
+
+	/**
+     * Nastavi anonymouse.
+     * 
+     * @return User
+     */
+    public function setAnonymous()
 	{
 		$this->loadUserInfo(self::ANONYMOUS_USER_ID);
+        return $this;
 	}
 
-	private function loadUserInfo($id)
+	/**
+     * Nacte zakladni uzivatelske udaje podle id.
+     *
+     * @param integer $id 
+     */
+    private function loadUserInfo($id)
 	{
+        $this->setId($id);
 		$query = "SELECT `id`, `nick`, `pass`, `email`, `status_id`
 			FROM `" . Config::DB_PREFIX . "users`
-			WHERE `id` = " . $id;
-		$this->importRecord(dibi::query($query)->fetch());
+			WHERE `id` = " . $this->id;
+        $data = dibi::query($query)->fetch();
+        if (empty($data)) {
+            throw new UserNotExistException('Uzivatel s id ' . $this->id . ' neexistuje.');
+        }
+		$this->importRecord($data);
 	}
 
 	private function importRecord(array $record)
 	{
-		$this->id	=	$record['id'];
-		$this->nick	=	$record['nick'];
-		$this->email=	$record['email'];
-		$this->pass	=	$record['pass'];
-		$this->statusId	=	$record['status_id'];
+		if (isset($record['id'])) {
+            $this->setId($record['id']);
+        }
+        if (isset($record['nick'])) {
+            $this->setNick($record['nick']);
+        }
+
+        if (isset($record['email'])) {
+            $this->setEmail($record['email']);
+        }
+
+        if (isset($record['pass'])) {
+            $this->setPass($record['pass']);
+        }
+
+        if (isset($record['status_id'])) {
+            $this->setStatusId($record['status_id']);
+        }
 	}
+
+    /**
+     * Pokud je v session validni uzivatel a neni to anonymnous vraci true.
+     *
+     * @return boolean
+     */
+    public static function isLoged()
+    {
+        $userValidator = new UserValidator;
+        $user = Session::getInstance()->user;
+        if (TRUE === $userValidator->validate() && (self::ANONYMOUS_USER_ID != $user->id)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
 
 	/**
 	 * Vrati v poli id vsech group ve kterych je uzivatel
@@ -174,8 +240,120 @@ class User extends Object
 		return $this->groupsList;
 	}
 
+
+    /**
+     * Vrati hodnotu vlastnosti id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Nastavi hodnotu vlastnosti id
+     *
+     * @param integer $id
+     * @return User
+     */
+    private function setId($id)
+    {
+        $this->id = (integer)$id;
+        return $this;
+    }
+
+    /**
+     * Vrati hodnotu vlastnosti nick
+     *
+     * @return string
+     */
     public function getNick()
     {
         return $this->nick;
+    }
+
+    /**
+     * Nastavi vlastnost nick.
+     *
+     * @param string $nick
+     * @return User
+     */
+    public function setNick($nick)
+    {
+        if (FALSE === is_array($nick)) {
+            $this->nick = $nick;
+        } else {
+            throw new InvalidArgumentException('Uzivatelsky nick musi byt ve tvaru varchar.');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Vrati hodnotu vlastnosti email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Nastavi hodnotu vlastnosti email
+     *
+     * @todo validovat jestli se jedna o platny email
+     * @param string $email
+     * @return User
+     */
+    private function setEmail($email)
+    {
+        $this->email = (string)$email;
+        return $this;
+    }
+
+    /**
+     * Vrati hodnotu vlastnosti pass
+     *
+     * @return string
+     */
+    public function getPass()
+    {
+        return $this->pass;
+    }
+
+    /**
+     * Nastavi hodnotu vlastnosti pass
+     *
+     * @param string $pass
+     * @return User
+     */
+    private function setPass($pass)
+    {
+        $this->pass = trim($pass);
+        return $this;
+    }
+
+    /**
+     * Vrati hodnotu vlastnosti statusId
+     *
+     * @return integer
+     */
+    public function getStatusId()
+    {
+        return $this->statusId;
+    }
+
+    /**
+     * Nastavi hodnotu vlastnosti statusId
+     *
+     * @param integer $statusId
+     * @return User
+     */
+    private function setStatusId($statusId)
+    {
+        $this->statusId = (integer)$statusId;
+        return $this;
     }
 }

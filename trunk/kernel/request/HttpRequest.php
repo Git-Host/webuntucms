@@ -8,9 +8,11 @@ class HttpRequest extends Object
 
 	private $cookie = NULL;
 
-	private $file = NULL;
+	private $files = array();
 
 	private $header = NULL;
+
+    private $encoding = 'UTF-8';
 
     /**
      * Promena se kterou se pracuje v ramci getu, ovlada celeho BOBRa :)
@@ -37,7 +39,7 @@ class HttpRequest extends Object
 		}
 	}
 
-	public function __construct()
+	private function __construct()
 	{
 		$this->init();
 	}
@@ -61,7 +63,7 @@ class HttpRequest extends Object
             $this->setGet()
                 ->setPost()
                 ->setCookie()
-                ->setFile()
+                ->setFiles()
                 ->setHeader();
 		}
 	}
@@ -110,6 +112,85 @@ class HttpRequest extends Object
     }
 
     /**
+     * Vrati object HttpGet
+     * 
+     * @return HttpGet
+     */
+    public static function get()
+    {
+        return HttpRequest::getInstance()->getGet();
+    }
+
+    /**
+     * Vrati object HttpPost
+     *
+     * @return HttpPost
+     */
+    public static function post()
+    {
+        return HttpRequest::getInstance()->getPost();
+    }
+
+    /**
+     * Vrati kolekci objektu HttpFile
+     *
+     * @return array
+     */
+    public static function files()
+    {
+        return HttpRequest::getInstance()->getFiles();
+    }
+
+    /**
+	 * Returns HTTP request method (GET, POST, HEAD, PUT, ...). The method is case-sensitive.
+     *
+	 * @return string
+	 */
+	public function getMethod()
+	{
+		return isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : NULL;
+	}
+
+
+
+	/**
+	 * Checks if the request method is the given one.
+     *
+	 * @param $method string
+	 * @return bool
+	 */
+	public function isMethod($method)
+	{
+		return isset($_SERVER['REQUEST_METHOD']) ? strcasecmp($_SERVER['REQUEST_METHOD'], $method) === 0 : FALSE;
+	}
+
+
+
+	/**
+	 * Kontroluje zda-li request metoda je POST.
+     *
+	 * @return boolean
+	 */
+	public function isPost()
+	{
+		return $this->isMethod('POST');
+	}
+
+    /**
+	 * Nastavi kodovani.
+     *
+	 * @param  $encodint string
+	 * @return HttpRequest
+	 */
+	public function setEncoding($encoding)
+	{
+		if (strcasecmp($encoding, $this->encoding)) {
+			$this->encoding = $encoding;
+		}
+        return $this;
+	}
+
+    /**
      * Vrati objekt HttpGet.
      * Pokud neni nastaven nastavi jej.
      *
@@ -148,7 +229,7 @@ class HttpRequest extends Object
 			$this->setPost();
 		}
 
-		return $this->post;
+		return $this->post->getPost();
 	}
 
     /**
@@ -158,8 +239,7 @@ class HttpRequest extends Object
      */
 	private function setPost()
 	{
-		$this->post = new HttpPost;
-		$this->post->assign($_POST);
+		$this->post = new HttpPost($_POST);
 		unset($_POST);
         return $this;
 	}
@@ -186,29 +266,45 @@ class HttpRequest extends Object
         return $this;
 	}
 
-	public function getFile()
+	public function getFiles()
 	{
-		if (NULL === $this->file) {
-			$this-setFile();
+		if (empty($this->files)) {
+			$this->setFiles();
 		}
 
-		return $this->file;
+		return $this->files;
 	}
 
     /**
-     * Nastavi objekt HttpFile a odnastavi globalni promenou $_FILES
+     * Nastavi objekt HttpFile a odnastavi globalni promenou $_FILES.
+     * Object HttpFile je prevzat z Nette.
      *
      * @return HttpRequest
      */
-	private function setFile()
+	private function setFiles()
 	{
-		$this->file = new HttpFile;
-		$this->file->assign($_FILES);
-		unset($_FILES);
-        return $this;
+       if (empty($_FILES)) {
+           $this->files['empty'] = new HttpFile($_FILES);
+       } else {
+           foreach ($_FILES as $name => $file) {
+                if (isset($file['name'])) {
+                    $this->files[$name] = new HttpFile($_FILES[$name]);
+                } else {
+                    throw new InvalidArgumentException('Spatny format formularoveho prvku file. Tento zpusob implementace neni podporovan.');
+                }
+            }
+       }
+       unset($_FILES);
+       return $this;
 	}
 
-    
+    /**
+     * Vraci hodnotu hlavicky pokud existuje. Jinak vrati FALSE.
+     * Kdyz nejsou hlavicky nastavene nastavi je.
+     *
+     * @param string $header
+     * @return mixed
+     */
 	public function getHeader($header = NULL)
 	{
 		if (NULL === $this->header) {

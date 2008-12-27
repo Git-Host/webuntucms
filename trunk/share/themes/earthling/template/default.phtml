@@ -9,13 +9,13 @@
 		<ul>
 			<li class="first"><a href="/" accesskey="1" title="">Home</a></li>
 			<li><a href="/bobradmin/" accesskey="2" title="">Administrace</a></li>
+            <li><a href="<?php echo Link::build('login/login') ?> " accesskey="3" title="">Login</a></li>
 		</ul>
 	</div>
 </div>
 <div id="content">
 	<div id="colOne">
         <?php
-            echo $this->messanger;
             echo $this->getContainer('center');
         ?>
 	</div>

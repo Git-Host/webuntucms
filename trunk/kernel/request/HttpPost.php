@@ -1,14 +1,31 @@
 <?php
-
-class HttpPost extends HttpProperty
+/**
+ * Vytvoreny objekt z globalniho pole $_POST
+ * 
+ * @author rbas
+ */
+class HttpPost
 {
-	private static $isAssigned = FALSE;
+    /**
+     * Informace zda-li jiz byl POST nastaven.
+     *
+     * @var boolean
+     */
+    private static $isAssigned = FALSE;
 
-	private $post = array();
+	/**
+     * Pole hodnot z POSTu
+     *
+     * @var array
+     */
+    private $post = array();
 
-	private $propertyName = 'post';
-
-	public function assign(array $POST)
+	/**
+     * Nacte do sebe $_POST
+     *
+     * @param array $POST
+     */
+    public function __construct(array $POST)
 	{
 		if (FALSE === self::$isAssigned) {
 			$this->post = $POST;
@@ -17,4 +34,14 @@ class HttpPost extends HttpProperty
 			throw new Exception('$_POST jiz byl nacten.');
 		}
 	}
+
+    /**
+     * Vrati hodnotu vlastnosti post.
+     *
+     * @return array
+     */
+    public function getPost()
+    {
+        return $this->post;
+    }
 }

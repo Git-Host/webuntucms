@@ -7,5 +7,7 @@ class IndexConfig extends AbstractConfig
 		'DEFAULTPAGEID'	=>	1,
 		'DEFAULTLANG'	=>	'cs',
         'WEBROOT'       =>  '/',
+        // Zakladni nastaveni pro sablonu
+        'WEBTITLE' => 'Vitej v BOBRoid',
 	);
 }

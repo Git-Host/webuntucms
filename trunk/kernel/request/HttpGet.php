@@ -74,6 +74,17 @@ class HttpGet
         return  isset($this->get[HttpGet::GET_LANG_VARIABLE]) ? $this->get[HttpGet::GET_LANG_VARIABLE] : '';
     }
 
+    /**
+     * Vraci vlastnost get.
+     * @todo toto znicit
+     *
+     * @return array
+     */
+    public function get()
+    {
+        return $this->get;
+    }
+
     public function __get($name)
 	{
 		if (isset($this->get[$name])) {

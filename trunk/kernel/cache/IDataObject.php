@@ -7,6 +7,13 @@
  */
 interface IDataObject
 {
+    /**
+     * Naimportuje do sebe data.
+     *
+     * @param array $record
+     * @return DataObject
+     */
+    public function importRecord(array $record);
     
     /**
      * Vraci identifikator kese
@@ -25,6 +32,8 @@ interface IDataObject
 
     /**
      * Naimportuje objekt
+     *
+     * @param Object
      */
     public function importObject(Object $object);
 }

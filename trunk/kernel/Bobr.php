@@ -62,14 +62,82 @@ class Bobr extends Object
         ob_start();
         echo '<p>Tyto blahy se daji vypnout v configu. Jedna se o debugMode</p>';
 
+        $this->setUser();
+                
+        try {
+            // Vytvorime si zaklad z url.
+            $process = new Process;
+            print_Re($process);
+
+            if (0 < $process->getPageId()) {
+                $page = new Page($process->pageId);
+
+                // Nastavime jazyk pro popiskovac a dame mu i informaci o pageId kvuli cachovani
+                $description = DescriptionList::getInstance($process->getLang(), $process->getPageId());
+
+                // Nastavime jazyk generatoru linku
+                LinkCreator::setLang($process->getLang());
+
+                // To co se do ted vypsalo vypisem pod html kodem.
+                $errorOutput = ob_get_contents();
+                ob_end_clean();
+
+                $config = new Config;
+                
+                $template = Template::getInstance();
+                $template->setContainerColection($page->getContainerColection())
+                    ->setCommand($process->getCommand());
+                Template::add('webTitle', $config->webTitle);
+                Template::add('title', 'Vitej');
+                Template::addCss($page->getCss());
+                Template::addCss('themes/default/css/console.css');
+                $template->load(__WEB_ROOT__ . $config->share . $page->getTemplate(), FALSE);
+
+                echo $template;
+
+                
+            } else {
+                echo 'Z nejakeho duvodu se nepovedlo nacist stranku.';
+            }
+            
+        } catch (PageException $e) {
+            // Nemuze se vytvorit stranka, vyhodime nejvissi vyjimku.
+            throw new BobrException($e->getMessage());
+        } catch (TemplateExceptino $e) {
+            throw new BobrException($e->getMessage());
+        }
+        
+
+        if (FALSE) {
+            // Vytvorime si stranku
+            $pageBuilder = new PageBuilder($process->pageId);
+            $pageBuilder->createPage($process->getCommand());
+            
+            echo $pageBuilder;
+        } else {
+            Messanger::addNote('Strasna chyba z nejakeho duvodu jsem nenasel pageID a proto nic neudelam. Oprav me prosiiim ;)');
+        }
+
+        
+        echo $this->getErrorOutput($errorOutput);
+
+    }
+
+    /**
+     * Zvaliduje session a nastavi uzivatele.
+     *
+     * @return Bobr
+     */
+    private function setUser()
+    {
         // Zvalidujem platnost Session
         new SessionValidator();
         $validator = new UserValidator();
         // Zvalidujem uzivatele v session
         if(FALSE === $validator->validate()){
             // Uzivatel nebyl validni nastavime anonymouse
-            Session::getInstance()->user = new User(1);
-            echo '<p>Nastavil jsem Admina.</p>';
+            $user = Session::getInstance()->user = new User(2);
+            echo '<p>Nastavil jsem <b>' . $user->nick .'</b>.</p>';
         }else{
             $user = Session::getInstance()->user;
             echo '<p>Uzivatel <b>' . $user->nick .'</b> mel jiz vytvorenou session.</p>';
@@ -83,32 +151,7 @@ class Bobr extends Object
             echo '<p>Uzivatel NEMA pristup na tuto web instanci</p>';
             // @todo presmerovavat nekam s nejakou hlaskou.
         }
-
-        $process = new Process;
-        print_re($process);
-        // To co se do ted vypsalo vypisem pod html kodem.
-        $errorOutput = ob_get_contents();
-        ob_end_clean();
-
-        if (0 < $process->pageId) {
-
-            // Nastavime jazyk pro popiskovac a dame mu i informaci o pageId kvuli cachovani
-            $description = DescriptionList::getInstance($process->getLang(), $process->getPageId());
-            // Nastavime jazyk generatoru linku
-            LinkCreator::setLang($process->getLang());
-
-            // Vytvorime si stranku
-            $pageBuilder = new PageBuilder($process->pageId);
-            $pageBuilder->createPage($process->getCommand());
-            
-            echo $pageBuilder;
-        } else {
-            Messanger::addNote('Strasna chyba z nejakeho duvodu jsem nenasel pageID a proto nic neudelam. Oprav me prosiiim ;)');
-        }
-
-        
-        echo $this->getErrorOutput($errorOutput);
-
+        return $this;
     }
 
     /**

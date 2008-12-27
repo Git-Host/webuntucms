@@ -25,9 +25,9 @@ class Process extends Object
     /**
      * Command ktery se ma provest.
      *
-     * @var string
+     * @var Command
      */
-    private $command = '';
+    private $command = NULL;
 
     private $webRoot = '';
 
@@ -44,7 +44,7 @@ class Process extends Object
         
         // Pokud je to ajaxovej request...
         if (TRUE === $request->isAjax()) {
-            throw new Exception('Ajaxove requesty nejsou implementovany.');
+            throw new ProcessException('Ajaxove requesty nejsou implementovany.');
         }
 
         // Je get prazdnej?
@@ -71,7 +71,7 @@ class Process extends Object
                 $this->webRoot = $config->webRoot;
                 break;
             case 'browser':
-                throw new Exception('fycura prebrani jazyku z prohlizece neni jeste napsana.');
+                throw new ProcessException('fycura prebrani jazyku z prohlizece neni jeste napsana.');
                 break;
             case 'uri':
                 // Nactem si lang z GETu
@@ -203,14 +203,14 @@ class Process extends Object
      */
     private function setPageId($pageId)
     {
-        $this->pageId = (integer) $pageId;
+        $this->pageId = (integer)$pageId;
         return $this;
     }
 
     /**
      * Vrati hodnotu vlastnosti command
      *
-     * @return string
+     * @return Command
      */
     public function getCommand()
     {
@@ -225,7 +225,7 @@ class Process extends Object
      */
     private function setCommand($command)
     {
-        $this->command = (string) $command;
+        $this->command = new Command($command);
         return $this;
     }
 

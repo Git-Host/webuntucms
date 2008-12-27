@@ -17,7 +17,9 @@ class DefaultConfig implements ArrayAccess
      */
 	private $settings = array(
 		'KUBULA'	=>	'DefaultConfig',
-		'EMANUEL'	=>	'Default Emanuel'
+		'EMANUEL'	=>	'Default Emanuel',
+        // Zakladni nastaveni pro sablonu
+        'WEBTITLE' => 'Bobroid',
 	);
 
     /**

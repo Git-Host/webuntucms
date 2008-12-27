@@ -86,7 +86,7 @@ class DescriptionList extends DataObject
        }
     }
 
-    private function importRecord(array $record)
+    public function importRecord(array $record)
     {
         foreach ($record as $id => $description) {
             $this->items[$description['id']] = new Description;
