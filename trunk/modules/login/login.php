@@ -18,8 +18,7 @@ class Login extends AbstractModule
 
     protected function showAction()
     {
-        $data = $this->loginAction();
-        
+        $data = '';
         if (FALSE === User::isLoged()) {
             $this->addToTemplate('loginForm', $this->loginForm());
             $data .= $this->loadTemplate('/template.phtml');
@@ -39,13 +38,13 @@ class Login extends AbstractModule
             try {
                 $userLogin = new UserLogin($post['userLogin'], $post['userPassword']);
                 if (TRUE === $userLogin->logIn() ){
+                    Messanger::addNote('Uzivatele se podarilo zalogovat.');
                     HttpRequest::redirect('/');
-                    $output = 'Uzivatele se podarilo zalogovat.';
                 } else {
-                    $output = 'Uzivatele se nepodarilo zalogovat.';
+                    Messanger::addError('Uzivatele se nepodarilo zalogovat.');
                 }
             } catch (UserNotExistException $e) {
-                $output = 'Uzivatelske jmeno neexistuje.';
+                Messanger::addError('Uzivatelske jmeno neexistuje.');
             }
         }
         return  $output;
@@ -56,6 +55,7 @@ class Login extends AbstractModule
         try {
             $userLogin = new UserLogin;
             $userLogin->logOut();
+            Messanger::addNote('Uzivatel byl odhlasen.');
             HttpRequest::redirect(Link::build('login/login'));
         } catch (UserLoginException $e) {
             echo $e->getMessage();

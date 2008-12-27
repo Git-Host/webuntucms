@@ -103,9 +103,12 @@ class Process extends Object
             // Zjistime jestli se jedna o statickou routu.
             if (FALSE === $this->checkStaticRoute()) {
                 $config = new Config;
+                Messanger::addError('Byla zadana neexistujici adresa.');
+                // @todo presmerovavat na chubovou stranku.
                 HttpRequest::redirect($this->webRoot);
             }
         }
+        print_RE('kakacek');
     }
 
     /**

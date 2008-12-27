@@ -91,6 +91,7 @@ class HttpRequest extends Object
     public static function redirect($url, $responseCode = '302')
     {
         $url = htmlspecialchars($url);
+        file_put_contents(__WEB_ROOT__ . '/local/cache/' . time(), $url);
         header('Location: ' . $url, $responseCode);
         // Pro pripad, ze by byla odeslana hlavicka.
         echo '<p><a href="' .$url . '">Prosim nasledujte tento link.</a>';

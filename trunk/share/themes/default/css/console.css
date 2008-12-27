@@ -30,3 +30,6 @@
     padding: 0;
     font-size: 100%;
 }
+
+.errors {padding:5px 10px 20px 5px;margin:10px 10px 10px 10px;border:solid 2px #FF7D6A !important; background:#FFC4B8 !important;  color: black;}
+.notes {padding:5px 10px 20px 5px;margin:10px 10px 10px 10px;border:solid 2px #FFEAAF !important; background:#FFFFCB !important; color: black;}
