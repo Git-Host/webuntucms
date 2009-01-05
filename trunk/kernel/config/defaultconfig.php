@@ -16,10 +16,19 @@ class DefaultConfig implements ArrayAccess
      * @var array
      */
 	private $settings = array(
-		'KUBULA'	=>	'DefaultConfig',
-		'EMANUEL'	=>	'Default Emanuel',
         // Zakladni nastaveni pro sablonu
+        // @var string
         'WEBTITLE' => 'Bobroid',
+        // Pokud ma byt vkladano nejaky defaultni cascadovy styl a neni to styl,
+        // ktery je zapsan u PageId, muze se vkladat zde.
+        // @var string
+        'DEFAULTCSS' => array('themes/default/css/console.css'),
+        'METATAGS' => array(
+            array('http-equiv' => 'content-type', 'content' => 'text/html; charset=UTF-8'),
+            array('name' => 'description', 'content' => 'BOBR v 2.0 cr. 3'),
+            array('name' => 'copyright', 'content' => 'Copyright (C) BOBR o.s. Konekuto'),
+            array('name' => 'author', 'content' => 'RBAS, o.s. Konekuto')
+        )
 	);
 
     /**

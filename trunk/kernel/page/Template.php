@@ -35,6 +35,13 @@ class Template
     private $css = array();
 
     /**
+     * Seznam meta tagu.
+     *
+     * @var array
+     */
+    private $metaTags = array();
+
+    /**
      * Object
      *
      * @var Command
@@ -47,6 +54,13 @@ class Template
      * @var Template
      */
     private static $instace = NULL;
+
+    /**
+     * Urcuje druh stranky ktera se bude renderovat.
+     *
+     * @var string
+     */
+    private $documentType = 'page';
 
 
     /**
@@ -63,7 +77,23 @@ class Template
     }
 
     private function __construct()
-    {}
+    {
+        $config = new Config;
+        // Pridame meta tagy z konfigu
+        if ($config->metaTags) {
+            $this->metaTags = $config->metaTags;
+        }
+        // Pokud jsou nejake css v konfigu pridame je.
+        if ($config->defaultCss) {
+            foreach ((array)$config->defaultCss as $link) {
+                $this->addCssLink($link);
+            }
+        }
+        // Pokud je v kofigu nejaky titulek pridame ho do sablony.
+        if ($config->webTitle) {
+            $this->addVariable('webTitle', $config->webTitle);
+        }
+    }
 
     /**
      * Nacte sablonu z cesty fileName.
@@ -123,7 +153,20 @@ class Template
      */
     public static function add($name, $value)
     {
-        self::getInstance()->templateProperties[$name] = $value;
+        self::getInstance()->addVariable($name, $value);
+    }
+
+    /**
+     * Prida do sablony vlastnost a jeji hodnotu.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return Template
+     */
+    public function addVariable($name, $value)
+    {
+        $this->templateProperties[$name] = $value;
+        return $this;
     }
 
 
@@ -134,7 +177,31 @@ class Template
      */
     public static function addCss($link)
     {
-        self::getInstance()->css[] = $link;
+        self::getInstance()->addCssLink($link);
+    }
+
+    /**
+     * Prida link na stylopis do hlavicky
+     *
+     * @param string $link
+     * @return Template
+     */
+    public function addCssLink($link)
+    {
+        $this->css[] = (string)$link;
+        return $this;
+    }
+
+    /**
+     * Prida meta tag $name s obsahem $content do hlavicky.
+     *
+     * @param array $tag
+     * @return Template
+     */
+    public function addMetaTag(array $tag)
+    {
+        $this->metaTags[] = $tag;
+        return $this;
     }
 
     /**
@@ -142,12 +209,21 @@ class Template
      *
      * @return string
      */
-    private function getCss()
+    private function renderInlineCss()
     {
         $output = '';
         $config = new Config;
         foreach ($this->css as $css) {
-            $output .= "\t<link href=\"" . $config->share . $css . "\" rel=\"stylesheet\" type=\"text/css\" />\n";
+            $output .= "\n\t<link href=\"" . $config->share . $css . "\" rel=\"stylesheet\" type=\"text/css\" />";
+        }
+        return $output;
+    }
+
+    private function renderInlineMetaTags()
+    {
+        $output = '';
+        foreach ($this->metaTags as $attrs) {
+            $output .= "\n\t" . HTML::el('meta', $attrs);
         }
         return $output;
     }
@@ -159,15 +235,9 @@ class Template
     private function addHeader()
     {
         $output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-        <html xmlns="http://www.w3.org/1999/xhtml">
-        <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <title>' . $this->templateProperties['webTitle'] . '</title>
-        <meta name="keywords" content="" />
-        <meta name="description" content="" />
-        ' . $this->getCss() . '
-        </head>
-        ' . $this->output;
+        <html xmlns="http://www.w3.org/1999/xhtml">';
+        $output .=  "\n\t" . HTML::el('head')->setHtml($this->renderInlineMetaTags() . $this->renderInlineCss() . "\n\t") . "\n";
+        $output .= $this->output;
         return $output;
     }
 
@@ -177,7 +247,11 @@ class Template
      */
     private function getDocument()
     {
-        return $this->addHeader();
+        if ($this->documentType === 'fragment') {
+            return $this->addHeader() . "\n</html>";
+        } else {
+            return $this->output;
+        }
     }
 
     /**
@@ -251,6 +325,18 @@ class Template
     public function setContainerColection(ContainerColection $containerColection)
     {
         $this->containerColection = $containerColection;
+        return $this;
+    }
+
+    /**
+     * Nastavi druh stranky.
+     *
+     * @param string $value
+     * @return Template
+     */
+    public function setDocumentType($value)
+    {
+        $this->documentType = $value;
         return $this;
     }
 }

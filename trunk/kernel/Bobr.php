@@ -87,10 +87,8 @@ class Bobr extends Object
                 $template = Template::getInstance();
                 $template->setContainerColection($page->getContainerColection())
                     ->setCommand($process->getCommand());
-                Template::add('webTitle', $config->webTitle);
                 Template::add('title', 'Vitej');
-                Template::addCss($page->getCss());
-                Template::addCss('themes/default/css/console.css');
+                $template->addCssLink($page->getCss());
                 $template->load(__WEB_ROOT__ . $config->share . $page->getTemplate(), FALSE);
 
                 echo $template;
@@ -136,8 +134,9 @@ class Bobr extends Object
         if (TRUE === $webInstanceValidatdor->validate(Tools::getWebInstance())) {
             echo '<p>Uzivatel ma pristup na tuto web instanci</p>';
         } else {
-            echo '<p>Uzivatel NEMA pristup na tuto web instanci</p>';
-            // @todo presmerovavat nekam s nejakou hlaskou.
+            Messanger::addError('Nemate pristup na tuto stranku.');
+            //@todo tato hlaska se pri presmerovani vymaze!!
+            HttpRequest::redirect('/');
         }
         return $this;
     }

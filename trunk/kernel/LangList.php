@@ -42,7 +42,7 @@ class LangList extends DataObject
      * @param array $record
      * @return LangList
      */
-    private function importRecord(array $record)
+    public function importRecord(array $record)
     {
         foreach ($record as $lang) {
             $this->items[$lang['id']] = new Lang;

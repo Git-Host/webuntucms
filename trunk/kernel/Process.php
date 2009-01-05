@@ -44,7 +44,7 @@ class Process extends Object
         
         // Pokud je to ajaxovej request...
         if (TRUE === $request->isAjax()) {
-            throw new ProcessException('Ajaxove requesty nejsou implementovany.');
+            Template::getInstance()->setDocumentType('fragment');
         }
 
         // Je get prazdnej?
