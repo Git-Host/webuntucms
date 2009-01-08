@@ -105,3 +105,16 @@ COMMENT ON COLUMN bobr_routestatic_cs.webinstance_id IS 'Odkaz na id webinstance
 COMMENT ON COLUMN bobr_routestatic_cs.pageid_id IS 'Stranka kde se ma vypsat';
 COMMENT ON COLUMN bobr_routestatic_cs.command IS 'Prikaz ktery se ma provest';
 COMMENT ON COLUMN bobr_routestatic_cs.uri IS 'Alias, ktery zastupuje tuto akci';
+
+CREATE TABLE bobr_administrationcategory
+(
+    id SERIAL,
+    routedynamic_id INTEGER NOT NULL,
+    description_id INTEGER NOT NULL,
+    weight INTEGER NOT NULL,
+    PRIMARY KEY(id)
+);
+COMMENT ON TABLE bobr_administrationcategory IS 'Kategorie administrace';
+COMMENT ON COLUMN bobr_administrationcategory.routedynamic_id IS 'Odkaz na id dynamicke routy v danem jazyce';
+COMMENT ON COLUMN bobr_administrationcategory.description_id IS 'Odkaz na id popisu v danem jazyce';
+COMMENT ON COLUMN bobr_administrationcategory.weight IS 'Vaha linku (cim vetsi cislo tim tezsi)';

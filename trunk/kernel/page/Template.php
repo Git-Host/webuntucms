@@ -248,9 +248,9 @@ class Template
     private function getDocument()
     {
         if ($this->documentType === 'fragment') {
-            return $this->addHeader() . "\n</html>";
-        } else {
             return $this->output;
+        } else {
+            return $this->addHeader() . "\n</html>";
         }
     }
 

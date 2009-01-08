@@ -1,30 +1,60 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-        <title><?php echo $this->title ?></title>
-        <link rel="stylesheet" type="text/css" href="/share/themes/default/css/default.css" />
-    </head>
-    <body>
-        <div id="canvas">
-            <div id="header"><?php echo $this->getContainer('header'); ?></div>
-            <div id="left"><?php echo $this->getContainer('left') ?></div>
-            <div id="right"><?php echo $this->getContainer('right') ?></div>
-            <div id="center">
-                <?php
-                echo Messanger::flush();
-                echo $this->getContainer('center');
-                ?>
-            </div>
-            
-            
-            <div class="cleaner"></div>
-            <div id="footer">
-                BOBR 2.O&nbsp;Administrace
-                <div>
-                    <?php echo $this->getContainer('footer') ?>
-                </div>
-            </div>
-        </div>
-    </body>
-</html>
+<body>
+<div id="header">
+	<div id="logo">
+        <h1><a href="<?php echo Link::build('', TRUE); ?>">Administrace</a></h1>
+		<h2><a href="#">BOBR 2.0 cr3</a></h2>
+	</div>
+	<div id="menu">
+        <?php echo $this->getContainer('main-menu'); ?>
+	</div>
+</div>
+<div id="content">
+	<div id="sidebar">
+		<?php echo $this->getContainer('left'); ?>
+        <div id="updates" class="boxed">
+			<h2 class="title">Recent Updates</h2>
+			<div class="content">
+				<ul>
+					<li>
+						<h3>March 5, 2007</h3>
+						<p><a href="#">In posuere eleifend odio quisque semper augue mattis wisi maecenas ligula&#8230;</a></p>
+					</li>
+					<li>
+						<h3>March 3, 2007</h3>
+						<p><a href="#">Quisque dictum integer nisl risus, sagittis convallis, rutrum id, congue, and nibh&#8230;</a></p>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div id="sidebar2">
+		<?php echo $this->getContainer('right'); ?>
+        <div id="lorem" class="boxed">
+			<h2 class="title">Lorem Ipsum</h2>
+			<div class="content">
+				<ul>
+					<li><a href="#">Integer sit amet pede</a></li>
+					<li><a href="#">Arcu aliquet pretium</a></li>
+					<li><a href="#">Pellentesque quis elit</a></li>
+					<li><a href="#">Non lectus gravida</a></li>
+					<li><a href="#">Lorem ipsum dolor sit</a></li>
+					<li><a href="#">Amet consectetuer</a></li>
+					<li><a href="#">Adipiscing elit hasellus</a></li>
+					<li><a href="#">Nec erat sit amet nibh</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div id="main">
+        <?php
+        echo Messanger::flush();
+        echo $this->getContainer('center');
+        ?>
+	</div>
+</div>
+<div id="footer">
+    <?php echo $this->getContainer('footer'); ?>
+	<p id="legal">Copyright &copy; 2007 Informatif. All Rights Reserved. Designed by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	<p id="links"><a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+</div>
+</body>

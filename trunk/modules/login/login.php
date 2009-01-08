@@ -76,7 +76,8 @@ class Login extends AbstractModule
             ->addRule(Form::MIN_LENGTH, 'Heslo musi byt dlouhe minimalne %d znaku.', 3);
 
         $form->addSubmit('login', 'Prihlasit');
-        return $form;
+
+        return $form .'';
     }
 
     private function showUserPersonal()

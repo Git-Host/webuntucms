@@ -33,3 +33,8 @@ class ColectionIAException extends ColectionException {}
 
 class ProcessException extends BobrException {}
 class ProcessIAException extends ProcessException {}
+
+/**
+ * Nejvissi vyjimka kterou muze vyhodit modul
+ */
+class ModuleException extends BobrException{}
