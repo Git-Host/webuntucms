@@ -1,10 +1,10 @@
 <?php
 /**
- * Description of pageid
+ * Description of symptom
  *
  * @author rbas
  */
-class Pageid
+class Modules_Symptom_Exec
 {
     private $command;
 

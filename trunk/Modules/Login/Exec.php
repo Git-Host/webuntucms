@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Login extends AbstractModule
+class Modules_Login_Exec extends Lib_AbstractModule
 {
     /**
      * Ukaze prihlasovaci formular.
@@ -19,7 +19,7 @@ class Login extends AbstractModule
     protected function showAction()
     {
         $data = '';
-        if (FALSE === User::isLoged()) {
+        if (FALSE === Kernel_User_User::isLoged()) {
             $this->addToTemplate('loginForm', $this->loginForm());
             $data .= $this->loadTemplate('/template.phtml');
         } else {
@@ -31,20 +31,20 @@ class Login extends AbstractModule
     protected function loginAction()
     {
         $output = '';
-        $request = HttpRequest::getInstance();
+        $request = Kernel_Request_HttpRequest::getInstance();
         $post = $request->getPost();
         if ($request->isPost() && isset($post['userLogin']) && isset($post['userPassword'])) {
             $post = $request->getPost();
             try {
-                $userLogin = new UserLogin($post['userLogin'], $post['userPassword']);
+                $userLogin = new Kernel_User_UserLogin($post['userLogin'], $post['userPassword']);
                 if (TRUE === $userLogin->logIn() ){
-                    Messanger::addNote('Uzivatele se podarilo zalogovat.');
-                    HttpRequest::redirect('/');
+                    Lib_Messanger::addNote('Uzivatele se podarilo zalogovat.');
+                    Kernel_Request_HttpRequest::redirect('/');
                 } else {
-                    Messanger::addError('Uzivatele se nepodarilo zalogovat.');
+                    Lib_Messanger::addError('Uzivatele se nepodarilo zalogovat.');
                 }
             } catch (UserNotExistException $e) {
-                Messanger::addError('Uzivatelske jmeno neexistuje.');
+                Lib_Messanger::addError('Uzivatelske jmeno neexistuje.');
             }
         }
         return  $output;
@@ -53,10 +53,10 @@ class Login extends AbstractModule
     protected function logoutAction()
     {
         try {
-            $userLogin = new UserLogin;
+            $userLogin = new Kernel_User_UserLogin;
             $userLogin->logOut();
-            Messanger::addNote('Uzivatel byl odhlasen.');
-            HttpRequest::redirect(Link::build('login/login'));
+            Lib_Messanger::addNote('Uzivatel byl odhlasen.');
+            Kernel_Request_HttpRequest::redirect(Link::build('login/login'));
         } catch (UserLoginException $e) {
             echo $e->getMessage();
         }
@@ -66,7 +66,7 @@ class Login extends AbstractModule
     private function loginForm()
     {
         $form = new Form;
-        $form->setAction(Link::build('login/login'));
+        $form->setAction(Lib_Link::build('login/login'));
 
         $form->addText('userLogin', 'Jmeno:', 10)
             ->addRule(Form::FILLED, 'Vloz svoje uzivatelske jmeno.');
@@ -82,9 +82,9 @@ class Login extends AbstractModule
 
     private function showUserPersonal()
     {
-        $user = Session::getInstance()->user;
+        $user = Kernel_Session::getInstance()->user;
         $output = '<p>Uzivatel: <b>' . $user->nick  . '</b> je zalogovan.<p>';
-        $output .= '<a href="' . Link::build('odhlaseni', TRUE) . '" title="Odhlasit se">Odhlasit se</a>';
+        $output .= '<a href="' . Lib_Link::build('odhlaseni', TRUE) . '" title="Odhlasit se">Odhlasit se</a>';
         return $output;
     }
 }

@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class DynamicRoute extends DataObject
+class Kernel_Request_DynamicRoute extends Kernel_DataObject
 {
     /**
      * Symbol jazyka.
@@ -41,7 +41,7 @@ class DynamicRoute extends DataObject
     private function loadAll()
     {
         // @todo odchytavat vyjimky z dibi pro pripad neexistujici tabulky.
-        $query = "SELECT `module_functions_id`, `webinstance_id`, `pageid_id`, `command` FROM `" . Config::DB_PREFIX . 'routedynamic_' . $this->langSymbol . "`";
+        $query = "SELECT `module_functions_id`, `webinstance_id`, `pageid_id`, `command` FROM `" . Kernel_Config_Config::DB_PREFIX . 'routedynamic_' . $this->langSymbol . "`";
         $record = dibi::query($query)->fetchAll();
         $this->importRecord($record);
     }
@@ -49,7 +49,7 @@ class DynamicRoute extends DataObject
     public function importRecord(array $record)
     {
         foreach ($record as $key => $route) {
-            $this->items[$key] = new Route;
+            $this->items[$key] = new Kernel_Request_Route;
             $this->items[$key]->importRecord($route);
         }
     }
@@ -73,11 +73,11 @@ class DynamicRoute extends DataObject
      * Nastavi hodnotu vlastnosti LangSymbol
      *
      * @param string $langSymbol
-     * @return DynamicRoute
+     * @return Kernel_Request_DynamicRoute
      */
     public function setLangSymbol($langSymbol)
     {
-        $this->langSymbol = (string) $langSymbol;
+        $this->langSymbol = (string)$langSymbol;
         return $this;
     }
 
@@ -95,11 +95,11 @@ class DynamicRoute extends DataObject
      * Nastavi hodnotu vlastnosti items.
      *
      * @param array $items
-     * @return DynamicRoute
+     * @return Kernel_Request_DynamicRoute
      */
     public function setItems(array $items)
     {
-        $this->items = (array) $items;
+        $this->items = $items;
         return $this;
     }
 }

@@ -4,18 +4,18 @@
  *
  * @author rbas
  */
-class ModuleDelegator extends Object
+class Kernel_Page_ModuleDelegator extends Object
 {
     /**
      * Vytvori na zaklade objektu Block obsah.
      * Pokud Block nema zadany vlastni command pokusi se predat co command
      * z requestu, za predpokladu ze se jedna o shodny modul.
      *
-     * @param Block $block
+     * @param Kernel_Page_Block $block
      * @param string $command
      * @return string
      */
-    public function createBlock(Block $block, $command)
+    public function createBlock(Kernel_Page_Block $block, $command)
     {
         $blockCommand = $block->getCommand()->toArray();
         
@@ -26,8 +26,9 @@ class ModuleDelegator extends Object
         }
         ob_start();
         // @todo udelat nejake kontrolovani bo vyhazovat vyjimku
-        require_once __WEB_ROOT__ . '/modules/' . $moduleName . '/' . $moduleName . '.php';
-        echo new $moduleName($command);
+        require_once __WEB_ROOT__ . '/Modules/' . ucfirst($moduleName) . '/Exec.php';
+        $className = 'Modules_' . ucfirst($moduleName) . '_Exec';
+        echo new $className($command);
             
         $contents = ob_get_contents();
         ob_end_clean();

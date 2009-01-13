@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class AdministrationCategory extends DataObject
+class AdministrationCategory extends Kernel_DataObject
 {
 
 	private $id = 0;

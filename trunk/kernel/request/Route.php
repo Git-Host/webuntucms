@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Route extends Object
+class Kernel_Request_Route extends Object
 {
     private $id = 0;
 
@@ -23,7 +23,7 @@ class Route extends Object
      *
      * @param string $uri
      * @param string $lang
-     * @return Route | NULL
+     * @return Kernel_Request_Route | NULL
      */
     public function loadByUri($uri, $lang)
     {
@@ -32,7 +32,7 @@ class Route extends Object
         }
         
         $query = "SELECT `id`, `webinstance_id`, `pageid_id`, `command`, `uri`
-            FROM `" . Config::DB_PREFIX . "routestatic_" . $lang . "`
+            FROM `" . Kernel_Config_Config::DB_PREFIX . "routestatic_" . $lang . "`
             WHERE `uri` = '" . $uri . "'
             LIMIT 1";
         $record = dibi::query($query)->fetch();
@@ -83,11 +83,11 @@ class Route extends Object
      * Nastavi hodnotu vlastnosti id
      *
      * @param integer $id
-     * @return Route
+     * @return Kernel_Request_Route
      */
     private function setId($id)
     {
-        $this->id = (int) $id;
+        $this->id = (integer)$id;
         return $this;
     }
 
@@ -106,11 +106,11 @@ class Route extends Object
 	 * Nastavi hodnotu vlastnosti $moduleFunctionId
 	 *
 	 * @param integer
-	 * @return Route
+	 * @return Kernel_Request_Route
 	 */
 	private function setModuleFunctionId($moduleFunctionId)
 	{
-        $this->moduleFunctionId = (int) $moduleFunctionId;
+        $this->moduleFunctionId = (integer)$moduleFunctionId;
 		return $this;
 	}
 
@@ -128,7 +128,7 @@ class Route extends Object
      * Nastavi hodnotu vlastnosti webInstanceId
      *
      * @param integer $webInstanceId
-     * @return Route
+     * @return Kernel_Request_Route
      */
     private function setWebInstanceId($webInstanceId)
     {
@@ -151,11 +151,11 @@ class Route extends Object
 	 * Nastavi hodnotu vlastnosti $pageId
 	 *
 	 * @param integer
-	 * @return Route
+	 * @return Kernel_Request_Route
 	 */
 	private function setPageId($pageId)
 	{
-        $this->pageId = (int) $pageId;
+        $this->pageId = (integer)$pageId;
 		return $this;
 	}
 
@@ -174,11 +174,11 @@ class Route extends Object
 	 * Nastavi hodnotu vlastnosti $command
 	 *
 	 * @param string
-	 * @return Route
+	 * @return Kernel_Request_Route
 	 */
 	private function setCommand($command)
 	{
-        $this->command = (string) $command;
+        $this->command = (string)$command;
 		return $this;
 	}
 
@@ -191,11 +191,11 @@ class Route extends Object
      * Nastavi hodnotu vlastnosti uri.
      *
      * @param string $uri
-     * @return Route
+     * @return Kernel_Request_Route
      */
     private function setUri($uri)
     {
-        $this->uri = (string) $uri;
+        $this->uri = (string)$uri;
         return $this;
     }
 }

@@ -32,7 +32,7 @@ require_once __WEB_ROOT__ . '/lib/Nette/Object.php';
  * @copyright  Copyright (c) 2004, 2008 David Grudl
  * @package    Nette::Loaders
  */
-abstract class AutoLoader extends /*Nette::*/Object
+abstract class Kernel_AutoLoader extends /*Nette::*/Object
 {
 	/** @var array  list of registered loaders */
 	static private $loaders = array();

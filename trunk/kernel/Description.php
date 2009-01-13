@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Description extends Object
+class Kernel_Description extends Object
 {
     private $id = 0;
 
@@ -16,7 +16,7 @@ class Description extends Object
      * Natahne do sebe data a vrati sebe.
      *
      * @param array $record
-     * @return Description
+     * @return Kernel_Description
      */
     public function importRecord(array $record)
     {
@@ -41,14 +41,11 @@ class Description extends Object
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return Description
+	 * @return Kernel_Description
 	 */
 	public function setId($id)
 	{
-		if (! is_numeric($id)) {
-			throw new InvalidArgumentException('Promena $id musi byt datoveho typu integer.');
-		}
-		$this->id = (integer) $id;
+		$this->id = (integer)$id;
 		return $this;
 	}
 
@@ -67,14 +64,11 @@ class Description extends Object
 	 * Nastavi hodnotu vlastnosti $title
 	 *
 	 * @param string
-	 * @return Description
+	 * @return Kernel_Description
 	 */
 	public function setTitle($title)
 	{
-		if (! is_string($title) && ! is_numeric($title)) {
-			throw new InvalidArgumentException('Promena $title musi byt datoveho typu string.');
-		}
-		$this->title = (string) $title;
+		$this->title = (string)$title;
 		return $this;
 	}
 
@@ -93,14 +87,11 @@ class Description extends Object
 	 * Nastavi hodnotu vlastnosti $description
 	 *
 	 * @param string
-	 * @return Description
+	 * @return Kernel_Description
 	 */
 	public function setDescription($description)
 	{
-		if (! is_string($description) && ! is_numeric($description)) {
-			throw new InvalidArgumentException('Promena $description musi byt datoveho typu string.');
-		}
-		$this->description = (string) $description;
+		$this->description = (string)$description;
 		return $this;
 	}
 

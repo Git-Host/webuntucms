@@ -9,10 +9,10 @@ try {
 
     require_once __WEB_ROOT__ . '/kernel/BobrLoader.php';
 
-    BobrLoader::getInstance()->base = __WEB_ROOT__;
-    BobrLoader::getInstance()->register();
+    Kernel_BobrLoader::getInstance()->base = __WEB_ROOT__;
+    Kernel_BobrLoader::getInstance()->register();
 
-    $bobr = new Bobr;
+    $bobr = new Kernel_Bobr;
     $bobr->run();
 } catch (Exception $e) {
     echo $e->getMessage();

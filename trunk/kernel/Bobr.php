@@ -1,6 +1,6 @@
 <?php
 
-class Bobr extends Object
+class Kernel_Bobr extends Object
 {
 
     public function run()
@@ -11,13 +11,13 @@ class Bobr extends Object
     /**
      * Spoji se z databzi.
      *
-     * @return Bobr
+     * @return Kernel_Bobr
      * @throws DibiDriverException
      */
     private function connectToDatabase()
     {
         // @todo odchytavat vyjimku pri nepovedenem spojeni.
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         $connect = dibi::connect(array(
             'driver'     => 'postgre',
             'string'     => ' host='	. $config->dbHost .
@@ -33,11 +33,11 @@ class Bobr extends Object
     /**
      * Pokud je v Cofigu zapnuty debub mode zapne ladenku.
      *
-     * @return Bobr
+     * @return Kernel_Bobr
      */
     private function debug()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         if( TRUE === $config->debugMode ){
             Debug::enable( E_ALL | E_STRICT | E_NOTICE , FALSE );
             ini_set('xdebug.extended_info', 0);
@@ -66,28 +66,28 @@ class Bobr extends Object
                 
         try {
             // Vytvorime si zaklad z url.
-            $process = new Process;
+            $process = new Kernel_Process;
             print_Re($process);
 
             if (0 < $process->getPageId()) {
-                $page = new Page($process->pageId);
+                $page = new Kernel_Page_Page($process->pageId);
 
                 // Nastavime jazyk pro popiskovac a dame mu i informaci o pageId kvuli cachovani
-                $description = DescriptionList::getInstance($process->getLang(), $process->getPageId());
+                $description = Kernel_DescriptionList::getInstance($process->getLang(), $process->getPageId());
 
                 // Nastavime jazyk generatoru linku
-                LinkCreator::setLang($process->getLang());
+                Lib_LinkCreator::setLang($process->getLang());
 
                 // To co se do ted vypsalo vypisem pod html kodem.
                 $errorOutput = ob_get_contents();
                 ob_end_clean();
 
-                $config = new Config;
+                $config = new Kernel_Config_Config;
                 
-                $template = Template::getInstance();
+                $template = Kernel_Page_Template::getInstance();
                 $template->setContainerColection($page->getContainerColection())
                     ->setCommand($process->getCommand());
-                Template::add('title', 'Vitej');
+                Kernel_Page_Template::add('title', 'Vitej');
                 $template->addCssLink($page->getCss());
                 $template->load(__WEB_ROOT__ . $config->share . $page->getTemplate(), FALSE);
 
@@ -95,14 +95,14 @@ class Bobr extends Object
 
                 
             } else {
-                throw new BobrException('Z nejakeho duvodu se nepovedlo nacist stranku.');
+                throw new Kernel_BobrException('Z nejakeho duvodu se nepovedlo nacist stranku.');
             }
             
-        } catch (PageException $e) {
+        } catch (Kernel_Page_PageException $e) {
             // Nemuze se vytvorit stranka, vyhodime nejvissi vyjimku.
-            throw new BobrException($e->getMessage());
-        } catch (TemplateExceptino $e) {
-            throw new BobrException($e->getMessage());
+            throw new Kernel_BobrException($e->getMessage());
+        } catch (Kernel_Page_TemplateException $e) {
+            throw new Kernel_BobrException($e->getMessage());
         }
 
         echo $this->getErrorOutput($errorOutput);
@@ -117,26 +117,26 @@ class Bobr extends Object
     private function setUser()
     {
         // Zvalidujem platnost Session
-        new SessionValidator();
-        $validator = new UserValidator();
+        new Kernel_SessionValidator();
+        $validator = new Kernel_User_UserValidator();
         // Zvalidujem uzivatele v session
         if(FALSE === $validator->validate()){
             // Uzivatel nebyl validni nastavime anonymouse
-            $user = Session::getInstance()->user = new User(2);
+            $user = Kernel_Session::getInstance()->user = new Kernel_User_User(2);
             echo '<p>Nastavil jsem <b>' . $user->nick .'</b>.</p>';
         }else{
-            $user = Session::getInstance()->user;
+            $user = Kernel_Session::getInstance()->user;
             echo '<p>Uzivatel <b>' . $user->nick .'</b> mel jiz vytvorenou session.</p>';
         }
-        $user = Session::getInstance()->user;
+        $user = Kernel_Session::getInstance()->user;
 
-        $webInstanceValidatdor = new WebInstanceValidator();
-        if (TRUE === $webInstanceValidatdor->validate(Tools::getWebInstance())) {
+        $webInstanceValidatdor = new Kernel_WebInstanceValidator();
+        if (TRUE === $webInstanceValidatdor->validate(Lib_Tools::getWebInstance())) {
             echo '<p>Uzivatel ma pristup na tuto web instanci</p>';
         } else {
-            Messanger::addError('Nemate pristup na tuto stranku.');
+            Lib_Messanger::addError('Nemate pristup na tuto stranku.');
             //@todo tato hlaska se pri presmerovani vymaze!!
-            HttpRequest::redirect('/');
+            Kernel_Request_HttpRequest::redirect('/');
         }
         return $this;
     }
@@ -151,7 +151,7 @@ class Bobr extends Object
     private function getErrorOutput($errorOutput)
     {
         $output = '';
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         if( TRUE === $config->debugMode ){
             // @todo toto logovat
            $output .= "<div id=\"console-header\"><h1>BOBR rika:</h1></div>\n";

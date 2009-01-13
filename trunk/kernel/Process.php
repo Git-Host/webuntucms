@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Process extends Object
+class Kernel_Process extends Object
 {
 
     /**
@@ -37,18 +37,18 @@ class Process extends Object
 
     private function init()
     {
-        $request = HttpRequest::getInstance();
+        $request = Kernel_Request_HttpRequest::getInstance();
         // Zjistime co mame za jazyk.
         $this->setLang();
 
         
         // Pokud je to ajaxovej request...
         if (TRUE === $request->isAjax()) {
-            Template::getInstance()->setDocumentType('fragment');
+            Kernel_Page_Template::getInstance()->setDocumentType('fragment');
         }
 
         // Je get prazdnej?
-        $uri = HttpRequest::uri();
+        $uri = Kernel_Request_HttpRequest::uri();
         if ($uri === '' || empty($uri)) {
             // Nastavime defaultni stranku.
             $this->setDefaultPage();
@@ -64,22 +64,22 @@ class Process extends Object
      */
     private function setLang()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         switch ($config->remoteLangFrom) {
             case 'config':
                 $this->lang = $config->defaultLang;
                 $this->webRoot = $config->webRoot;
                 break;
             case 'browser':
-                throw new ProcessException('fycura prebrani jazyku z prohlizece neni jeste napsana.');
+                throw new Kernel_ProcessException('fycura prebrani jazyku z prohlizece neni jeste napsana.');
                 break;
             case 'uri':
                 // Nactem si lang z GETu
-                $lang = HttpRequest::lang();
+                $lang = Kernel_Request_HttpRequest::lang();
                 if (empty($lang)) {
                     // Lang byl prazdny presmerujem ho na url s defaultnim langem
                     $this->webRoot = $config->webRoot . $config->defaultLang . '/';
-                    HttpRequest::redirect($this->webRoot);
+                    Kernel_Request_HttpRequest::redirect($this->webRoot);
                 } else {
                     $this->webRoot = $config->webRoot . $config->defaultLang . '/';
                     $this->lang = $lang;
@@ -92,7 +92,7 @@ class Process extends Object
                 break;
         }
         // @todo mela by probehnout nejake validace langu.
-        Session::getInstance()->lang = $this->lang;
+        Kernel_Session::getInstance()->lang = $this->lang;
         return $this;
     }
 
@@ -102,10 +102,10 @@ class Process extends Object
         if (FALSE === $this->checkDynamicRoute()) {
             // Zjistime jestli se jedna o statickou routu.
             if (FALSE === $this->checkStaticRoute()) {
-                $config = new Config;
-                Messanger::addError('Byla zadana neexistujici adresa.');
+                $config = new Kernel_Config_Config;
+                Lib_Messanger::addError('Byla zadana neexistujici adresa.');
                 // @todo presmerovavat na chubovou stranku.
-                HttpRequest::redirect($this->webRoot);
+                Kernel_Request_HttpRequest::redirect($this->webRoot);
             }
         }
         print_RE('kakacek');
@@ -118,39 +118,39 @@ class Process extends Object
      */
     private function checkDynamicRoute()
     {
-        $dynamicRoute = new DynamicRoute($this->lang);
-        $uri = HttpRequest::uri();
+        $dynamicRoute = new Kernel_Request_DynamicRoute($this->lang);
+        $uri = Kernel_Request_HttpRequest::uri();
         foreach ($dynamicRoute->items as $route) {
             // Pokud se to projde regularem mame lokalizovanou dinamickou routu.
             // Routa se ale jeste musi projet command validatorem. Jestli na ni ma user pravo.
             if (0 < preg_match('@' . $route->command . '@', $uri, $matches)) {
-                $commandValidator = new CommandValidator;
+                $commandValidator = new Kernel_CommandValidator;
                 $command = $commandValidator->getCommand($route->moduleFunctionId);
                 // Pokud by byl command null znamenalo by to, ze uzivatel nema pravo na dany command.
                 if (NULL !== $command) {
                     // Zjistime jestli jsme na spravne webInstanci
-                    $webInstanceValidator = new WebInstanceValidator;
+                    $webInstanceValidator = new Kernel_WebInstanceValidator;
                     if (FALSE === $webInstanceValidator->isCurrent($route->getWebInstanceId())) {
                         var_dump($webInstanceValidator->isCurrent($route->getWebInstanceId()));
-                        Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
-                        HttpRequest::redirect($this->webRoot);
+                        Lib_Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
+                        Kernel_Request_HttpRequest::redirect($this->webRoot);
                     }
                     // Pokud se uri neshoduje je v ni neco navic
                     if ($uri !== $matches[0]) {
-                        Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
-                        HttpRequest::redirect($this->webRoot . $matches[0]);
+                        Lib_Messanger::addNote('Url byla zadana chybne, presvedcte se zda-li jste na spravne strance.');
+                        Kernel_Request_HttpRequest::redirect($this->webRoot . $matches[0]);
                     }
                     // Odstranime prvni polozku z pole, ta nas nezajima.
                     array_shift($matches);
                     // Mergneme lokalizovany command za vychozi.
-                    $command = Tools::mergeCommand($command, $matches);
+                    $command = Lib_Tools::mergeCommand($command, $matches);
                     // A nastavime hodnoty pro dalsi praci.
                     $this->setCommand($command);
                     $this->setPageId($route->pageId);
                     return TRUE;
                 } else {
-                    Messanger::addNote('Nemate pravo na pristup na tuto stranku.');
-                    HttpRequest::redirect($this->webRoot);
+                    Lib_Messanger::addNote('Nemate pravo na pristup na tuto stranku.');
+                    Kernel_Request_HttpRequest::redirect($this->webRoot);
                     return FALSE;
                 }
             }
@@ -167,8 +167,8 @@ class Process extends Object
      */
     private function checkStaticRoute()
     {
-        $route = new Route;
-        $uri  = HttpRequest::uri();
+        $route = new Kernel_Request_Route;
+        $uri  = Kernel_Request_HttpRequest::uri();
         if (NULL !== $route->loadByUri($uri, $this->lang)) {
             $this->setPageId($route->pageId);
             $this->setCommand($route->command);
@@ -183,7 +183,7 @@ class Process extends Object
      */
     private function setDefaultPage()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         $this->setPageId($config->defaultPageId);
         $this->setLang($config->defaultLang);
     }
@@ -224,11 +224,11 @@ class Process extends Object
      * Nastavi vlastnost command.
      *
      * @param string $command
-     * @return Process
+     * @return Kernel_Process
      */
     private function setCommand($command)
     {
-        $this->command = new Command($command);
+        $this->command = new Kernel_Command($command);
         return $this;
     }
 

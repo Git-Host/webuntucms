@@ -3,7 +3,7 @@
  *
  * @author rbas
  */
-interface IModule
+interface Lib_IModule
 {
     function __toString();
 }

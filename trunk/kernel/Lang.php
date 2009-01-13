@@ -2,7 +2,7 @@
 /**
  * Data object lang
  */
-class Lang extends Object
+class Kernel_Lang extends Object
 {
 
     /**
@@ -48,7 +48,7 @@ class Lang extends Object
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return Lang
+	 * @return Kernel_Lang
 	 */
 	private function setId($id)
 	{
@@ -71,7 +71,7 @@ class Lang extends Object
 	 * Nastavi hodnotu vlastnosti $symbol
 	 *
 	 * @param string
-	 * @return Lang
+	 * @return Kernel_Lang
 	 */
 	private function setSymbol($symbol)
 	{
@@ -94,7 +94,7 @@ class Lang extends Object
 	 * Nastavi hodnotu vlastnosti $name
 	 *
 	 * @param string
-	 * @return Lang
+	 * @return Kernel_Lang
 	 */
 	private function setName($name)
 	{

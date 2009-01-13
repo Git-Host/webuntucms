@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class PageId extends DataObject
+class Kernel_Page_PageId extends Kernel_DataObject
 {
 
     /**
@@ -67,18 +67,18 @@ class PageId extends DataObject
         if (!$this->loadFromCache()) {
 
             if (0 > $this->id) {
-                throw new PageIdIAException('Neni zadano id pro PageId. Nemuze se nacist.');
+                throw new Kernel_Page_PageIdIAException('Neni zadano id pro PageId. Nemuze se nacist.');
             }
             
             $query = 'SELECT p.`pageid_node_id`, p.`description`,
                 pn.`css`, pn.`template`
-                FROM `' . Config::DB_PREFIX . 'pageid` p
-                JOIN `' . Config::DB_PREFIX . 'pageid_node` pn ON p.`pageid_node_id` = pn.`id`
+                FROM `' . Kernel_Config_Config::DB_PREFIX . 'pageid` p
+                JOIN `' . Kernel_Config_Config::DB_PREFIX . 'pageid_node` pn ON p.`pageid_node_id` = pn.`id`
                 WHERE p.`id` = ' . $this->id . ' LIMIT 1';
             $record = dibi::query($query)->fetch();
 
             if (empty($record)) {
-                throw new PageIdException('PageId ' . $this->id . ' neexistuje.');
+                throw new Kernel_Page_PageIdException('PageId ' . $this->id . ' neexistuje.');
             }
 
             // Naimportujem data a ulozime do cache.
@@ -111,7 +111,7 @@ class PageId extends DataObject
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return PageId
+	 * @return Kernel_Page_PageId
 	 */
 	public function setId($id)
 	{
@@ -133,7 +133,7 @@ class PageId extends DataObject
 	 * Nastavi hodnotu vlastnosti $pageIdNode
 	 *
 	 * @param integer
-	 * @return PageId
+	 * @return Kernel_Page_PageId
 	 */
 	public function setPageIdNode($pageIdNode)
 	{
@@ -155,7 +155,7 @@ class PageId extends DataObject
 	 * Nastavi hodnotu vlastnosti $description
 	 *
 	 * @param string
-	 * @return PageId
+	 * @return Kernel_Page_PageId
 	 */
 	public function setDescription($description)
 	{
@@ -177,7 +177,7 @@ class PageId extends DataObject
 	 * Nastavi hodnotu vlastnosti $css
 	 *
 	 * @param string
-	 * @return PageId
+	 * @return Kernel_Page_PageId
 	 */
 	public function setCss($css)
 	{
@@ -199,7 +199,7 @@ class PageId extends DataObject
 	 * Nastavi hodnotu vlastnosti $template
 	 *
 	 * @param string
-	 * @return PageId
+	 * @return Kernel_Page_PageId
 	 */
 	public function setTemplate($template)
 	{

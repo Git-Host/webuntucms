@@ -1,6 +1,6 @@
 <?php
 
-class Tools
+class Lib_Tools
 {
 	private static $bootWebInstance;
 

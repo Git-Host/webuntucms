@@ -1,6 +1,6 @@
 <?php
 
-class HttpCookie extends HttpProperty
+class Kernel_Request_HttpCookie extends Kernel_Request_HttpProperty
 {
 	private static $isAssigned = FALSE;
 

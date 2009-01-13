@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Link extends Object
+class Lib_Link extends Object
 {
     /**
      * Vygeneruje link na webRoot.
@@ -14,10 +14,10 @@ class Link extends Object
      */
     public static function getWebRoot()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         $webRoot = $config->webRoot;
         if ($config->remoteLangFrom === 'uri') {
-            $webRoot .= Session::lang() . '/';
+            $webRoot .= Kernel_Session::lang() . '/';
         }
         return $webRoot;
     }
@@ -32,14 +32,14 @@ class Link extends Object
     {
         if (FALSE === $isStatic) {
             // Nactem si lokalizovane linky a jejich matchovaci protejsky
-            $linkCreator = new LinkCreator;
+            $linkCreator = new Lib_LinkCreator;
             // @todo logovat ktere linky se na dane pageId pouzivaji a cechovat to
             // at se neprovadi tento proces neustale dokola.
             $linkCreator->load();
             foreach ($linkCreator->getLinkPatterns() as $pattern) {
                 if (0 < preg_match('@' . $pattern['pattern'] . '@i', $link, $matches)) {
                     array_shift($matches);
-                    return self::getWebRoot() . Tools::mergeCommand($pattern['localize'], $matches);
+                    return self::getWebRoot() . Lib_Tools::mergeCommand($pattern['localize'], $matches);
                 }
             }
             return 'Link neni lokalizovan';

@@ -1,10 +1,10 @@
 <?php
 /**
- * Description of FileStorage
+ * Description of Kernel_Cache_FileStorage
  *
  * @author rbas
  */
-class FileStorage extends Object implements ICacheAdapter
+class Kernel_Cache_FileStorage extends Object implements Kernel_Cache_CacheAdapterInterface
 {
     /**
      * Cesta k ulozisti dat.
@@ -103,11 +103,11 @@ class FileStorage extends Object implements ICacheAdapter
     /**
      * Nastavi cestu k ulozisti dat
      * 
-     * @return FileStorage 
+     * @return Kernel_Cache_FileStorage
      */
     private function setPath()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         self::$path = $config->FileStoragePath;
         return $this;
     }

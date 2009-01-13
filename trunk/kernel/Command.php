@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Command
+class Kernel_Command
 {
     /**
      * Prikaz pro modul.
@@ -22,7 +22,7 @@ class Command
      * Nastavi hodnotu vlastnosti commnad
      *
      * @param string $command
-     * @return Command
+     * @return Kernel_Command
      */
     public function setCommand($command)
     {

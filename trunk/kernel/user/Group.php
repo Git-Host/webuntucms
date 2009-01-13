@@ -1,6 +1,6 @@
 <?php
 
-class Group extends Object
+class Kernel_User_Group extends Object
 {
 	private $id = 0;
 	private $pid = 0;
@@ -35,7 +35,7 @@ class Group extends Object
 			throw new LogicException('Neni nastavena skupina, nemuzu nastavit jeji web instance.');
 		}
 
-		$this->webInstanceList = new WebInstanceList;
+		$this->webInstanceList = new Kernel_User_WebInstanceList;
 		$this->webInstanceList->loadByGroupId($this->id);
 		return $this->webInstanceList;
 	}
@@ -70,7 +70,7 @@ class Group extends Object
 			throw new LogicException('Neni nastavena skupina, nemuzu nastavit jeji moduly.');
 		}
 
-		$this->modulesList = new ModuleList;
+		$this->modulesList = new Kernel_User_ModuleList;
 		$this->modulesList->loadByGroupId($this->id);
 		return $this->modulesList;
 	}

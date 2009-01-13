@@ -3,7 +3,7 @@
  * Veskera prace se session se provadi prostrednictvim teto tridy.
  * Primy zapis do globalniho pole $_SESSION je ignorovan a smazan.
  */
-final class Session
+final class Kernel_Session
 {
     /**
      * Defaultni zivotnost 3 hodiny.
@@ -24,11 +24,11 @@ final class Session
 	/**
      * Vrati vlastni instanci.
      *
-     * @return Session
+     * @return Kernel_Session
      */
     public static function getInstance() {
 		if(NULL === self::$instance) {
-			return self::$instance = new Session;
+			return self::$instance = new self;
 		} else {
 			self::$instance->rewrite();
 			return self::$instance;
@@ -81,13 +81,13 @@ final class Session
      */
     public static function lang()
     {
-        return Session::getInstance()->lang;
+        return self::getInstance()->lang;
     }
 
     public static function getNamespace($namespace)
     {
-        if (isset(Session::getInstance()->SESSION['bobr'][$namespace])) {
-            return Session::getInstance()->SESSION['bobr'][$namespace];
+        if (isset(self::getInstance()->SESSION['bobr'][$namespace])) {
+            return self::getInstance()->SESSION['bobr'][$namespace];
         } else {
             return NULL;
         }
@@ -95,12 +95,12 @@ final class Session
 
     public static function addNamesapce($namespace)
     {
-        Session::getInstance()->SESSION['bobr'][$namespace] = array();
+        self::getInstance()->SESSION['bobr'][$namespace] = array();
     }
 
     public static function setNamesapce($namespace, $value)
     {
-        Session::getInstance()->SESSION['bobr'][$namespace] = $value;
+        self::getInstance()->SESSION['bobr'][$namespace] = $value;
     }
 
 	private function init()

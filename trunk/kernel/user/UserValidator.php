@@ -1,6 +1,6 @@
 <?php
 
-final class UserValidator extends Object
+final class Kernel_User_UserValidator extends Object
 {
 	public function __construct()
 	{
@@ -13,8 +13,8 @@ final class UserValidator extends Object
      */
     public function validate()
 	{
-		$session = Session::getInstance();
-		if(isset($session->user) && $session->user instanceof User){
+		$session = Kernel_Session::getInstance();
+		if(isset($session->user) && $session->user instanceof Kernel_User_User){
 			return TRUE;
 		}else{
 			return FALSE;

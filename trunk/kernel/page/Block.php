@@ -1,10 +1,10 @@
 <?php
 /**
- * Description of Block
+ * Description of Kernel_Page_Block
  *
  * @author rbas
  */
-class Block extends DataObject
+class Kernel_Page_Block extends Kernel_DataObject
 {
 
 	/**
@@ -17,7 +17,7 @@ class Block extends DataObject
 	/**
      * Prikaz pro modul.
      *
-     * @var Command
+     * @var Kernel_Command
      */
     private $command = NULL;
 
@@ -42,21 +42,21 @@ class Block extends DataObject
      * Nacte block z cache nebo databaze.
      * Tento dotaz se nekesuje. Kesovani se provadi v objectu ContainerColection.
      *
-     * @return Block
-     * @throws InvalidArgumentException Pokud neni vyplnena vlastnost id.
-     * @throws BlockException Pokud se nenejdou zadne data.
+     * @return Kernel_Page_Block
+     * @throws Kernel_Page_BlockIAException Pokud neni vyplnena vlastnost id.
+     * @throws Kernel_Page_BlockException Pokud se nenejdou zadne data.
      */
     public function load()
     {
         if (0 > $this->id) {
-            throw new InvalidArgumentException('Neni nastaveno id blocku, ktery se ma nacist.');
+            throw new Kernel_Page_BlockIAException('Neni nastaveno id blocku, ktery se ma nacist.');
         }
 
-        $query = 'SELECT `id`, `command`, `description` FROM `' . Config::DB_PREFIX . 'block` WHERE `id` = ' . $this->id . ' LIMIT 1';
+        $query = 'SELECT `id`, `command`, `description` FROM `' . Kernel_Config_Config::DB_PREFIX . 'block` WHERE `id` = ' . $this->id . ' LIMIT 1';
         $record = dibi::query($query)->fetch();
 
         if (empty ($record)) {
-            throw new BlockException('Block id ' . $this->id . ' neexistuje.');
+            throw new Kernel_Page_BlockException('Block id ' . $this->id . ' neexistuje.');
         }
 
         // Naimportujem data a ulozime do kese.
@@ -83,7 +83,7 @@ class Block extends DataObject
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return Block
+	 * @return Kernel_Page_Block
 	 */
 	public function setId($id)
 	{
@@ -94,7 +94,7 @@ class Block extends DataObject
 	/**
 	 * Vrati hodnotu vlastnosti $command
 	 *
-	 * @return Command
+	 * @return Kernel_Command
 	 */
 	public function getCommand()
 	{
@@ -105,11 +105,11 @@ class Block extends DataObject
 	 * Nastavi hodnotu vlastnosti $command
 	 *
 	 * @param string
-	 * @return Block
+	 * @return Kernel_Page_Block
 	 */
 	public function setCommand($command)
 	{
-		$this->command = new Command($command);
+		$this->command = new Kernel_Command($command);
 		return $this;
 	}
 
@@ -127,7 +127,7 @@ class Block extends DataObject
 	 * Nastavi hodnotu vlastnosti $description
 	 *
 	 * @param string
-	 * @return Block
+	 * @return Kernel_Page_Block
 	 */
 	public function setDescription($description)
 	{

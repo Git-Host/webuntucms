@@ -4,7 +4,7 @@
  * Zvaliduje session,
  * pokud je neplatna odstrani ji a nastavi novou
  */
-final class SessionValidator extends Object
+final class Kernel_SessionValidator extends Object
 {
 
 	/**
@@ -50,7 +50,7 @@ final class SessionValidator extends Object
 	 */
 	private function validate()
 	{
-		$session = Session::getInstance();
+		$session = Kernel_Session::getInstance();
 		if(FALSE === isset($session->hash)
 			&& $session->hash  != sha1(sha1($this->salt).sha1(self::$remoteAddr.sha1($this->publicKey)))
 		){
@@ -61,10 +61,10 @@ final class SessionValidator extends Object
 	/**
 	 * Odnastavi celou session a nastavi ji novy has
 	 *
-	 * @param mixed Session
+	 * @param mixed Kernel_Session
 	 * @return void
 	 */
-	private function setSession(Session $session)
+	private function setSession(Kernel_Session $session)
 	{
 		$session->destroy();
 		$session->hash =  sha1(sha1($this->salt).sha1(self::$remoteAddr.sha1($this->publicKey)));

@@ -1,12 +1,10 @@
 <?php
 
-class HttpHeader
+class Kernel_Request_HttpHeader
 {
 	private $headers = array();
 
 	private static $isAssigned = FALSE;
-
-	private $propertyName = 'headers';
 
 	public function assign($headers = NULL)
 	{

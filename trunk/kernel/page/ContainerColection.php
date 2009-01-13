@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class ContainerColection extends Colection
+class Kernel_Page_ContainerColection extends Kernel_Colection
 {
     /**
      * Unikatni identifikator stranky.
@@ -15,15 +15,15 @@ class ContainerColection extends Colection
 
     public function  __construct()
     {
-        $this->colectionClass = 'Container';
+        $this->colectionClass = 'Kernel_Page_Container';
     }
 
     /**
      * Vytvori kolekci Containeru a zavola imporotovani blocku do ni.
      *
      * @param array $record
-     * @throws ContainerColectionException Pokud je znemozneno sestavit kolekci.
-     * @return ContainerColection
+     * @throws Kernel_Page_ContainerColectionException Pokud je znemozneno sestavit kolekci.
+     * @return Kernel_Page_ContainerColection
      */
     public function assign(array $record)
     {
@@ -41,9 +41,9 @@ class ContainerColection extends Colection
                     // Nactem a blocky.
                     $container->loadBlockByIds($blockIds);
                 }
-            } catch (ContainerException $e) {
+            } catch (Kernel_Page_ContainerException $e) {
                 // Tato vyjimka znamena ze se nemuzou sestavit kontejnery.
-                throw new ContainerColectionException($e->getMessage());
+                throw new Kernel_Page_ContainerColectionException($e->getMessage());
             }
             
             $this->saveToCache();
@@ -55,27 +55,27 @@ class ContainerColection extends Colection
      * Nacte kontejery z databaze a zavola funkci importContainer.
      *
      * @param string $containerIds Cisla kontejneru oddelene carkou
-     * @throws ContainerColectionExceptin Pokud je znemozneno naimportovani dat.
-     * @return ContainerColection
+     * @throws Kernel_Page_ContainerColectionExceptin Pokud je znemozneno naimportovani dat.
+     * @return Kernel_Page_ContainerColection
      */
     private function loadContainer($containerIds)
     {
         $query = 'SELECT `id`, `name`, `description`
-            FROM `' . Config::DB_PREFIX . 'container`
+            FROM `' . Kernel_Config_Config::DB_PREFIX . 'container`
             WHERE `id` IN (' . $containerIds . ')
             ORDER BY `id`';
         $record = dibi::query($query)->fetchAssoc('name');
 
         // Pokud nejsou data nemuzem sestavit kontejnery.
         if (empty($record)) {
-            throw new ContainerColectionException('Zadny ze zadanych ('. $containerIds . ') kontejneru neexistuje.');
+            throw new Kernel_Page_ContainerColectionException('Zadny ze zadanych ('. $containerIds . ') kontejneru neexistuje.');
         }
 
         try {
             $this->importColection($record);
-        } catch (ColectionException $e) {
+        } catch (Kernel_Page_ColectionException $e) {
             // Pri importu nastala chyba, nemuzem sestavit kontejnery.
-            throw new ContainerColectionException($e->getMessage());
+            throw new Kernel_Page_ContainerColectionException($e->getMessage());
         }
         
         return $this;
@@ -105,7 +105,7 @@ class ContainerColection extends Colection
      * Nastavi hodnotu vlastnosti pageId.
      *
      * @param integer $pageId
-     * @return ContainterColection
+     * @return Kernel_Page_ContainterColection
      */
     public function setPageId($pageId)
     {

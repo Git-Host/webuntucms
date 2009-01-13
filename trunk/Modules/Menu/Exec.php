@@ -1,10 +1,10 @@
 <?php
 /**
- * Description of symptom
+ * Description of menu
  *
  * @author rbas
  */
-class Symptom
+class Modules_Menu_Exec
 {
     private $command;
 

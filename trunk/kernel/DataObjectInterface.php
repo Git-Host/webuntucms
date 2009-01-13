@@ -5,13 +5,13 @@
  *
  * @author rbas
  */
-interface IDataObject
+interface Kernel_DataObjectInterface
 {
     /**
      * Naimportuje do sebe data.
      *
      * @param array $record
-     * @return DataObject
+     * @return Kernel_DataObject
      */
     public function importRecord(array $record);
     

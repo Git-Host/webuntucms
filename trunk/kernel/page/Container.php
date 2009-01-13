@@ -5,7 +5,7 @@
  *
  * @author rbas
  */
-class Container extends Colection
+class Kernel_Page_Container extends Kernel_Colection
 {
 
 	/**
@@ -40,7 +40,7 @@ class Container extends Colection
     {
         $importProperties = array('id' => 'id', 'name' => 'name', 'description' => 'description');
         $this->setImportProperties($importProperties);
-        $this->setColectionClass('Block');
+        $this->setColectionClass('Kernel_Page_Block');
 
         if (0 != $id) {
             $this->setId($id);
@@ -54,18 +54,18 @@ class Container extends Colection
      *
      *
      * @param string $blockIds Cisla blocku ktere chcem nacist oddelene carkou.
-     * @throws ContainerException Pokud neexistuje ani jeden z blcku.
-     * @return Container
+     * @throws Kernel_Page_ContainerException Pokud neexistuje ani jeden z blcku.
+     * @return Kernel_Page_Container
      */
     public function loadBlockByIds($blockIds)
     {
         $query = 'SELECT `id`, `command`, `description`
-            FROM `' . Config::DB_PREFIX . 'block`
+            FROM `' . Kernel_Config_Config::DB_PREFIX . 'block`
             WHERE `id` IN (' . $blockIds . ')';
         $record = dibi::query($query)->fetchAll();
 
         if (empty($record)) {
-            throw new ContainerException('Blocky ' . $blockIds . ' neexistuji.');
+            throw new Kernel_Page_ContainerException('Blocky ' . $blockIds . ' neexistuji.');
         }
 
         $this->importColection($record);
@@ -77,21 +77,21 @@ class Container extends Colection
      * Nacte container z databaze.
      *
      * @throws InvalidArgumentException Pokud neni vyplnena vlastnost id.
-     * @throws ContainerException Pokud nenajde zadne data.
-     * @return Container
+     * @throws Kernel_Page_ContainerException Pokud nenajde zadne data.
+     * @return Kernel_Page_Container
      */
     public function loadContainer()
     {
         if (0 > $this->Id) {
-                throw new InvalidArgumentException('Neni zadano id kontejneru ktery se ma nacist.');
+                throw new Kernel_Page_ContainerIAException('Neni zadano id kontejneru ktery se ma nacist.');
         }
 
         
-        $query = 'SELECT `name`, `description` FROM `' . Config::DB_PREFIX . 'container` WHERE id = ' . $this->id . ' LIMT 1';
+        $query = 'SELECT `name`, `description` FROM `' . Kernel_Config_Config::DB_PREFIX . 'container` WHERE id = ' . $this->id . ' LIMT 1';
         $record = dibi::query($query)->fetch();
 
         if (empty($record)) {
-            throw new ContainerException('Container id ' . $this->id . ' neexistuje.');
+            throw new Kernel_Page_ContainerException('Container id ' . $this->id . ' neexistuje.');
         }
 
 
@@ -122,7 +122,7 @@ class Container extends Colection
 	 * Nastavi hodnotu vlastnosti $id
 	 *
 	 * @param integer
-	 * @return Container
+	 * @return Kernel_Page_Container
 	 */
 	public function setId($id)
 	{
@@ -144,7 +144,7 @@ class Container extends Colection
 	 * Nastavi hodnotu vlastnosti $name
 	 *
 	 * @param string
-	 * @return Container
+	 * @return Kernel_Page_Container
 	 */
 	public function setName($name)
 	{
@@ -166,7 +166,7 @@ class Container extends Colection
 	 * Nastavi hodnotu vlastnosti $description
 	 *
 	 * @param string
-	 * @return Container
+	 * @return Kernel_Page_Container
 	 */
 	public function setDescription($description)
 	{

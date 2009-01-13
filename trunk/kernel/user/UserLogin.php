@@ -5,7 +5,7 @@
  *
  * @author rbas
  */
-class UserLogin extends Object
+class Kernel_User_UserLogin extends Object
 {
     private $nick = '';
     private $pass = '';
@@ -27,15 +27,15 @@ class UserLogin extends Object
     public function logIn()
     {
         try {
-            $user = new User;
+            $user = new Kernel_User_User;
             $user->loadByNick($this->nick);
-        } catch (UserNotExistException $e) {
+        } catch (Kernel_User_UserNotExistException $e) {
             // Vyjimku zde odchytavame protoze dalsi kus kodu by nefungoval
             // a zaroven ji vyvarime aby se odchytila vejs.
-            throw new UserNotExistException($e->getMessage());
+            throw new Kernel_User_UserNotExistException($e->getMessage());
         }
 
-        $pass = UserValidator::generatePassword($this->pass);
+        $pass = Kernel_User_UserValidator::generatePassword($this->pass);
         if ($pass === $user->getPass()) {
             $this->unsetUserFromSession()
                 ->setUserToSession($user);
@@ -48,7 +48,7 @@ class UserLogin extends Object
     public function logOut()
     {
         $this->unsetUserFromSession();
-        $user = new User;
+        $user = new Kernel_User_User;
         $user->setAnonymous();
         $this->setUserToSession($user);
     }
@@ -59,9 +59,9 @@ class UserLogin extends Object
      * @param User $user
      * @return UserLogin
      */
-    private function setUserToSession(User $user)
+    private function setUserToSession(Kernel_User_User $user)
     {
-        Session::getInstance()->user = $user;
+        Kernel_Session::getInstance()->user = $user;
         return $this;
     }
 
@@ -72,7 +72,7 @@ class UserLogin extends Object
      */
     private function unsetUserFromSession()
     {
-        unset(Session::getInstance()->user);
+        unset(Kernel_Session::getInstance()->user);
         return $this;
     }
 }

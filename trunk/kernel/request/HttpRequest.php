@@ -1,6 +1,6 @@
 <?php
 
-class HttpRequest extends Object
+class Kernel_Request_HttpRequest extends Object
 {
 	private $get = NULL;
 
@@ -29,11 +29,11 @@ class HttpRequest extends Object
     /**
      * Vraci vlastni instanci
      *
-     * @return HttpRequest
+     * @return Kernel_Request_HttpRequest
      */
 	public static function getInstance() {
 		if(NULL === self::$instance) {
-			return self::$instance = new HttpRequest;
+			return self::$instance = new self;
 		} else {
 			return self::$instance;
 		}
@@ -104,32 +104,37 @@ class HttpRequest extends Object
      */
     public static function lang()
     {
-        return HttpRequest::getInstance()->getGet()->getLang();
+        return self::getInstance()->getGet()->getLang();
     }
 
+    /**
+     * Vrati uri
+     *
+     * @return string
+     */
     public static function uri()
     {
-        return HttpRequest::getInstance()->getUri();
+        return self::getInstance()->getUri();
     }
 
     /**
      * Vrati object HttpGet
      * 
-     * @return HttpGet
+     * @return Kernel_Request_HttpGet
      */
     public static function get()
     {
-        return HttpRequest::getInstance()->getGet();
+        return self::getInstance()->getGet();
     }
 
     /**
      * Vrati object HttpPost
      *
-     * @return HttpPost
+     * @return Kernel_Request_HttpPost
      */
     public static function post()
     {
-        return HttpRequest::getInstance()->getPost();
+        return self::getInstance()->getPost();
     }
 
     /**
@@ -139,7 +144,7 @@ class HttpRequest extends Object
      */
     public static function files()
     {
-        return HttpRequest::getInstance()->getFiles();
+        return self::getInstance()->getFiles();
     }
 
     /**
@@ -181,7 +186,7 @@ class HttpRequest extends Object
 	 * Nastavi kodovani.
      *
 	 * @param  $encodint string
-	 * @return HttpRequest
+	 * @return Kernel_Request_HttpRequest
 	 */
 	public function setEncoding($encoding)
 	{
@@ -195,7 +200,7 @@ class HttpRequest extends Object
      * Vrati objekt HttpGet.
      * Pokud neni nastaven nastavi jej.
      *
-     * @return HttpGet
+     * @return Kernel_Request_HttpGet
      */
 	public function getGet()
 	{
@@ -208,11 +213,11 @@ class HttpRequest extends Object
     /**
      * Nastavi objekt HttpGet a odnastavi globalni promenou $_GET
      *
-     * @return HttpRequest
+     * @return Kernel_Request_HttpRequest
      */
 	private function setGet()
 	{
-		$this->get = new HttpGet;
+		$this->get = new Kernel_Request_HttpGet;
 		$this->get->assign($_GET);
 		unset($_GET);
         return $this;
@@ -222,7 +227,7 @@ class HttpRequest extends Object
      * Vrati HttpPost.
      * Pokud neni nastaven nastavi ho.
      *
-     * @return return HttpPost
+     * @return return Kernel_Request_HttpPost
      */
 	public function getPost()
 	{
@@ -236,11 +241,11 @@ class HttpRequest extends Object
     /**
      * Nastavi objekt HttpGet a odnastavi globalni promenou $_POST
      *
-     * @return HttpRequest
+     * @return Kernel_Request_HttpRequest
      */
 	private function setPost()
 	{
-		$this->post = new HttpPost($_POST);
+		$this->post = new Kernel_Request_HttpPost($_POST);
 		unset($_POST);
         return $this;
 	}
@@ -257,11 +262,11 @@ class HttpRequest extends Object
     /**
      * Nastavi objekt HttpCookie a odnastavi globalni promenou $_COOKIE
      *
-     * @return HttpRequest
+     * @return Kernel_Request_HttpRequest
      */
 	private function setCookie()
 	{
-		$this->cookie = new HttpCookie;
+		$this->cookie = new Kernel_Request_HttpCookie;
 		$this->cookie->assign($_COOKIE);
 		unset($_COOKIE);
         return $this;
@@ -280,16 +285,16 @@ class HttpRequest extends Object
      * Nastavi objekt HttpFile a odnastavi globalni promenou $_FILES.
      * Object HttpFile je prevzat z Nette.
      *
-     * @return HttpRequest
+     * @return Kernel_Request_HttpRequest
      */
 	private function setFiles()
 	{
        if (empty($_FILES)) {
-           $this->files['empty'] = new HttpFile($_FILES);
+           $this->files['empty'] = new Kernel_Request_HttpFile($_FILES);
        } else {
            foreach ($_FILES as $name => $file) {
                 if (isset($file['name'])) {
-                    $this->files[$name] = new HttpFile($_FILES[$name]);
+                    $this->files[$name] = new Kernel_Request_HttpFile($_FILES[$name]);
                 } else {
                     throw new InvalidArgumentException('Spatny format formularoveho prvku file. Tento zpusob implementace neni podporovan.');
                 }
@@ -331,7 +336,7 @@ class HttpRequest extends Object
      */
 	private function setHeader()
 	{
-		$this->header = new HttpHeader();
+		$this->header = new Kernel_Request_HttpHeader();
 		$this->header->assign();
         return $this;
 	}

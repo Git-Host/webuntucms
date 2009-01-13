@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Administration extends AbstractModule
+class Modules_Administration_Exec extends Lib_AbstractModule
 {
     protected function defaultAction()
     {

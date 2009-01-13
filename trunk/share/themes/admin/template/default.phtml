@@ -1,7 +1,7 @@
 <body>
 <div id="header">
 	<div id="logo">
-        <h1><a href="<?php echo Link::build('', TRUE); ?>">Administrace</a></h1>
+        <h1><a href="<?php echo Lib_Link::build('', TRUE); ?>">Administrace</a></h1>
 		<h2><a href="#">BOBR 2.0 cr3</a></h2>
 	</div>
 	<div id="menu">
@@ -47,7 +47,7 @@
 	</div>
 	<div id="main">
         <?php
-        echo Messanger::flush();
+        echo Lib_Messanger::flush();
         echo $this->getContainer('center');
         ?>
 	</div>

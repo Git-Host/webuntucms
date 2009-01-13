@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-abstract class AbstractModule extends Object implements IModule
+abstract class Lib_AbstractModule extends Object implements Lib_IModule
 {
     /**
      * Command.
@@ -37,9 +37,9 @@ abstract class AbstractModule extends Object implements IModule
     /**
      * Nastavi objektu zakladni vlastnosti
      *
-     * @param Command $command
+     * @param Kernel_Command $command
      */
-    public function  __construct(Command $command)
+    public function  __construct(Kernel_Command $command)
     {
         $this->setCommand($command)
             ->assignCommand()
@@ -62,7 +62,7 @@ abstract class AbstractModule extends Object implements IModule
     /**
      * Zpracuje command a nastavi vlastnosti objektu.
      *
-     * @return Module
+     * @return Kernel_AbstractModule
      */
     protected function assignCommand()
     {
@@ -90,7 +90,7 @@ abstract class AbstractModule extends Object implements IModule
      */
     protected function addToTemplate($name, $value)
     {
-        Template::add($name, $value);
+        Kernel_Page_Template::add($name, $value);
         return $this;
     }
 
@@ -102,7 +102,7 @@ abstract class AbstractModule extends Object implements IModule
      */
     protected function loadTemplate($fileName)
     {
-        $template = Template::getInstance();
+        $template = Kernel_Page_Template::getInstance();
         return $template->load($this->getFileName($fileName));
     }
 
@@ -114,7 +114,9 @@ abstract class AbstractModule extends Object implements IModule
      */
     protected function getFileName($fileName)
     {
-        return __WEB_ROOT__ . '/modules/' . strtolower($this->getClass()) . '/' . $fileName;
+        $path = explode('_', $this->getClass());
+        return __WEB_ROOT__ . '/' . str_replace('Exec', '', implode('/', $path)) . $fileName;
+        return __WEB_ROOT__ . '/Modules/' . strtolower($this->getClass()) . '/' . $fileName;
     }
 
     /**
@@ -133,7 +135,7 @@ abstract class AbstractModule extends Object implements IModule
      * @param string $command
      * @return Module
      */
-    protected function setCommand(Command $command)
+    protected function setCommand(Kernel_Command $command)
     {
         $this->command = $command;
         return $this;

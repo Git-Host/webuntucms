@@ -1,6 +1,6 @@
 <?php
 
-class User extends Object
+class Kernel_User_User extends Object
 {
 	private $id = 0;
 	private $nick = '';
@@ -29,12 +29,12 @@ class User extends Object
         $this->setNick($nick);
 
         $query = "SELECT `id`, `pass`, `email`, `status_id`
-            FROM `" . Config::DB_PREFIX . "users`
+            FROM `" . Kernel_Config_Config::DB_PREFIX . "users`
             WHERE nick = '" . $this->nick . "'
             LIMIT 1";
         $data = dibi::query($query)->fetch();
         if (empty($data)) {
-            throw new UserNotExistException('Uzivatelske jmeno ' . $this->nick . ' neexistuje.');
+            throw new Kernel_User_UserNotExistException('Uzivatelske jmeno ' . $this->nick . ' neexistuje.');
         }
         $this->importRecord($data);
         
@@ -61,11 +61,11 @@ class User extends Object
 	{
         $this->setId($id);
 		$query = "SELECT `id`, `nick`, `pass`, `email`, `status_id`
-			FROM `" . Config::DB_PREFIX . "users`
+			FROM `" . Kernel_Config_Config::DB_PREFIX . "users`
 			WHERE `id` = " . $this->id;
         $data = dibi::query($query)->fetch();
         if (empty($data)) {
-            throw new UserNotExistException('Uzivatel s id ' . $this->id . ' neexistuje.');
+            throw new Kernel_User_UserNotExistException('Uzivatel s id ' . $this->id . ' neexistuje.');
         }
 		$this->importRecord($data);
 	}
@@ -99,8 +99,8 @@ class User extends Object
      */
     public static function isLoged()
     {
-        $userValidator = new UserValidator;
-        $user = Session::getInstance()->user;
+        $userValidator = new Kernel_User_UserValidator;
+        $user = Kernel_Session::getInstance()->user;
         if (TRUE === $userValidator->validate() && (self::ANONYMOUS_USER_ID != $user->id)) {
             return TRUE;
         } else {
@@ -235,7 +235,7 @@ class User extends Object
 			throw new LogicException('Uzivatel neni inicializovan, nemuzu nacist skupiny.');
 		}
 
-		$groups = new GroupsList;
+		$groups = new Kernel_User_GroupsList;
 		$this->groupsList = $groups->loadGroupsByUserId($this->id);
 		return $this->groupsList;
 	}

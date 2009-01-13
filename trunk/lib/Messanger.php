@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Messanger
+class Lib_Messanger
 {
 
     /**
@@ -36,11 +36,11 @@ class Messanger
      */
     public static function getInstance()
     {
-        if (Session::getNamespace('Messanger') instanceof Messanger) {
-            return Session::getNamespace('Messanger');
+        if (Kernel_Session::getNamespace('Messanger') instanceof Lib_Messanger) {
+            return Kernel_Session::getNamespace('Messanger');
         } else {
-            Session::setNamesapce('Messanger', new Messanger);
-            self::$instance = Session::getNamespace('Messanger');
+            Kernel_Session::setNamesapce('Messanger', new Lib_Messanger);
+            self::$instance = Kernel_Session::getNamespace('Messanger');
             return self::$instance;
         }
     }
@@ -53,7 +53,7 @@ class Messanger
      */
     public static function addNote($note)
     {
-        Messanger::getInstance()->notes[] = $note;
+        self::getInstance()->notes[] = $note;
     }
 
     /**
@@ -63,7 +63,7 @@ class Messanger
      */
     public static function addError($errors)
     {
-        Messanger::getInstance()->errors[] = $errors;
+        self::getInstance()->errors[] = $errors;
     }
 
     /**
@@ -76,7 +76,7 @@ class Messanger
     {
         $messageTypes = array('notes', 'errors');
         $output = '';
-        $messanger = Messanger::getInstance();
+        $messanger = self::getInstance();
         if ($type === 'all') {
             foreach ($messageTypes as $type) {
                 $output .= $messanger->flushMessages($type);
@@ -95,7 +95,7 @@ class Messanger
      */
     private function flushMessages($type)
     {
-        $messanger = Messanger::getInstance();
+        $messanger = self::getInstance();
         $output = '';
         $attr['class'] = $type;
         foreach ($messanger->{'get' . $type}() as $text) {

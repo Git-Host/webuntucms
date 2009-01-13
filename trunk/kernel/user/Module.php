@@ -1,6 +1,6 @@
 <?php
 
-class Module extends Object
+class Kernel_User_Module extends Object
 {
 	private $id = 0;
 	private $name = '';
@@ -23,7 +23,7 @@ class Module extends Object
 
 	private function importFunctions(array $functions)
 	{
-		$this->functionsList = new FunctionsList;
+		$this->functionsList = new Kernel_User_FunctionsList;
 		$this->functionsList->importRecord($functions);
 
 		return $this;

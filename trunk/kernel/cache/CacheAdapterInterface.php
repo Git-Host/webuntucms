@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-interface ICacheAdapter
+interface Kernel_Cache_CacheAdapterInterface
 {
     /**
      * Nacteni dat z cache

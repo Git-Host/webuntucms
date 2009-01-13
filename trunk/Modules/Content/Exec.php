@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Content extends AbstractModule
+class Modules_Content_Exec extends Lib_AbstractModule
 {
     protected function defaultAction()
     {

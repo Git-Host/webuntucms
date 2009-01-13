@@ -4,12 +4,12 @@
  *
  * @author rbas
  */
-class Template
+class Kernel_Page_Template
 {
     /**
      * Objekt ContainerColection.
      *
-     * @var ContainerColection
+     * @var Kernel_Page_ContainerColection
      */
     private $containerColection = NULL;
     
@@ -44,14 +44,14 @@ class Template
     /**
      * Object
      *
-     * @var Command
+     * @var Kernel_Command
      */
     private $command = NULL;
 
     /**
      * Vlastni instance.
      *
-     * @var Template
+     * @var Kernel_Page_Template
      */
     private static $instace = NULL;
 
@@ -66,19 +66,19 @@ class Template
     /**
      * Vrati instanci tridy Template.
      *
-     * @return Template
+     * @return Kernel_Page_Template
      */
     public static function getInstance()
     {
         if (NULL === self::$instace) {
-            self::$instace = new Template;
+            self::$instace = new self;
         }     
         return self::$instace;
     }
 
     private function __construct()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         // Pridame meta tagy z konfigu
         if ($config->metaTags) {
             $this->metaTags = $config->metaTags;
@@ -114,7 +114,7 @@ class Template
             $output = ob_get_contents();
             ob_end_clean();
         } else {
-            throw new TemplateException('Sablona ' . $fileName . ' neexistuje.');
+            throw new Kernel_Page_TemplateException('Sablona ' . $fileName . ' neexistuje.');
         }
         if (TRUE === $return) {
             return $output;
@@ -134,14 +134,14 @@ class Template
     {
         if (isset($this->containerColection[$container])) {
             foreach ($this->containerColection[$container] as $block) {
-                $moduleDelegator = new ModuleDelegator;
+                $moduleDelegator = new Kernel_Page_ModuleDelegator;
                 $output = "\n<div class=\"block " . $block->getId() . "\">\n";
                 $output .= $moduleDelegator->createBlock($block, $this->command);
                 $output .= "\n</div>";
             }
             return $output;
         } elseif (empty($this->containerColection)) {
-            throw new TemplateException('V Template neni nastaven objekt ContainerColection. Nemuze se vypsat stranka.');
+            throw new Kernel_Page_TemplateException('V Template neni nastaven objekt ContainerColection. Nemuze se vypsat stranka.');
         }
     }
 
@@ -161,7 +161,7 @@ class Template
      *
      * @param string $name
      * @param mixed $value
-     * @return Template
+     * @return Kernel_Page_Template
      */
     public function addVariable($name, $value)
     {
@@ -184,7 +184,7 @@ class Template
      * Prida link na stylopis do hlavicky
      *
      * @param string $link
-     * @return Template
+     * @return Kernel_Page_Template
      */
     public function addCssLink($link)
     {
@@ -196,7 +196,7 @@ class Template
      * Prida meta tag $name s obsahem $content do hlavicky.
      *
      * @param array $tag
-     * @return Template
+     * @return Kernel_Page_Template
      */
     public function addMetaTag(array $tag)
     {
@@ -212,7 +212,7 @@ class Template
     private function renderInlineCss()
     {
         $output = '';
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         foreach ($this->css as $css) {
             $output .= "\n\t<link href=\"" . $config->share . $css . "\" rel=\"stylesheet\" type=\"text/css\" />";
         }
@@ -307,22 +307,22 @@ class Template
     /**
      * Nastavi hodnotu vlastnosti command.
      *
-     * @param Command $command
-     * @return Template
+     * @param Kernel_Command $command
+     * @return Kernel_Page_Template
      */
     public function setCommand($command)
     {
-        $this->command = new Command($command);
+        $this->command = new Kernel_Command($command);
         return $this;
     }
 
     /**
      * Nastavi vlastnost containerColection.
      *
-     * @param ContainerColection $containerColection
-     * @return Template
+     * @param Kernel_Page_ContainerColection $containerColection
+     * @return Kernel_Page_Template
      */
-    public function setContainerColection(ContainerColection $containerColection)
+    public function setContainerColection(Kernel_Page_ContainerColection $containerColection)
     {
         $this->containerColection = $containerColection;
         return $this;
@@ -332,7 +332,7 @@ class Template
      * Nastavi druh stranky.
      *
      * @param string $value
-     * @return Template
+     * @return Kernel_Page_Template
      */
     public function setDocumentType($value)
     {

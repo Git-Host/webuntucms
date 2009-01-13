@@ -1,6 +1,6 @@
 <?php
 
-class WebInstanceValidator
+class Kernel_WebInstanceValidator
 {
 	private $webInstanceList = array();
 
@@ -8,7 +8,7 @@ class WebInstanceValidator
 
 	public function __construct()
 	{
-		$user = Session::getInstance()->user;
+		$user = Kernel_Session::getInstance()->user;
 		$this->webInstanceList = $user->webInstance;
 	}
 
@@ -32,9 +32,9 @@ class WebInstanceValidator
      */
     public function isCurrent($webInstance)
     {
-        if (is_integer($webInstance) && (Tools::getWebInstance() === $this->webInstanceList[$webInstance])) {
+        if (is_integer($webInstance) && (Lib_Tools::getWebInstance() === $this->webInstanceList[$webInstance])) {
             return TRUE;
-        } elseif (is_string($webInstance) && (Tools::getWebInstance() === $webInstance)) {
+        } elseif (is_string($webInstance) && (Lib_Tools::getWebInstance() === $webInstance)) {
             return TRUE;
         }
 

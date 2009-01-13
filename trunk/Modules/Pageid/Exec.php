@@ -1,10 +1,10 @@
 <?php
 /**
- * Description of menu
+ * Description of pageid
  *
  * @author rbas
  */
-class Menu
+class Module_Pageid_Exec
 {
     private $command;
 

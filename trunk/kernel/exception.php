@@ -8,33 +8,33 @@ require_once __WEB_ROOT__ .  '/kernel/page/exception.php';
 /**
  * Nejvissi vyjimka v BOBRovi.
  */
-class KernelException extends Exception{}
+class Kernel_KernelException extends Exception{}
 
 /**
  * Vyjimka ktera se vyhazuje v pripade ze se nemuze nacist kernel.
  */
-class BobrException extends KernelException {}
+class Kernel_BobrException extends Kernel_KernelException {}
 /**
  * Invalid Argument Exception
  */
-class BobrlIAException extends BobrException {}
+class Kernel_BobrlIAException extends Kernel_BobrException {}
 
-class DataObjectException extends BobrException {}
+class Kernel_DataObjectException extends Kernel_BobrException {}
 /**
  * Invalid Argument Exception
  */
-class DataObjectIAException extends DataObjectException {}
+class Kernel_DataObjectIAException extends Kernel_DataObjectException {}
 
-class ColectionException extends BobrException {}
+class Kernel_ColectionException extends Kernel_BobrException {}
 /**
  * Invalid Argument Exception
  */
-class ColectionIAException extends ColectionException {}
+class Kernel_ColectionIAException extends Kernel_ColectionException {}
 
-class ProcessException extends BobrException {}
-class ProcessIAException extends ProcessException {}
+class Kernel_ProcessException extends Kernel_BobrException {}
+class Kernel_ProcessIAException extends Kernel_ProcessException {}
 
 /**
  * Nejvissi vyjimka kterou muze vyhodit modul
  */
-class ModuleException extends BobrException{}
+class Kernel_ModuleException extends Kernel_BobrException{}

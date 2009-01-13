@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Description of DataObject
+ * Description of Kernel_DataObject
  *
  * @author rbas
  */
-abstract class DataObject extends Object implements IDataObject
+abstract class Kernel_DataObject extends Object implements Kernel_DataObjectInterface
 {
     /**
      * Uloziste dat
@@ -27,13 +27,13 @@ abstract class DataObject extends Object implements IDataObject
      * Naimportuje do sebe vlastnosti ktere jsou v seznamu importProperties.
      *
      * @param array $record
-     * @throws DataObjectIAException Pokud je vlastnost importProperties prazdna.
-     * @return DataObject
+     * @throws Kernel_IAException Pokud je vlastnost importProperties prazdna.
+     * @return Kernel_DataObject
      */
     public function importRecord(array $record)
     {
         if (empty($this->importProperties)) {
-            throw new DataObjectIAException('Ve tride ' . $this->getClass() . ' neni nadefinovano pole $importProperties. Nemuzu naimportovat data.');
+            throw new Kernel_IAException('Ve tride ' . $this->getClass() . ' neni nadefinovano pole $importProperties. Nemuzu naimportovat data.');
         }
         // Projdeme si record
         foreach ($record as $name => $value) {
@@ -53,9 +53,9 @@ abstract class DataObject extends Object implements IDataObject
      */
     public function loadFromCache()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         if (TRUE === $config->CacheMode) {
-            $data = Cache::flush($this->getCacheId(), $this->getStorage());
+            $data = Kernel_Cache_Cache::flush($this->getCacheId(), $this->getStorage());
             if (NULL !== $data) {
                 $this->importObject($data);
                 return TRUE;
@@ -73,9 +73,9 @@ abstract class DataObject extends Object implements IDataObject
      */
     public function saveToCache()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         if (TRUE === $config->CacheMode) {
-            return Cache::save($this->getCacheId(), $this, $this->getStorage());
+            return Kernel_Cache_Cache::save($this->getCacheId(), $this, $this->getStorage());
         }
 
         return FALSE;
@@ -88,7 +88,7 @@ abstract class DataObject extends Object implements IDataObject
      */
     public function deleteFromCache()
     {
-        return Cache::delete($this->getCacheId(), $this->getStorage());
+        return Kernel_Cache_Cache::delete($this->getCacheId(), $this->getStorage());
     }
 
     /**
@@ -130,7 +130,7 @@ abstract class DataObject extends Object implements IDataObject
      * @param string $storage
      * @return mixed
      */
-    protected function setStorage($storage = Cache::FILE_STORAGE)
+    protected function setStorage($storage = Kernel_Cache_Cache::FILE_STORAGE)
     {
         $this->storage = $storage;
         return $this;
@@ -150,7 +150,7 @@ abstract class DataObject extends Object implements IDataObject
      * Nastavi hodnotu vlastnosti importProperties.
      *
      * @param array $importProperties
-     * @return DataObject
+     * @return Kernel_DataObject
      */
     protected function setImportProperties(array $importProperties)
     {

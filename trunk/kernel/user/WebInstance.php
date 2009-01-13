@@ -1,6 +1,6 @@
 <?php
 
-class WebInstance extends Object
+class Kernel_User_WebInstance extends Object
 {
 	private $id = 0;
 	// 24 znaku

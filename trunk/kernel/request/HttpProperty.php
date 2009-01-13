@@ -1,6 +1,6 @@
 <?php
 
-abstract class HttpProperty implements IHttpProperty
+abstract class Kernel_Request_HttpProperty implements Kernel_Request_HttpPropertyInterface
 {
 
 	public function __get($name)

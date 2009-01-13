@@ -9,14 +9,14 @@
 		<ul>
 			<li class="first"><a href="/" accesskey="1" title="">Home</a></li>
 			<li><a href="/bobradmin/" accesskey="2" title="">Administrace</a></li>
-            <li><a href="<?php echo Link::build('login/login') ?> " accesskey="3" title="">Login</a></li>
+            <li><a href="<?php echo Lib_Link::build('login/login') ?> " accesskey="3" title="">Login</a></li>
 		</ul>
 	</div>
 </div>
 <div id="content">
 	<div id="colOne">
         <?php
-        echo Messanger::flush();
+        echo Lib_Messanger::flush();
         echo $this->getContainer('center');
         ?>
 	</div>

@@ -1,6 +1,6 @@
 <?php
 
-interface IHttpProperty
+interface Kernel_Request_HttpPropertyInterface
 {
 	function assign(array $value);
 

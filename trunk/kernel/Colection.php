@@ -6,7 +6,7 @@
  *
  * @author rbas
  */
-abstract class Colection extends DataObject implements Countable, Iterator, ArrayAccess
+abstract class Kernel_Colection extends Kernel_DataObject implements Countable, Iterator, ArrayAccess
 {
     /**
      * Kolekce objektu v poli.
@@ -33,14 +33,14 @@ abstract class Colection extends DataObject implements Countable, Iterator, Arra
      * Naimportuje do sebe kolekci objektu.
      *
      * @param array $record
-     * @throws ColectionIAException Pokud neni vyplnena vlastnost $colectionClass.
-     * @throws ColectionException Pokud se nepovede naimportovat data.
-     * @return Colection
+     * @throws Kernel_ColectionIAException Pokud neni vyplnena vlastnost $colectionClass.
+     * @throws Kernel_ColectionException Pokud se nepovede naimportovat data.
+     * @return Kernel_Colection
      */
     public function importColection(array $record)
     {
         if (empty($this->colectionClass)) {
-            throw new ColectionIAException('Ve tride ' . $this->getClass() . ' neni vyplnena vlastnost $colectionClass. Nemuzu naimportovat data.');
+            throw new Kernel_ColectionIAException('Ve tride ' . $this->getClass() . ' neni vyplnena vlastnost $colectionClass. Nemuzu naimportovat data.');
         }
 
         try {
@@ -48,8 +48,8 @@ abstract class Colection extends DataObject implements Countable, Iterator, Arra
                 $this->colection[$key] = new $this->colectionClass;
                 $this->colection[$key]->importRecord($value);
             }
-        } catch (DataObjectIAException $e) {
-            throw new ColectionException('Ve tride ' . $this->getClass() . ' nastala chyba: ' . $e->getMessage());
+        } catch (Kernel_DataObjectIAException $e) {
+            throw new Kernel_ColectionException('Ve tride ' . $this->getClass() . ' nastala chyba: ' . $e->getMessage());
         }
 
         return $this;
@@ -128,7 +128,7 @@ abstract class Colection extends DataObject implements Countable, Iterator, Arra
      * Nastavi hodnotu vlastnosti colection.
      *
      * @param array $colection
-     * @return Colection
+     * @return Kernel_Colection
      */
     public function setColection(array $colection)
     {
@@ -150,7 +150,7 @@ abstract class Colection extends DataObject implements Countable, Iterator, Arra
      * Nastavi hodnotu vlastnosti colectionClass.
      *
      * @param string $colectionClass
-     * @return Colection
+     * @return Kernel_Colection
      */
     public function setColectionClass($colectionClass)
     {
@@ -172,7 +172,7 @@ abstract class Colection extends DataObject implements Countable, Iterator, Arra
      * Nastavi hodnotu vlastnosti index.
      *
      * @param integer $intex
-     * @return Colection
+     * @return Kernel_Colection
      */
     public function setIndex($intex)
     {

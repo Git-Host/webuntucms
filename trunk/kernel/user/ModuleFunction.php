@@ -1,6 +1,6 @@
 <?php
 
-class ModuleFunction extends Object
+class Kernel_User_ModuleFunction extends Object
 {
 	private $id = 0;
 	private $moduleId	= 0;

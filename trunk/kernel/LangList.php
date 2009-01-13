@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class LangList extends DataObject
+class Kernel_LangList extends Kernel_DataObject
 {
 
     /**
@@ -21,12 +21,12 @@ class LangList extends DataObject
     /**
      * Nacte dostupne jazyky.
      *
-     * @return LangList
+     * @return Kernel_LangList
      */
     private function load()
     {
         if (! $this->loadFromCache()) {
-            $query = "SELECT `id`, `symbol`, `country` FROM `" . Config::DB_PREFIX . "lang`";
+            $query = "SELECT `id`, `symbol`, `country` FROM `" . Kernel_Config_Config::DB_PREFIX . "lang`";
             $record = dibi::query($query)->fetchAll();
             if (!empty($record)) {
                 $this->importRecord($record);
@@ -40,12 +40,12 @@ class LangList extends DataObject
      * Naimportuje do sebe objekty Lang podle databazoveho recordu.
      *
      * @param array $record
-     * @return LangList
+     * @return Kernel_LangList
      */
     public function importRecord(array $record)
     {
         foreach ($record as $lang) {
-            $this->items[$lang['id']] = new Lang;
+            $this->items[$lang['id']] = new Kernel_Lang;
             $this->items[$lang['id']]->importRecord($lang);
         }
         return $this;
@@ -65,7 +65,7 @@ class LangList extends DataObject
      * Nastavi hodnotu vlastnosti items.
      *
      * @param array $items
-     * @return LangList
+     * @return Kernel_LangList
      */
     public function setItems(array $items)
     {

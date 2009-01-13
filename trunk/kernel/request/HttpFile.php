@@ -17,7 +17,7 @@
  * @version    $Id: HttpUploadedFile.php 110 2008-11-10 14:10:29Z david@grudl.com $
  */
 
-class HttpFile extends Object
+class Kernel_Request_HttpFile extends Object
 {
     /* @var string */
 	private $name;

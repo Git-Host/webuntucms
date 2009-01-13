@@ -1,6 +1,6 @@
 <?php
 
-class CommandValidator
+class Kernel_CommandValidator
 {
 	private $commandList = array();
 
@@ -8,7 +8,7 @@ class CommandValidator
 
     public function __construct()
 	{
-		$user = Session::getInstance()->user;
+		$user = Kernel_Session::getInstance()->user;
 		if (empty($user->commands)) {
 			throw new Exception('Zrejme neni nastaven uzivatel nebo nema zadna prava.');
 		}

@@ -5,7 +5,7 @@
  *
  * @author rbas
  */
-class Cache
+class Kernel_Cache_Cache
 {
 
     /**
@@ -24,7 +24,7 @@ class Cache
      */
     public static function flush($cacheId, $mode = self::FILE_STORAGE)
     {
-        $className = $mode . 'Storage';
+        $className = 'Kernel_Cache_' . $mode . 'Storage';
         $cacheAdapter = new $className;
         return $cacheAdapter->load(self::getCacheId($cacheId));
     }
@@ -39,7 +39,7 @@ class Cache
      */
     public static function save($cacheId, $content, $mode  = self::FILE_STORAGE)
     {
-        $className = $mode . 'Storage';
+        $className = 'Kernel_Cache_' . $mode . 'Storage';
         $cacheAdapter = new $className;
         return $cacheAdapter->write(self::getCacheId($cacheId), $content);
     }
@@ -53,7 +53,7 @@ class Cache
      */
     public static function exists($cacheId, $mode = self::FILE_STORAGE)
     {
-        $className = $mode . 'Storage';
+        $className = 'Kernel_Cache_' . $mode . 'Storage';
         $cacheAdapter = new $className;
         return $cacheAdapter->isCached(self::getCacheId($cacheId));
     }
@@ -67,7 +67,7 @@ class Cache
      */
     public static function delete($cacheId, $mode = self::FILE_STORAGE)
     {
-        $className = $mode . 'Storage';
+        $className = 'Kernel_Cache_' . $mode . 'Storage';
         $cacheAdapter = new $className;
         return $cacheAdapter->delete(self::getCacheId($cacheId));
     }
@@ -81,7 +81,7 @@ class Cache
      */
     public static function deleteDir($dir, $mode = self::FILE_STORAGE)
     {
-        $className = $mode . 'Storage';
+        $className ='Kernel_Cache_' . $mode . 'Storage';
         $cacheAdapter = new $className;
         return $cacheAdapter->deleteDir(self::getCacheId($cacheId));
     }
@@ -94,7 +94,7 @@ class Cache
      */
     private static function getCacheId($cacheId)
     {
-        return Tools::getWebInstance() . '/' . $cacheId;
+        return Lib_Tools::getWebInstance() . '/' . $cacheId;
     }
 
 }

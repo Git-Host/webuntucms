@@ -4,7 +4,7 @@
  * 
  * @author rbas
  */
-class HttpPost
+class Kernel_Request_HttpPost
 {
     /**
      * Informace zda-li jiz byl POST nastaven.

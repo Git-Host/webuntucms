@@ -1,6 +1,6 @@
 <?php
 
-class HttpGet
+class Kernel_Request_HttpGet
 {
 	private static $isAssigned = FALSE;
 
@@ -17,8 +17,8 @@ class HttpGet
 	{
 		if (FALSE === self::$isAssigned) {
             // Pokud neni nic v GETu musime tam alespon vlozit prazdnou promenou.
-            if (! isset($GET[HttpRequest::GET_VARIABLE])) {
-                $this->get[HttpRequest::GET_VARIABLE] = '';
+            if (! isset($GET[Kernel_Request_HttpRequest::GET_VARIABLE])) {
+                $this->get[Kernel_Request_HttpRequest::GET_VARIABLE] = '';
             } else {
                 $this->get = $GET;
             }
@@ -31,10 +31,10 @@ class HttpGet
 
     private function setLangFromUri()
     {
-        $config = new Config;
+        $config = new Kernel_Config_Config;
         if ($config->remoteLangFrom === 'uri') {
 
-            $langList = new LangList;
+            $langList = new Kernel_LangList;
             if (!empty($langList->items)) {
                 $pattern = '@';
                 // Vytvorime si matchovaci patternu.
@@ -44,18 +44,18 @@ class HttpGet
                 // Odstranime posledni znamenko. (je to |)
                 $pattern = substr($pattern, 0, -1) . '@';
                 // Zjistime jestli podoporovany jazyk je v uri
-                if (0 < preg_match($pattern, $this->get[HttpRequest::GET_VARIABLE], $matches)) {
+                if (0 < preg_match($pattern, $this->get[Kernel_Request_HttpRequest::GET_VARIABLE], $matches)) {
                     // Vytrovime samostatnou promenou a ulozime do ni symbol jazyka.
-                    $this->get[HttpGet::GET_LANG_VARIABLE] = $matches[0];
+                    $this->get[Kernel_Request_HttpGet::GET_LANG_VARIABLE] = $matches[0];
 
                     
                     // Odebereme z uri symbol jazyka, vadil by pri dalsi praci.
-                    $this->get[HttpRequest::GET_VARIABLE] = str_replace($matches[0] . '/', '', $this->get[HttpRequest::GET_VARIABLE]);
+                    $this->get[Kernel_Request_HttpRequest::GET_VARIABLE] = str_replace($matches[0] . '/', '', $this->get[Kernel_Request_HttpRequest::GET_VARIABLE]);
                     print_Re($this);
                     return TRUE;
                 }
                 $this->get[self::GET_LANG_VARIABLE] = $config->defaultLang;
-                HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
+                Kernel_Request_HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
             } else {
                 throw new ErrorException('Neni podpora pro jazyky.');
                 //HttpRequest::redirect($config->webRoot . $config->defaultLang . '/');
@@ -71,7 +71,10 @@ class HttpGet
      */
     public function getLang()
     {
-        return  isset($this->get[HttpGet::GET_LANG_VARIABLE]) ? $this->get[HttpGet::GET_LANG_VARIABLE] : '';
+        return  
+            isset($this->get[Kernel_Request_HttpGet::GET_LANG_VARIABLE])
+                ? $this->get[Kernel_Request_HttpGet::GET_LANG_VARIABLE]
+                : '';
     }
 
     /**

@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class DescriptionList extends DataObject
+class Kernel_DescriptionList extends Kernel_DataObject
 {
     private  $lang = '';
 
@@ -19,7 +19,7 @@ class DescriptionList extends DataObject
     /**
      * Vrati svoji vlastni instanci
      *
-     * @return DescriptionList
+     * @return Kernel_DescriptionList
      */
     public static function getInstance($lang = '', $pageId = '')
     {
@@ -89,7 +89,7 @@ class DescriptionList extends DataObject
     public function importRecord(array $record)
     {
         foreach ($record as $id => $description) {
-            $this->items[$description['id']] = new Description;
+            $this->items[$description['id']] = new Kernel_Description;
             $this->items[$description['id']]->importRecord($description);
         }
     }
