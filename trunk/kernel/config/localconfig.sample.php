@@ -1,17 +1,17 @@
 <?php
 
-require_once __WEB_ROOT__ . '/lib/tools.php';
+require_once __WEB_ROOT__ . '/lib/Tools.php';
 
 require_once __WEB_ROOT__ . '/kernel/config/defaultconfig.php';
 
-require_once __WEB_ROOT__ . '/kernel/config/' . Tools::getWebInstance() . 'config.php';
+require_once __WEB_ROOT__ . '/kernel/config/' . Lib_Tools::getWebInstance() . 'config.php';
 /**
  * Zakladni configuracni trida.
  * Trida je pretezovana.
  *
  * @author rbas
  */
-class Config implements ArrayAccess
+class Kernel_Config_Config implements ArrayAccess
 {
 
     /**
@@ -67,7 +67,7 @@ class Config implements ArrayAccess
 			return $this->settings[ $value ];
 		}else{
             // Konfigurator neexistuje, zavolame si webInstancovy config
-			$configName = Tools::getWebInstance() .'Config';
+			$configName = Lib_Tools::getWebInstance() .'Config';
 			$instanceConfig = new $configName;
 			return $instanceConfig[$name];
 		}
