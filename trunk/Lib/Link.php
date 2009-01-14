@@ -14,10 +14,10 @@ class Lib_Link extends Object
      */
     public static function getWebRoot()
     {
-        $config = new Kernel_Config_Config;
+        $config = new Config;
         $webRoot = $config->webRoot;
         if ($config->remoteLangFrom === 'uri') {
-            $webRoot .= Kernel_Session::lang() . '/';
+            $webRoot .= Bobr_Session::lang() . '/';
         }
         return $webRoot;
     }

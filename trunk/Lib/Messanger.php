@@ -36,11 +36,11 @@ class Lib_Messanger
      */
     public static function getInstance()
     {
-        if (Kernel_Session::getNamespace('Messanger') instanceof Lib_Messanger) {
-            return Kernel_Session::getNamespace('Messanger');
+        if (Bobr_Session::getNamespace('Messanger') instanceof Lib_Messanger) {
+            return Bobr_Session::getNamespace('Messanger');
         } else {
-            Kernel_Session::setNamesapce('Messanger', new Lib_Messanger);
-            self::$instance = Kernel_Session::getNamespace('Messanger');
+            Bobr_Session::setNamesapce('Messanger', new Lib_Messanger);
+            self::$instance = Bobr_Session::getNamespace('Messanger');
             return self::$instance;
         }
     }

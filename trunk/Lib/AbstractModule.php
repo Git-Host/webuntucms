@@ -37,9 +37,9 @@ abstract class Lib_AbstractModule extends Object implements Lib_IModule
     /**
      * Nastavi objektu zakladni vlastnosti
      *
-     * @param Kernel_Command $command
+     * @param Bobr_Command $command
      */
-    public function  __construct(Kernel_Command $command)
+    public function  __construct(Bobr_Command $command)
     {
         $this->setCommand($command)
             ->assignCommand()
@@ -62,7 +62,7 @@ abstract class Lib_AbstractModule extends Object implements Lib_IModule
     /**
      * Zpracuje command a nastavi vlastnosti objektu.
      *
-     * @return Kernel_AbstractModule
+     * @return Bobr_AbstractModule
      */
     protected function assignCommand()
     {
@@ -90,7 +90,7 @@ abstract class Lib_AbstractModule extends Object implements Lib_IModule
      */
     protected function addToTemplate($name, $value)
     {
-        Kernel_Page_Template::add($name, $value);
+        Bobr_Page_Template::add($name, $value);
         return $this;
     }
 
@@ -102,7 +102,7 @@ abstract class Lib_AbstractModule extends Object implements Lib_IModule
      */
     protected function loadTemplate($fileName)
     {
-        $template = Kernel_Page_Template::getInstance();
+        $template = Bobr_Page_Template::getInstance();
         return $template->load($this->getFileName($fileName));
     }
 
@@ -135,7 +135,7 @@ abstract class Lib_AbstractModule extends Object implements Lib_IModule
      * @param string $command
      * @return Module
      */
-    protected function setCommand(Kernel_Command $command)
+    protected function setCommand(Bobr_Command $command)
     {
         $this->command = $command;
         return $this;

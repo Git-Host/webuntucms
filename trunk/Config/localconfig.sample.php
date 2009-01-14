@@ -11,7 +11,7 @@ require_once __WEB_ROOT__ . '/Config/' . Lib_Tools::getWebInstance() . 'config.p
  *
  * @author rbas
  */
-class Kernel_Config_Config implements ArrayAccess
+class Config implements ArrayAccess
 {
 
     /**

@@ -4,7 +4,7 @@
  *
  * @author rbas
  */
-class Lib_LinkCreator extends Kernel_DataObject
+class Lib_LinkCreator extends Bobr_DataObject
 {
     private $linkPatterns = array();
     
@@ -18,8 +18,8 @@ class Lib_LinkCreator extends Kernel_DataObject
             }
 
             $query = "SELECT  mf.`func` as `pattern`, dr.`command` as `localize`
-                FROM `" . Kernel_Config_Config::DB_PREFIX . "module_functions` mf
-                JOIN `" . Kernel_Config_Config::DB_PREFIX . "routedynamic_" . self::$lang . "` dr ON mf.`id` = dr.`module_functions_id`
+                FROM `" . Config::DB_PREFIX . "module_functions` mf
+                JOIN `" . Config::DB_PREFIX . "routedynamic_" . self::$lang . "` dr ON mf.`id` = dr.`module_functions_id`
                 ORDER BY mf.`module_id`, mf.`id`";
             $record = dibi::query($query)->fetchAssoc('pattern');
             if (!empty($record)) {

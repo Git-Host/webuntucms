@@ -7,12 +7,12 @@ try {
 
     require_once __WEB_ROOT__ . '/Config/localconfig.php';
 
-    require_once __WEB_ROOT__ . '/Kernel/BobrLoader.php';
+    require_once __WEB_ROOT__ . '/Bobr/BobrLoader.php';
 
-    Kernel_BobrLoader::getInstance()->base = __WEB_ROOT__;
-    Kernel_BobrLoader::getInstance()->register();
+    Bobr_BobrLoader::getInstance()->base = __WEB_ROOT__;
+    Bobr_BobrLoader::getInstance()->register();
 
-    $bobr = new Kernel_Bobr;
+    $bobr = new Bobr_Bobr;
     $bobr->run();
 } catch (Exception $e) {
     echo $e->getMessage();

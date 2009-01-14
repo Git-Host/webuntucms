@@ -364,7 +364,7 @@ class Form extends FormContainer
 		$this->submittedBy = FALSE;
 
 		if ($httpRequest === NULL) {
-            $httpRequest = Kernel_Request_HttpRequest::getInstance();
+            $httpRequest = Bobr_Request_HttpRequest::getInstance();
 		}
 		$httpRequest->setEncoding($this->encoding);
 
