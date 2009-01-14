@@ -21,7 +21,7 @@
 /*namespace Nette::Loaders;*/
 
 
-require_once __WEB_ROOT__ . '/lib/Nette/Object.php';
+require_once __WEB_ROOT__ . '/Lib/Nette/Object.php';
 
 
 

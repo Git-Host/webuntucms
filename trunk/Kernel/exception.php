@@ -1,8 +1,8 @@
 <?php
 
 // Nactem si vsechny vyjimky.
-require_once __WEB_ROOT__ . '/kernel/user/exception.php';
-require_once __WEB_ROOT__ .  '/kernel/page/exception.php';
+require_once __WEB_ROOT__ . '/Kernel/User/exception.php';
+require_once __WEB_ROOT__ .  '/Kernel/Page/exception.php';
 
 
 /**

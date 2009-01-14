@@ -1,10 +1,10 @@
 <?php
 
-require_once __WEB_ROOT__ . '/lib/Tools.php';
+require_once __WEB_ROOT__ . '/Lib/Tools.php';
 
-require_once __WEB_ROOT__ . '/kernel/config/defaultconfig.php';
+require_once __WEB_ROOT__ . '/Kernel/Config/defaultconfig.php';
 
-require_once __WEB_ROOT__ . '/kernel/config/' . Lib_Tools::getWebInstance() . 'config.php';
+require_once __WEB_ROOT__ . '/Kernel/Config/' . Lib_Tools::getWebInstance() . 'config.php';
 /**
  * Zakladni configuracni trida.
  * Trida je pretezovana.

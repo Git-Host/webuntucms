@@ -1,8 +1,8 @@
 <?php
-require_once __WEB_ROOT__ . '/kernel/AutoLoader.php';
+require_once __WEB_ROOT__ . '/Kernel/AutoLoader.php';
 
 // Nacteme si vyjimky pro kernel
-require_once __WEB_ROOT__ . '/kernel/exception.php';
+require_once __WEB_ROOT__ . '/Kernel/exception.php';
 
 class Kernel_BobrLoader extends Kernel_AutoLoader
 {
@@ -67,7 +67,7 @@ class Kernel_BobrLoader extends Kernel_AutoLoader
         'kernel_user_module' => '/Kernel/User/Module.php',
         'kernel_user_modulefunction' => '/Kernel/User/ModuleFunction.php',
         'kernel_user_modulelist' => '/Kernel/User/ModuleList.php',
-        'kernel_user_user' => '/Kernel/user/User.php',
+        'kernel_user_user' => '/Kernel/User/User.php',
         'kernel_user_userlogin' => '/Kernel/User/UserLogin.php',
         'kernel_user_uservalidator' => '/Kernel/User/UserValidator.php',
         'kernel_user_webinstance' => '/Kernel/User/WebInstance.php',

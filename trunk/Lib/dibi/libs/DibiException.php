@@ -19,7 +19,7 @@
  */
 
 
-require_once __WEB_ROOT__ . '/lib/dibi/IDebuggable.php';
+require_once __WEB_ROOT__ . '/Lib/dibi/IDebuggable.php';
 
 /**
  * dibi common exception.
