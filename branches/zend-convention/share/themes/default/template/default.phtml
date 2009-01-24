@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title><?php echo $this->title ?></title>
+        <link rel="stylesheet" type="text/css" href="/share/themes/default/css/default.css" />
+    </head>
+    <body>
+        <div id="canvas">
+            <div id="header"><?php echo $this->getContainer('header'); ?></div>
+            <div id="left"><?php echo $this->getContainer('left') ?></div>
+            <div id="right"><?php echo $this->getContainer('right') ?></div>
+            <div id="center">
+                <?php
+                    echo $this->messanger;
+                    echo $this->getContainer('center');
+                ?>
+             </div>
+            <div class="cleaner"></div>
+            <div id="footer">BOBR 2.O<?php echo $this->getContainer('footer') ?></div>
+        </div>
+    </body>
+</html>

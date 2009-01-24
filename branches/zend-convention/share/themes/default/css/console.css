@@ -1,0 +1,35 @@
+#console {
+    padding: 20px;
+    background-color: #f7eddf;
+    color: #000;
+}
+#console-header h1 {
+    font-family:cursive;
+    font-size: 100%;
+    background-color: #cc0033;
+    padding: 25px;
+    color: #f8f9ed;
+    margin: 0;
+}
+
+#console pre, #console p {
+    font-family: monospace;
+    border: 1px dotted #ff6666;
+    background: #ffffcc;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+#center div {
+    background-color: #00a39c;
+    padding: 15px;
+    margin: 10px 0;
+}
+#center div h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+}
+
+.errors {padding:5px 10px 20px 5px;margin:10px 10px 10px 10px;border:solid 2px #FF7D6A !important; background:#FFC4B8 !important;  color: black;}
+.notes {padding:5px 10px 20px 5px;margin:10px 10px 10px 10px;border:solid 2px #FFEAAF !important; background:#FFFFCB !important; color: black;}
