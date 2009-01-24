@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: DibiDataSource.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: DibiDataSource.php 174 2008-12-31 00:13:40Z david@grudl.com $
  */
 
 
@@ -24,10 +24,10 @@
  * Default implementation of IDataSource for dibi.
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiDataSource extends /*Nette::*/Object implements IDataSource
+class DibiDataSource extends DibiObject implements IDataSource
 {
 	/** @var DibiConnection */
 	private $connection;
@@ -65,7 +65,7 @@ class DibiDataSource extends /*Nette::*/Object implements IDataSource
 	 * @param  array columns
 	 * @return ArrayIterator
 	 */
-	public function getIterator($offset = NULL, $limit = NULL, $cols = NULL)
+	public function getIterator($offset = NULL, $limit = NULL)
 	{
 		return $this->connection->query('
 			SELECT *

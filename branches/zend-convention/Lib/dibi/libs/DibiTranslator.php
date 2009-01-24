@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: DibiTranslator.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: DibiTranslator.php 180 2009-01-07 17:30:01Z david@grudl.com $
  */
 
 
@@ -24,10 +24,10 @@
  * dibi SQL translator.
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-final class DibiTranslator extends /*Nette::*/Object
+final class DibiTranslator extends DibiObject
 {
 	/** @var string */
 	public $sql;
@@ -80,7 +80,6 @@ final class DibiTranslator extends /*Nette::*/Object
 
 	/**
 	 * Generates SQL.
-	 *
 	 * @param  array
 	 * @return bool
 	 */
@@ -195,31 +194,49 @@ final class DibiTranslator extends /*Nette::*/Object
 	public function formatValue($value, $modifier)
 	{
 		// array processing (with or without modifier)
-		if (is_array($value)) {
+		if (is_array($value) || $value instanceof ArrayObject) {
 
 			$vx = $kx = array();
-			$separator = ', ';
+			$operator = ', ';
 			switch ($modifier) {
 			case 'and':
-			case 'or':
-				$separator = ' ' . strtoupper($modifier) . ' ';
-				if (!is_string(key($value))) {
-					foreach ($value as $v) {
+			case 'or':  // key=val AND key IS NULL AND ...
+				$operator = ' ' . strtoupper($modifier) . ' ';
+				if (empty($value)) {
+					return '1';
+
+				} else foreach ($value as $k => $v) {
+					if (is_string($k)) {
+						$pair = explode('%', $k, 2); // split into identifier & modifier
+						$k = $this->delimite($pair[0]) . ' ';
+						if (!isset($pair[1])) {
+							$v = $this->formatValue($v, FALSE);
+							$vx[] = $k . ($v === 'NULL' ? 'IS ' : '= ') . $v;
+
+						} elseif ($pair[1] === 'ex') {
+							$vx[] = $k . $this->formatValue($v, 'sql');
+
+						} else {
+							$v = $this->formatValue($v, $pair[1]);
+							$vx[] = $k . ($pair[1] === 'l' ? 'IN ' : ($v === 'NULL' ? 'IS ' : '= ')) . $v;
+						}
+
+					} else {
 						$vx[] = $this->formatValue($v, 'sql');
 					}
-					return implode($separator, $vx);
 				}
-				// break intentionally omitted
-			case 'a': // SET key=val, key=val, ...
+				return implode($operator, $vx);
+
+			case 'a': // key=val, key=val, ...
 				foreach ($value as $k => $v) {
 					$pair = explode('%', $k, 2); // split into identifier & modifier
 					$vx[] = $this->delimite($pair[0]) . '='
 						. $this->formatValue($v, isset($pair[1]) ? $pair[1] : FALSE);
 				}
-				return implode($separator, $vx);
+				return implode($operator, $vx);
 
 
-			case 'l': // LIST (val, val, ...)
+			case 'l': // (val, val, ...)
 				foreach ($value as $k => $v) {
 					$pair = explode('%', $k, 2); // split into identifier & modifier
 					$vx[] = $this->formatValue($v, isset($pair[1]) ? $pair[1] : FALSE);
@@ -235,7 +252,23 @@ final class DibiTranslator extends /*Nette::*/Object
 				}
 				return '(' . implode(', ', $kx) . ') VALUES (' . implode(', ', $vx) . ')';
 
-			default:
+			case 'by': // key ASC, key DESC
+				foreach ($value as $k => $v) {
+					if (is_string($k)) {
+						$v = (is_string($v) && strncasecmp($v, 'd', 1)) || $v > 0 ? 'ASC' : 'DESC';
+						$vx[] = $this->delimite($k) . ' ' . $v;
+					} else {
+						$vx[] = $this->delimite($v);
+					}
+				}
+				return implode(', ', $vx);
+
+			case 'sql':
+				$translator = new self($this->driver);
+				$translator->translate($value);
+				return $translator->sql;
+
+			default:  // value, value, value - all with the same modifier
 				foreach ($value as $v) {
 					$vx[] = $this->formatValue($v, $modifier);
 				}
@@ -270,23 +303,25 @@ final class DibiTranslator extends /*Nette::*/Object
 
 			case 'i':  // signed int
 			case 'u':  // unsigned int, ignored
-				// support for numbers - keep them unchanged
+				// support for long numbers - keep them unchanged
 				if (is_string($value) && preg_match('#[+-]?\d+(e\d+)?$#A', $value)) {
 					return $value;
 				}
 				return (string) (int) ($value + 0);
 
 			case 'f':  // float
-				// support for numbers - keep them unchanged
-				if (is_numeric($value) && (!is_string($value) || strpos($value, 'x') === FALSE)) {
-					return $value; // something like -9E-005 is accepted by SQL, HEX values is not
+				// support for extreme numbers - keep them unchanged
+				if (is_string($value) && is_numeric($value) && strpos($value, 'x') === FALSE) {
+					return $value; // something like -9E-005 is accepted by SQL, HEX values are not
 				}
-				return (string) ($value + 0);
+				return rtrim(rtrim(number_format($value, 5, '.', ''), '0'), '.');
 
 			case 'd':  // date
 			case 't':  // datetime
-				return $this->driver->escape(is_string($value) ? strtotime($value) : $value, $modifier);
+				$value = is_numeric($value) ? (int) $value : ($value instanceof DateTime ? $value->format('U') : strtotime($value));
+				return $this->driver->escape($value, $modifier);
 
+			case 'by':
 			case 'n':  // identifier name
 				return $this->delimite($value);
 
@@ -324,7 +359,7 @@ final class DibiTranslator extends /*Nette::*/Object
 			return $this->driver->escape($value, dibi::FIELD_TEXT);
 
 		if (is_int($value) || is_float($value))
-			return (string) $value;  // something like -9E-005 is accepted by SQL
+			return rtrim(rtrim(number_format($value, 5, '.', ''), '0'), '.');
 
 		if (is_bool($value))
 			return $this->driver->escape($value, dibi::FIELD_BOOL);
@@ -444,7 +479,6 @@ final class DibiTranslator extends /*Nette::*/Object
 
 	/**
 	 * Apply substitutions to indentifier and delimites it.
-	 *
 	 * @param  string indentifier
 	 * @return string
 	 */

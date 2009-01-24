@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: sqlite.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: sqlite.php 186 2009-01-17 19:27:40Z david@grudl.com $
  */
 
 
@@ -27,42 +27,32 @@
  *   - 'persistent' - try to find a persistent link?
  *   - 'unbuffered' - sends query without fetching and buffering the result rows automatically?
  *   - 'lazy' - if TRUE, connection will be established only when required
- *   - 'format:date' - how to format date in SQL (@see date)
- *   - 'format:datetime' - how to format datetime in SQL (@see date)
+ *   - 'formatDate' - how to format date in SQL (@see date)
+ *   - 'formatDateTime' - how to format datetime in SQL (@see date)
+ *   - 'dbcharset' - database character encoding (will be converted to 'charset')
+ *   - 'charset' - character encoding to set (default is UTF-8)
+ *   - 'resource' - connection resource (optional)
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
+class DibiSqliteDriver extends DibiObject implements IDibiDriver
 {
-
-	/**
-	 * Connection resource.
-	 * @var resource
-	 */
+	/** @var resource  Connection resource */
 	private $connection;
 
-
-	/**
-	 * Resultset resource.
-	 * @var resource
-	 */
+	/** @var resource  Resultset resource */
 	private $resultSet;
 
-
-	/**
-	 * Is buffered (seekable and countable)?
-	 * @var bool
-	 */
+	/** @var bool  Is buffered (seekable and countable)? */
 	private $buffered;
 
-
-	/**
-	 * Date and datetime format.
-	 * @var string
-	 */
+	/** @var string  Date and datetime format */
 	private $fmtDate, $fmtDateTime;
+
+	/** @var string  character encoding */
+	private $dbcharset, $charset;
 
 
 
@@ -80,18 +70,19 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Connects to a database.
-	 *
 	 * @return void
 	 * @throws DibiException
 	 */
 	public function connect(array &$config)
 	{
 		DibiConnection::alias($config, 'database', 'file');
-		$this->fmtDate = isset($config['format:date']) ? $config['format:date'] : 'U';
-		$this->fmtDateTime = isset($config['format:datetime']) ? $config['format:datetime'] : 'U';
+		$this->fmtDate = isset($config['formatDate']) ? $config['formatDate'] : 'U';
+		$this->fmtDateTime = isset($config['formatDateTime']) ? $config['formatDateTime'] : 'U';
 
 		$errorMsg = '';
-		if (empty($config['persistent'])) {
+		if (isset($config['resource'])) {
+			$this->connection = $config['resource'];
+		} elseif (empty($config['persistent'])) {
 			$this->connection = @sqlite_open($config['database'], 0666, $errorMsg); // intentionally @
 		} else {
 			$this->connection = @sqlite_popen($config['database'], 0666, $errorMsg); // intentionally @
@@ -102,13 +93,18 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 		}
 
 		$this->buffered = empty($config['unbuffered']);
+
+		$this->dbcharset = empty($config['dbcharset']) ? 'UTF-8' : $config['dbcharset'];
+		$this->charset = empty($config['charset']) ? 'UTF-8' : $config['charset'];
+		if (strcasecmp($this->dbcharset, $this->charset) === 0) {
+			$this->dbcharset = $this->charset = NULL;
+		}
 	}
 
 
 
 	/**
 	 * Disconnects from a database.
-	 *
 	 * @return void
 	 */
 	public function disconnect()
@@ -120,13 +116,16 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Executes the SQL query.
-	 *
 	 * @param  string      SQL statement.
 	 * @return IDibiDriver|NULL
 	 * @throws DibiDriverException
 	 */
 	public function query($sql)
 	{
+		if ($this->dbcharset !== NULL) {
+			$sql = iconv($this->charset, $this->dbcharset . '//IGNORE', $sql);
+		}
+
 		DibiDriverException::tryError();
 		if ($this->buffered) {
 			$this->resultSet = sqlite_query($this->connection, $sql);
@@ -144,7 +143,6 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int|FALSE  number of rows or FALSE on error
 	 */
 	public function affectedRows()
@@ -156,7 +154,6 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @return int|FALSE  int on success or FALSE on failure
 	 */
 	public function insertId($sequence)
@@ -168,10 +165,11 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function begin()
+	public function begin($savepoint = NULL)
 	{
 		$this->query('BEGIN');
 	}
@@ -180,10 +178,11 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function commit()
+	public function commit($savepoint = NULL)
 	{
 		$this->query('COMMIT');
 	}
@@ -192,10 +191,11 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function rollback()
+	public function rollback($savepoint = NULL)
 	{
 		$this->query('ROLLBACK');
 	}
@@ -203,8 +203,22 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 	/**
+	 * Returns the connection resource.
+	 * @return mixed
+	 */
+	public function getResource()
+	{
+		return $this->connection;
+	}
+
+
+
+	/********************* SQL ****************d*g**/
+
+
+
+	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    encoded value
@@ -218,7 +232,7 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 			return "'" . sqlite_escape_string($value) . "'";
 
 		case dibi::IDENTIFIER:
-			return '[' . str_replace('.', '].[', $value) . ']';
+			return '[' . str_replace('.', '].[', strtr($value, '[]', '  ')) . ']';
 
 		case dibi::FIELD_BOOL:
 			return $value ? 1 : 0;
@@ -238,7 +252,6 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
@@ -253,7 +266,6 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
@@ -267,9 +279,12 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* result set ****************d*g**/
+
+
+
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	public function rowCount()
@@ -284,21 +299,31 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Fetches the row at current position and moves the internal cursor to the next position.
-	 * internal usage only
-	 *
 	 * @param  bool     TRUE for associative array, FALSE for numeric
 	 * @return array    array on success, nonarray if no next record
+	 * @internal
 	 */
-	public function fetch($type)
+	public function fetch($assoc)
 	{
-		return sqlite_fetch_array($this->resultSet, $type ? SQLITE_ASSOC : SQLITE_NUM);
+		$row = sqlite_fetch_array($this->resultSet, $assoc ? SQLITE_ASSOC : SQLITE_NUM);
+		$charset = $this->charset === NULL ? NULL : $this->charset . '//TRANSLIT';
+		if ($row && ($assoc || $charset)) {
+			$tmp = array();
+			foreach ($row as $k => $v) {
+				if ($charset !== NULL && is_string($v)) {
+					$v = iconv($this->dbcharset, $charset, $v);
+				}
+				$tmp[str_replace(array('[', ']'), '', $k)] = $v;
+			}
+			return $tmp;
+		}
+		return $row;
 	}
 
 
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -315,7 +340,6 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function free()
@@ -327,40 +351,29 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Returns metadata for all columns in a result set.
-	 *
 	 * @return array
 	 */
 	public function getColumnsMeta()
 	{
 		$count = sqlite_num_fields($this->resultSet);
-		$meta = array();
+		$res = array();
 		for ($i = 0; $i < $count; $i++) {
-			// items 'name' and 'table' are required
-			$meta[] = array(
-				'name'  => sqlite_field_name($this->resultSet, $i),
-				'table' => NULL,
+			$name = str_replace(array('[', ']'), '', sqlite_field_name($this->resultSet, $i));
+			$pair = explode('.', $name);
+			$res[] = array(
+				'name'  => isset($pair[1]) ? $pair[1] : $pair[0],
+				'table' => isset($pair[1]) ? $pair[0] : NULL,
+				'fullname' => $name,
+				'nativetype' => NULL,
 			);
 		}
-		return $meta;
-	}
-
-
-
-	/**
-	 * Returns the connection resource.
-	 *
-	 * @return mixed
-	 */
-	public function getResource()
-	{
-		return $this->connection;
+		return $res;
 	}
 
 
 
 	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mixed
 	 */
 	public function getResultResource()
@@ -370,12 +383,64 @@ class DibiSqliteDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* reflection ****************d*g**/
+
+
+
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Returns list of tables.
+	 * @return array
 	 */
-	function getDibiReflection()
-	{}
+	public function getTables()
+	{
+		$this->query("
+			SELECT name, type = 'view' as view FROM sqlite_master WHERE type IN ('table', 'view')
+			UNION ALL
+			SELECT name, type = 'view' as view FROM sqlite_temp_master WHERE type IN ('table', 'view')
+			ORDER BY name
+		");
+		$res = array();
+		while ($row = $this->fetch(TRUE)) {
+			$res[] = $row;
+		}
+		$this->free();
+		return $res;
+	}
+
+
+
+	/**
+	 * Returns metadata for all columns in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getColumns($table)
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all indexes in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getIndexes($table)
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all foreign keys in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getForeignKeys($table)
+	{
+		throw new NotImplementedException;
+	}
 
 }

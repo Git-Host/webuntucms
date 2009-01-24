@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: DibiFluent.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: DibiFluent.php 186 2009-01-17 19:27:40Z david@grudl.com $
  */
 
 
@@ -24,10 +24,10 @@
  * dibi SQL builder via fluent interfaces. EXPERIMENTAL!
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiFluent extends /*Nette::*/Object
+class DibiFluent extends DibiObject
 {
 	/** @var array */
 	public static $masks = array(
@@ -36,6 +36,18 @@ class DibiFluent extends /*Nette::*/Object
 		'UPDATE' => array('UPDATE', 'SET', 'WHERE', 'ORDER BY', 'LIMIT', '%end'),
 		'INSERT' => array('INSERT', 'INTO', 'VALUES', 'SELECT', '%end'),
 		'DELETE' => array('DELETE', 'FROM', 'USING', 'WHERE', 'ORDER BY', 'LIMIT', '%end'),
+	);
+
+	/** @var array */
+	public static $modifiers = array(
+		'SELECT' => '%n',
+		'IN' => '%l',
+		'VALUES' => '%l',
+		'SET' => '%a',
+		'WHERE' => '%and',
+		'HAVING' => '%and',
+		'ORDER BY' => '%by',
+		'GROUP BY' => '%by',
 	);
 
 	/** @var array */
@@ -88,7 +100,7 @@ class DibiFluent extends /*Nette::*/Object
 	 */
 	public function __call($clause, $args)
 	{
-		$clause = self::_clause($clause);
+		$clause = self::_formatClause($clause);
 
 		// lazy initialization
 		if ($this->command === NULL) {
@@ -104,11 +116,22 @@ class DibiFluent extends /*Nette::*/Object
 		if (count($args) === 1) {
 			$arg = $args[0];
 			// TODO: really ignore TRUE?
-			if ($arg === TRUE) {
+			if ($arg === TRUE) { // flag
 				$args = array();
 
-			} elseif (is_string($arg) && preg_match('#^[a-z][a-z0-9_.]*$#i', $arg)) {
+			} elseif (is_string($arg) && preg_match('#^[a-z:_][a-z0-9_.:]*$#i', $arg)) { // identifier
 				$args = array('%n', $arg);
+
+			} elseif ($arg instanceof self) {
+				$args = array_merge(array('('), $arg->_export(), array(')'));
+
+			} elseif (is_array($arg)) { // any array
+				if (isset(self::$modifiers[$clause])) {
+					$args = array(self::$modifiers[$clause], $arg);
+
+				} elseif (is_string(key($arg))) { // associative array
+					$args = array('%a', $arg);
+				}
 			}
 		}
 
@@ -158,7 +181,7 @@ class DibiFluent extends /*Nette::*/Object
 	 */
 	public function clause($clause, $remove = FALSE)
 	{
-		$this->cursor = & $this->clauses[self::_clause($clause)];
+		$this->cursor = & $this->clauses[self::_formatClause($clause)];
 
 		if ($remove) {
 			$this->cursor = NULL;
@@ -196,7 +219,7 @@ class DibiFluent extends /*Nette::*/Object
 	 * @param  string  flag name
 	 * @return bool
 	 */
-	final public function getFlag($flag, $value = TRUE)
+	final public function getFlag($flag)
 	{
 		return isset($this->flags[strtoupper($flag)]);
 	}
@@ -228,7 +251,7 @@ class DibiFluent extends /*Nette::*/Object
 
 	/**
 	 * Generates, executes SQL query and fetches the single row.
-	 * @return array|FALSE  array on success, FALSE if no next record
+	 * @return DibiRow|FALSE  array on success, FALSE if no next record
 	 * @throws DibiException
 	 */
 	public function fetch()
@@ -236,7 +259,63 @@ class DibiFluent extends /*Nette::*/Object
 		if ($this->command === 'SELECT') {
 			$this->clauses['LIMIT'] = array(1);
 		}
-		return $this->connection->query($this->_export())->fetch();
+		return $this->execute()->fetch();
+	}
+
+
+
+	/**
+	 * Like fetch(), but returns only first field.
+	 * @return mixed  value on success, FALSE if no next record
+	 */
+	public function fetchSingle()
+	{
+		if ($this->command === 'SELECT') {
+			$this->clauses['LIMIT'] = array(1);
+		}
+		return $this->execute()->fetchSingle();
+	}
+
+
+
+	/**
+	 * Fetches all records from table.
+	 * @param  int  offset
+	 * @param  int  limit
+	 * @return array
+	 */
+	public function fetchAll($offset = NULL, $limit = NULL)
+	{
+		return $this->execute()->fetchAll($offset, $limit);
+	}
+
+
+
+	/**
+	 * Fetches all records from table and returns associative tree.
+	 * Associative descriptor:  assoc1,#,assoc2,=,assoc3,@
+	 * builds a tree:           $data[assoc1][index][assoc2]['assoc3']->value = {record}
+	 * @param  string  associative descriptor
+	 * @return array
+	 * @throws InvalidArgumentException
+	 */
+	public function fetchAssoc($assoc)
+	{
+		return $this->execute()->fetchAssoc($assoc);
+	}
+
+
+
+	/**
+	 * Fetches all records from table like $key => $value pairs.
+	 * @param  string  associative key
+	 * @param  string  value
+	 * @return array
+	 * @throws InvalidArgumentException
+	 */
+	public function fetchPairs($key = NULL, $value = NULL)
+	{
+		return $this->execute()->fetchPairs($key, $value);
 	}
 
 
@@ -264,7 +343,7 @@ class DibiFluent extends /*Nette::*/Object
 			$data = $this->clauses;
 
 		} else {
-			$clause = self::_clause($clause);
+			$clause = self::_formatClause($clause);
 			if (array_key_exists($clause, $this->clauses)) {
 				$data = array($clause => $this->clauses[$clause]);
 			} else {
@@ -294,7 +373,7 @@ class DibiFluent extends /*Nette::*/Object
 	 * @param  string
 	 * @return string
 	 */
-	private static function _clause($s)
+	private static function _formatClause($s)
 	{
 		if ($s === 'order' || $s === 'group') {
 			$s .= 'By';
@@ -307,14 +386,12 @@ class DibiFluent extends /*Nette::*/Object
 
 
 	/**
-	 * Returns (highlighted) SQL query.
+	 * Returns SQL query.
 	 * @return string
 	 */
 	final public function __toString()
 	{
-		ob_start();
-		$this->test();
-		return ob_get_clean();
+		return $this->connection->sql($this->_export());
 	}
 
 }

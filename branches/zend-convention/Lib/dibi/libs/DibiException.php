@@ -4,28 +4,27 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: DibiException.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: DibiException.php 174 2008-12-31 00:13:40Z david@grudl.com $
  */
 
 
-require_once __WEB_ROOT__ . '/Lib/dibi/IDebuggable.php';
 
 /**
  * dibi common exception.
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
 class DibiException extends Exception
@@ -39,10 +38,10 @@ class DibiException extends Exception
  * database server exception.
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiDriverException extends DibiException implements /*Nette::*/IDebuggable
+class DibiDriverException extends DibiException implements /*Nette\*/IDebuggable
 {
 	/** @var string */
 	private static $errorMsg;
@@ -53,7 +52,6 @@ class DibiDriverException extends DibiException implements /*Nette::*/IDebuggabl
 
 	/**
 	 * Construct an dibi driver exception.
-	 *
 	 * @param string  Message describing the exception
 	 * @param int     Some code
 	 * @param  string SQL command
@@ -62,7 +60,7 @@ class DibiDriverException extends DibiException implements /*Nette::*/IDebuggabl
 	{
 		parent::__construct($message, (int) $code);
 		$this->sql = $sql;
-		dibi::notify(NULL, 'exception', $this);
+		// TODO: add $profiler->exception($this);
 	}
 
 
@@ -87,7 +85,7 @@ class DibiDriverException extends DibiException implements /*Nette::*/IDebuggabl
 
 
 
-	/********************* interface Nette::IDebuggable ****************d*g**/
+	/********************* interface Nette\IDebuggable ****************d*g**/
 
 
 	/**
@@ -114,7 +112,6 @@ class DibiDriverException extends DibiException implements /*Nette::*/IDebuggabl
 
 	/**
 	 * Starts catching potential errors/warnings
-	 *
 	 * @return void
 	 */
 	public static function tryError()
@@ -127,7 +124,6 @@ class DibiDriverException extends DibiException implements /*Nette::*/IDebuggabl
 
 	/**
 	 * Returns catched error/warning message.
-	 *
 	 * @param  string  catched message
 	 * @return bool
 	 */
@@ -143,6 +139,7 @@ class DibiDriverException extends DibiException implements /*Nette::*/IDebuggabl
 
 	/**
 	 * Internal error handler. Do not call directly.
+	 * @internal
 	 */
 	public static function _errorHandler($code, $message)
 	{

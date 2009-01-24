@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: postgre.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: postgre.php 186 2009-01-17 19:27:40Z david@grudl.com $
  */
 
 
@@ -29,32 +29,21 @@
  *   - 'charset' - character encoding to set
  *   - 'schema' - the schema search path
  *   - 'lazy' - if TRUE, connection will be established only when required
+ *   - 'resource' - connection resource (optional)
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
+class DibiPostgreDriver extends DibiObject implements IDibiDriver
 {
-
-	/**
-	 * Connection resource.
-	 * @var resource
-	 */
+	/** @var resource  Connection resource */
 	private $connection;
 
-
-	/**
-	 * Resultset resource.
-	 * @var resource
-	 */
+	/** @var resource  Resultset resource */
 	private $resultSet;
 
-
-	/**
-	 * Escape method.
-	 * @var bool
-	 */
+	/** @var bool  Escape method */
 	private $escMethod = FALSE;
 
 
@@ -73,29 +62,33 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Connects to a database.
-	 *
 	 * @return void
 	 * @throws DibiException
 	 */
 	public function connect(array &$config)
 	{
-		if (isset($config['string'])) {
-			$string = $config['string'];
-		} else {
-			$string = '';
-			foreach (array('host','hostaddr','port','dbname','user','password','connect_timeout','options','sslmode','service') as $key) {
-				if (isset($config[$key])) $string .= $key . '=' . $config[$key] . ' ';
-			}
-		}
+		if (isset($config['resource'])) {
+			$this->connection = $config['resource'];
 
-		DibiDriverException::tryError();
-		if (isset($config['persistent'])) {
-			$this->connection = pg_connect($string, PGSQL_CONNECT_FORCE_NEW);
 		} else {
-			$this->connection = pg_pconnect($string, PGSQL_CONNECT_FORCE_NEW);
-		}
-		if (DibiDriverException::catchError($msg)) {
-			throw new DibiDriverException($msg, 0);
+			if (isset($config['string'])) {
+				$string = $config['string'];
+			} else {
+				$string = '';
+				foreach (array('host','hostaddr','port','dbname','user','password','connect_timeout','options','sslmode','service') as $key) {
+					if (isset($config[$key])) $string .= $key . '=' . $config[$key] . ' ';
+				}
+			}
+
+			DibiDriverException::tryError();
+			if (empty($config['persistent'])) {
+				$this->connection = pg_connect($string, PGSQL_CONNECT_FORCE_NEW);
+			} else {
+				$this->connection = pg_pconnect($string, PGSQL_CONNECT_FORCE_NEW);
+			}
+			if (DibiDriverException::catchError($msg)) {
+				throw new DibiDriverException($msg, 0);
+			}
 		}
 
 		if (!is_resource($this->connection)) {
@@ -121,7 +114,6 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Disconnects from a database.
-	 *
 	 * @return void
 	 */
 	public function disconnect()
@@ -133,7 +125,6 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Executes the SQL query.
-	 *
 	 * @param  string      SQL statement.
 	 * @param  bool        update affected rows?
 	 * @return IDibiDriver|NULL
@@ -154,7 +145,6 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int|FALSE  number of rows or FALSE on error
 	 */
 	public function affectedRows()
@@ -166,7 +156,6 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @return int|FALSE  int on success or FALSE on failure
 	 */
 	public function insertId($sequence)
@@ -189,43 +178,60 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function begin()
+	public function begin($savepoint = NULL)
 	{
-		$this->query('START TRANSACTION');
+		$this->query($savepoint ? "SAVEPOINT $savepoint" : 'START TRANSACTION');
 	}
 
 
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function commit()
+	public function commit($savepoint = NULL)
 	{
-		$this->query('COMMIT');
+		$this->query($savepoint ? "RELEASE SAVEPOINT $savepoint" : 'COMMIT');
 	}
 
 
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function rollback()
+	public function rollback($savepoint = NULL)
 	{
-		$this->query('ROLLBACK');
+		$this->query($savepoint ? "ROLLBACK TO SAVEPOINT $savepoint" : 'ROLLBACK');
 	}
 
 
 
 	/**
+	 * Returns the connection resource.
+	 * @return mixed
+	 */
+	public function getResource()
+	{
+		return $this->connection;
+	}
+
+
+
+	/********************* SQL ****************d*g**/
+
+
+
+	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    encoded value
@@ -249,6 +255,7 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 			}
 
 		case dibi::IDENTIFIER:
+			// @see http://www.postgresql.org/docs/8.2/static/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
 			$a = strrpos($value, '.');
 			if ($a === FALSE) {
 				return '"' . str_replace('"', '""', $value) . '"';
@@ -275,7 +282,6 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
@@ -296,7 +302,6 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
@@ -313,9 +318,12 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* result set ****************d*g**/
+
+
+
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	public function rowCount()
@@ -327,21 +335,19 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Fetches the row at current position and moves the internal cursor to the next position.
-	 * internal usage only
-	 *
 	 * @param  bool     TRUE for associative array, FALSE for numeric
 	 * @return array    array on success, nonarray if no next record
+	 * @internal
 	 */
-	public function fetch($type)
+	public function fetch($assoc)
 	{
-		return pg_fetch_array($this->resultSet, NULL, $type ? PGSQL_ASSOC : PGSQL_NUM);
+		return pg_fetch_array($this->resultSet, NULL, $assoc ? PGSQL_ASSOC : PGSQL_NUM);
 	}
 
 
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -355,7 +361,6 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function free()
@@ -368,44 +373,29 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Returns metadata for all columns in a result set.
-	 *
 	 * @return array
 	 */
 	public function getColumnsMeta()
 	{
 		$hasTable = version_compare(PHP_VERSION , '5.2.0', '>=');
 		$count = pg_num_fields($this->resultSet);
-		$meta = array();
+		$res = array();
 		for ($i = 0; $i < $count; $i++) {
-			// items 'name' and 'table' are required
-			$meta[] = array(
+			$row = array(
 				'name'      => pg_field_name($this->resultSet, $i),
 				'table'     => $hasTable ? pg_field_table($this->resultSet, $i) : NULL,
-				'type'      => pg_field_type($this->resultSet, $i),
-				'size'      => pg_field_size($this->resultSet, $i),
-				'prtlen'    => pg_field_prtlen($this->resultSet, $i),
+				'nativetype'=> pg_field_type($this->resultSet, $i),
 			);
+			$row['fullname'] = $row['table'] ? $row['table'] . '.' . $row['name'] : $row['name'];
+			$res[] = $row;
 		}
-		return $meta;
-	}
-
-
-
-	/**
-	 * Returns the connection resource.
-	 *
-	 * @return mixed
-	 */
-	public function getResource()
-	{
-		return $this->connection;
+		return $res;
 	}
 
 
 
 	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mixed
 	 */
 	public function getResultResource()
@@ -415,12 +405,126 @@ class DibiPostgreDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* reflection ****************d*g**/
+
+
+
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Returns list of tables.
+	 * @return array
 	 */
-	function getDibiReflection()
-	{}
+	public function getTables()
+	{
+		$version = pg_version($this->connection);
+		if ($version['server'] < 8) {
+			throw new NotSupportedException('Reflection requires PostgreSQL 8.');
+		}
+
+		$this->query("
+			SELECT table_name as name, CAST(table_type = 'VIEW' AS INTEGER) as view
+			FROM information_schema.tables
+			WHERE table_schema = current_schema()
+		");
+		$res = pg_fetch_all($this->resultSet);
+		$this->free();
+		return $res;
+	}
+
+
+
+	/**
+	 * Returns metadata for all columns in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getColumns($table)
+	{
+		$_table = $this->escape($table, dibi::FIELD_TEXT);
+		$this->query("
+			SELECT indkey
+			FROM pg_class
+			LEFT JOIN pg_index on pg_class.oid = pg_index.indrelid AND pg_index.indisprimary
+			WHERE pg_class.relname = $_table
+		");
+		$primary = (int) pg_fetch_object($this->resultSet)->indkey;
+
+		$this->query("
+			SELECT *
+			FROM information_schema.columns
+			WHERE table_name = $_table AND table_schema = current_schema()
+			ORDER BY ordinal_position
+		");
+		$res = array();
+		while ($row = $this->fetch(TRUE)) {
+			$size = (int) max($row['character_maximum_length'], $row['numeric_precision']);
+			$res[] = array(
+				'name' => $row['column_name'],
+				'table' => $table,
+				'nativetype' => strtoupper($row['udt_name']),
+				'size' => $size ? $size : NULL,
+				'nullable' => $row['is_nullable'] === 'YES',
+				'default' => $row['column_default'],
+				'autoincrement' => (int) $row['ordinal_position'] === $primary && substr($row['column_default'], 0, 7) === 'nextval',
+				'vendor' => $row,
+			);
+		}
+		$this->free();
+		return $res;
+	}
+
+
+
+	/**
+	 * Returns metadata for all indexes in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getIndexes($table)
+	{
+		$_table = $this->escape($table, dibi::FIELD_TEXT);
+		$this->query("
+			SELECT ordinal_position, column_name
+			FROM information_schema.columns
+			WHERE table_name = $_table AND table_schema = current_schema()
+			ORDER BY ordinal_position
+		");
+
+		$columns = array();
+		while ($row = $this->fetch(TRUE)) {
+			$columns[$row['ordinal_position']] = $row['column_name'];
+		}
+
+		$this->query("
+			SELECT pg_class2.relname, indisunique, indisprimary, indkey
+			FROM pg_class
+			LEFT JOIN pg_index on pg_class.oid = pg_index.indrelid
+			INNER JOIN pg_class as pg_class2 on pg_class2.oid = pg_index.indexrelid
+			WHERE pg_class.relname = $_table
+		");
+
+		$res = array();
+		while ($row = $this->fetch(TRUE)) {
+			$res[$row['relname']]['name'] = $row['relname'];
+			$res[$row['relname']]['unique'] = $row['indisunique'] === 't';
+			$res[$row['relname']]['primary'] = $row['indisprimary'] === 't';
+			foreach (explode(' ', $row['indkey']) as $index) {
+				$res[$row['relname']]['columns'][] = $columns[$index];
+			}
+		}
+		$this->free();
+		return array_values($res);
+	}
+
+
+
+	/**
+	 * Returns metadata for all foreign keys in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getForeignKeys($table)
+	{
+		throw new NotImplementedException;
+	}
 
 }

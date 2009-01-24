@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: mssql.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: mssql.php 186 2009-01-17 19:27:40Z david@grudl.com $
  */
 
 
@@ -29,25 +29,18 @@
  *   - 'persistent' - try to find a persistent link?
  *   - 'database' - the database name to select
  *   - 'lazy' - if TRUE, connection will be established only when required
+ *   - 'resource' - connection resource (optional)
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
+class DibiMsSqlDriver extends DibiObject implements IDibiDriver
 {
-
-	/**
-	 * Connection resource.
-	 * @var resource
-	 */
+	/** @var resource  Connection resource */
 	private $connection;
 
-
-	/**
-	 * Resultset resource.
-	 * @var resource
-	 */
+	/** @var resource  Resultset resource */
 	private $resultSet;
 
 
@@ -66,7 +59,6 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Connects to a database.
-	 *
 	 * @return void
 	 * @throws DibiException
 	 */
@@ -76,7 +68,9 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 		DibiConnection::alias($config, 'password', 'pass');
 		DibiConnection::alias($config, 'host', 'hostname');
 
-		if (empty($config['persistent'])) {
+		if (isset($config['resource'])) {
+			$this->connection = $config['resource'];
+		} elseif (empty($config['persistent'])) {
 			$this->connection = @mssql_connect($config['host'], $config['username'], $config['password'], TRUE); // intentionally @
 		} else {
 			$this->connection = @mssql_pconnect($config['host'], $config['username'], $config['password']); // intentionally @
@@ -95,7 +89,6 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Disconnects from a database.
-	 *
 	 * @return void
 	 */
 	public function disconnect()
@@ -107,7 +100,6 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Executes the SQL query.
-	 *
 	 * @param  string      SQL statement.
 	 * @return IDibiDriver|NULL
 	 * @throws DibiDriverException
@@ -127,7 +119,6 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int|FALSE  number of rows or FALSE on error
 	 */
 	public function affectedRows()
@@ -139,22 +130,27 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @return int|FALSE  int on success or FALSE on failure
 	 */
 	public function insertId($sequence)
 	{
-		throw new NotSupportedException('MS SQL does not support autoincrementing.');
+		$res = mssql_query('SELECT @@IDENTITY', $this->connection);
+		if (is_resource($res)) {
+			$row = mssql_fetch_row($res);
+			return $row[0];
+		}
+		return FALSE;
 	}
 
 
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function begin()
+	public function begin($savepoint = NULL)
 	{
 		$this->query('BEGIN TRANSACTION');
 	}
@@ -163,10 +159,11 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function commit()
+	public function commit($savepoint = NULL)
 	{
 		$this->query('COMMIT');
 	}
@@ -175,10 +172,11 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function rollback()
+	public function rollback($savepoint = NULL)
 	{
 		$this->query('ROLLBACK');
 	}
@@ -186,8 +184,22 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 	/**
+	 * Returns the connection resource.
+	 * @return mixed
+	 */
+	public function getResource()
+	{
+		return $this->connection;
+	}
+
+
+
+	/********************* SQL ****************d*g**/
+
+
+
+	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    encoded value
@@ -201,6 +213,8 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 			return "'" . str_replace("'", "''", $value) . "'";
 
 		case dibi::IDENTIFIER:
+			// @see http://msdn.microsoft.com/en-us/library/ms176027.aspx
+			$value = str_replace(array('[', ']'), array('[[', ']]'), $value);
 			return '[' . str_replace('.', '].[', $value) . ']';
 
 		case dibi::FIELD_BOOL:
@@ -221,7 +235,6 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
@@ -236,7 +249,6 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
@@ -244,7 +256,7 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 	 */
 	public function applyLimit(&$sql, $limit, $offset)
 	{
-		// offset suppot is missing...
+		// offset support is missing
 		if ($limit >= 0) {
 			$sql = 'SELECT TOP ' . (int) $limit . ' * FROM (' . $sql . ')';
 		}
@@ -256,9 +268,12 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* result set ****************d*g**/
+
+
+
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	public function rowCount()
@@ -270,21 +285,19 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Fetches the row at current position and moves the internal cursor to the next position.
-	 * internal usage only
-	 *
 	 * @param  bool     TRUE for associative array, FALSE for numeric
 	 * @return array    array on success, nonarray if no next record
+	 * @internal
 	 */
-	public function fetch($type)
+	public function fetch($assoc)
 	{
-		return mssql_fetch_array($this->resultSet, $type ? MSSQL_ASSOC : MSSQL_NUM);
+		return mssql_fetch_array($this->resultSet, $assoc ? MSSQL_ASSOC : MSSQL_NUM);
 	}
 
 
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -298,7 +311,6 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function free()
@@ -311,39 +323,28 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Returns metadata for all columns in a result set.
-	 *
 	 * @return array
 	 */
 	public function getColumnsMeta()
 	{
 		$count = mssql_num_fields($this->resultSet);
-		$meta = array();
+		$res = array();
 		for ($i = 0; $i < $count; $i++) {
-			// items 'name' and 'table' are required
-			$info = (array) mssql_fetch_field($this->resultSet, $i);
-			$info['table'] = $info['column_source'];
-			$meta[] = $info;
+			$row = (array) mssql_fetch_field($this->resultSet, $i);
+			$res[] = array(
+				'name' => $row['name'],
+				'fullname' => $row['column_source'] ? $row['column_source'] . '.' . $row['name'] : $row['name'],
+				'table' => $row['column_source'],
+				'nativetype' => $row['type'],
+			);
 		}
-		return $meta;
-	}
-
-
-
-	/**
-	 * Returns the connection resource.
-	 *
-	 * @return mixed
-	 */
-	public function getResource()
-	{
-		return $this->connection;
+		return $res;
 	}
 
 
 
 	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mixed
 	 */
 	public function getResultResource()
@@ -353,12 +354,53 @@ class DibiMsSqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* reflection ****************d*g**/
+
+
+
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Returns list of tables.
+	 * @return array
 	 */
-	function getDibiReflection()
-	{}
+	public function getTables()
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all columns in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getColumns($table)
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all indexes in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getIndexes($table)
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all foreign keys in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getForeignKeys($table)
+	{
+		throw new NotImplementedException;
+	}
 
 }

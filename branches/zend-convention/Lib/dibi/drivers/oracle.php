@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: oracle.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: oracle.php 186 2009-01-17 19:27:40Z david@grudl.com $
  */
 
 
@@ -28,31 +28,21 @@
  *   - 'password' (or 'pass')
  *   - 'charset' - character encoding to set
  *   - 'lazy' - if TRUE, connection will be established only when required
+ *   - 'resource' - connection resource (optional)
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
+class DibiOracleDriver extends DibiObject implements IDibiDriver
 {
-
-	/**
-	 * Connection resource.
-	 * @var resource
-	 */
+	/** @var resource  Connection resource */
 	private $connection;
 
-
-	/**
-	 * Resultset resource.
-	 * @var resource
-	 */
+	/** @var resource  Resultset resource */
 	private $resultSet;
 
-
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	private $autocommit = TRUE;
 
 
@@ -71,7 +61,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Connects to a database.
-	 *
 	 * @return void
 	 * @throws DibiException
 	 */
@@ -82,7 +71,11 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 		DibiConnection::alias($config, 'database', 'db');
 		DibiConnection::alias($config, 'charset');
 
-		$this->connection = @oci_new_connect($config['username'], $config['password'], $config['database'], $config['charset']); // intentionally @
+		if (isset($config['resource'])) {
+			$this->connection = $config['resource'];
+		} else {
+			$this->connection = @oci_new_connect($config['username'], $config['password'], $config['database'], $config['charset']); // intentionally @
+		}
 
 		if (!$this->connection) {
 			$err = oci_error();
@@ -94,7 +87,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Disconnects from a database.
-	 *
 	 * @return void
 	 */
 	public function disconnect()
@@ -106,7 +98,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Executes the SQL query.
-	 *
 	 * @param  string      SQL statement.
 	 * @return IDibiDriver|NULL
 	 * @throws DibiDriverException
@@ -122,7 +113,8 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 				throw new DibiDriverException($err['message'], $err['code'], $sql);
 			}
 		} else {
-			$this->throwException($sql);
+			$err = oci_error($this->connection);
+			throw new DibiDriverException($err['message'], $err['code'], $sql);
 		}
 
 		return is_resource($this->resultSet) ? clone $this : NULL;
@@ -132,7 +124,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int|FALSE  number of rows or FALSE on error
 	 */
 	public function affectedRows()
@@ -144,7 +135,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @return int|FALSE  int on success or FALSE on failure
 	 */
 	public function insertId($sequence)
@@ -156,10 +146,11 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function begin()
+	public function begin($savepoint = NULL)
 	{
 		$this->autocommit = FALSE;
 	}
@@ -168,13 +159,15 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function commit()
+	public function commit($savepoint = NULL)
 	{
 		if (!oci_commit($this->connection)) {
-			$this->throwException();
+			$err = oci_error($this->connection);
+			throw new DibiDriverException($err['message'], $err['code']);
 		}
 		$this->autocommit = TRUE;
 	}
@@ -183,13 +176,15 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function rollback()
+	public function rollback($savepoint = NULL)
 	{
 		if (!oci_rollback($this->connection)) {
-			$this->throwException();
+			$err = oci_error($this->connection);
+			throw new DibiDriverException($err['message'], $err['code']);
 		}
 		$this->autocommit = TRUE;
 	}
@@ -197,8 +192,22 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 	/**
+	 * Returns the connection resource.
+	 * @return mixed
+	 */
+	public function getResource()
+	{
+		return $this->connection;
+	}
+
+
+
+	/********************* SQL ****************d*g**/
+
+
+
+	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    encoded value
@@ -212,7 +221,9 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 			return "'" . str_replace("'", "''", $value) . "'"; // TODO: not tested
 
 		case dibi::IDENTIFIER:
-			return '[' . str_replace('.', '].[', $value) . ']';  // TODO: not tested
+			// @see http://download.oracle.com/docs/cd/B10500_01/server.920/a96540/sql_elements9a.htm
+			$value = str_replace('"', '""', $value);
+			return '"' . str_replace('.', '"."', $value) . '"';
 
 		case dibi::FIELD_BOOL:
 			return $value ? 1 : 0;
@@ -232,7 +243,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
@@ -247,7 +257,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
@@ -261,35 +270,36 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* result set ****************d*g**/
+
+
+
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	public function rowCount()
 	{
-		return oci_num_rows($this->resultSet);
+		throw new DibiDriverException('Row count is not available for unbuffered queries.');
 	}
 
 
 
 	/**
 	 * Fetches the row at current position and moves the internal cursor to the next position.
-	 * internal usage only
-	 *
 	 * @param  bool     TRUE for associative array, FALSE for numeric
 	 * @return array    array on success, nonarray if no next record
+	 * @internal
 	 */
-	public function fetch($type)
+	public function fetch($assoc)
 	{
-		return oci_fetch_array($this->resultSet, ($type ? OCI_ASSOC : OCI_NUM) | OCI_RETURN_NULLS);
+		return oci_fetch_array($this->resultSet, ($assoc ? OCI_ASSOC : OCI_NUM) | OCI_RETURN_NULLS);
 	}
 
 
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -303,7 +313,6 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function free()
@@ -316,57 +325,27 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Returns metadata for all columns in a result set.
-	 *
 	 * @return array
 	 */
 	public function getColumnsMeta()
 	{
 		$count = oci_num_fields($this->resultSet);
-		$meta = array();
+		$res = array();
 		for ($i = 1; $i <= $count; $i++) {
-			// items 'name' and 'table' are required
-			$meta[] = array(
+			$res[] = array(
 				'name'      => oci_field_name($this->resultSet, $i),
 				'table'     => NULL,
-				'type'      => oci_field_type($this->resultSet, $i),
-				'size'      => oci_field_size($this->resultSet, $i),
-				'scale'     => oci_field_scale($this->resultSet, $i),
-				'precision' => oci_field_precision($this->resultSet, $i),
+				'fullname'  => oci_field_name($this->resultSet, $i),
+				'nativetype'=> oci_field_type($this->resultSet, $i),
 			);
 		}
-		return $meta;
-	}
-
-
-
-	/**
-	 * Converts database error to DibiDriverException.
-	 *
-	 * @throws DibiDriverException
-	 */
-	protected function throwException($sql = NULL)
-	{
-		$err = oci_error($this->connection);
-		throw new DibiDriverException($err['message'], $err['code'], $sql);
-	}
-
-
-
-	/**
-	 * Returns the connection resource.
-	 *
-	 * @return mixed
-	 */
-	public function getResource()
-	{
-		return $this->connection;
+		return $res;
 	}
 
 
 
 	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mixed
 	 */
 	public function getResultResource()
@@ -376,12 +355,53 @@ class DibiOracleDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* reflection ****************d*g**/
+
+
+
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Returns list of tables.
+	 * @return array
 	 */
-	function getDibiReflection()
-	{}
+	public function getTables()
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all columns in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getColumns($table)
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all indexes in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getIndexes($table)
+	{
+		throw new NotImplementedException;
+	}
+
+
+
+	/**
+	 * Returns metadata for all foreign keys in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getForeignKeys($table)
+	{
+		throw new NotImplementedException;
+	}
 
 }

@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: mysqli.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: mysqli.php 186 2009-01-17 19:27:40Z david@grudl.com $
  */
 
 
@@ -35,32 +35,21 @@
  *   - 'options' - driver specific constants (MYSQLI_*)
  *   - 'sqlmode' - see http://dev.mysql.com/doc/refman/5.0/en/server-sql-mode.html
  *   - 'lazy' - if TRUE, connection will be established only when required
+ *   - 'resource' - connection resource (optional)
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
+class DibiMySqliDriver extends DibiObject implements IDibiDriver
 {
-
-	/**
-	 * Connection resource.
-	 * @var mysqli
-	 */
+	/** @var mysqli  Connection resource */
 	private $connection;
 
-
-	/**
-	 * Resultset resource.
-	 * @var mysqli_result
-	 */
+	/** @var mysqli_result  Resultset resource */
 	private $resultSet;
 
-
-	/**
-	 * Is buffered (seekable and countable)?
-	 * @var bool
-	 */
+	/** @var bool  Is buffered (seekable and countable)? */
 	private $buffered;
 
 
@@ -79,7 +68,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Connects to a database.
-	 *
 	 * @return void
 	 * @throws DibiException
 	 */
@@ -91,21 +79,32 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 		DibiConnection::alias($config, 'options');
 		DibiConnection::alias($config, 'database');
 
-		// default values
-		if (!isset($config['username'])) $config['username'] = ini_get('mysqli.default_user');
-		if (!isset($config['password'])) $config['password'] = ini_get('mysqli.default_pw');
-		if (!isset($config['socket'])) $config['socket'] = ini_get('mysqli.default_socket');
-		if (!isset($config['host'])) {
-			$config['host'] = ini_get('mysqli.default_host');
-			if (!isset($config['port'])) $config['port'] = ini_get('mysqli.default_port');
-			if (!isset($config['host'])) $config['host'] = 'localhost';
-		}
+		if (isset($config['resource'])) {
+			$this->connection = $config['resource'];
 
-		$this->connection = mysqli_init();
-		@mysqli_real_connect($this->connection, $config['host'], $config['username'], $config['password'], $config['database'], $config['port'], $config['socket'], $config['options']); // intentionally @
+		} else {
+			// default values
+			if (!isset($config['username'])) $config['username'] = ini_get('mysqli.default_user');
+			if (!isset($config['password'])) $config['password'] = ini_get('mysqli.default_pw');
+			if (!isset($config['socket'])) $config['socket'] = ini_get('mysqli.default_socket');
+			if (!isset($config['port'])) $config['port'] = NULL;
+			if (!isset($config['host'])) {
+				$host = ini_get('mysqli.default_host');
+				if ($host) {
+					$config['host'] = $host;
+					$config['port'] = ini_get('mysqli.default_port');
+				} else {
+					$config['host'] = NULL;
+					$config['port'] = NULL;
+				}
+			}
 
-		if ($errno = mysqli_connect_errno()) {
-			throw new DibiDriverException(mysqli_connect_error(), $errno);
+			$this->connection = mysqli_init();
+			@mysqli_real_connect($this->connection, $config['host'], $config['username'], $config['password'], $config['database'], $config['port'], $config['socket'], $config['options']); // intentionally @
+
+			if ($errno = mysqli_connect_errno()) {
+				throw new DibiDriverException(mysqli_connect_error(), $errno);
+			}
 		}
 
 		if (isset($config['charset'])) {
@@ -114,12 +113,18 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 				// affects the character set used by mysql_real_escape_string() (was added in MySQL 5.0.7 and PHP 5.0.5, fixed in PHP 5.1.5)
 				$ok = @mysqli_set_charset($this->connection, $config['charset']); // intentionally @
 			}
-			if (!$ok) $ok = @mysqli_query($this->connection, "SET NAMES '$config[charset]'"); // intentionally @
-			if (!$ok) $this->throwException();
+			if (!$ok) {
+				$ok = @mysqli_query($this->connection, "SET NAMES '$config[charset]'"); // intentionally @
+				if (!$ok) {
+					throw new DibiDriverException(mysqli_error($this->connection), mysqli_errno($this->connection));
+				}
+			}
 		}
 
 		if (isset($config['sqlmode'])) {
-			if (!@mysqli_query($this->connection, "SET sql_mode='$config[sqlmode]'")) $this->throwException(); // intentionally @
+			if (!@mysqli_query($this->connection, "SET sql_mode='$config[sqlmode]'")) { // intentionally @
+				throw new DibiDriverException(mysqli_error($this->connection), mysqli_errno($this->connection));
+			}
 		}
 
 		$this->buffered = empty($config['unbuffered']);
@@ -129,7 +134,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Disconnects from a database.
-	 *
 	 * @return void
 	 */
 	public function disconnect()
@@ -141,7 +145,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Executes the SQL query.
-	 *
 	 * @param  string      SQL statement.
 	 * @return IDibiDriver|NULL
 	 * @throws DibiDriverException
@@ -151,7 +154,7 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 		$this->resultSet = @mysqli_query($this->connection, $sql, $this->buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT); // intentionally @
 
 		if (mysqli_errno($this->connection)) {
-			$this->throwException($sql);
+			throw new DibiDriverException(mysqli_error($this->connection), mysqli_errno($this->connection), $sql);
 		}
 
 		return is_object($this->resultSet) ? clone $this : NULL;
@@ -161,7 +164,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int|FALSE  number of rows or FALSE on error
 	 */
 	public function affectedRows()
@@ -173,7 +175,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @return int|FALSE  int on success or FALSE on failure
 	 */
 	public function insertId($sequence)
@@ -185,43 +186,60 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function begin()
+	public function begin($savepoint = NULL)
 	{
-		$this->query('START TRANSACTION');
+		$this->query($savepoint ? "SAVEPOINT $savepoint" : 'START TRANSACTION');
 	}
 
 
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function commit()
+	public function commit($savepoint = NULL)
 	{
-		$this->query('COMMIT');
+		$this->query($savepoint ? "RELEASE SAVEPOINT $savepoint" : 'COMMIT');
 	}
 
 
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function rollback()
+	public function rollback($savepoint = NULL)
 	{
-		$this->query('ROLLBACK');
+		$this->query($savepoint ? "ROLLBACK TO SAVEPOINT $savepoint" : 'ROLLBACK');
 	}
 
 
 
 	/**
+	 * Returns the connection resource.
+	 * @return mysqli
+	 */
+	public function getResource()
+	{
+		return $this->connection;
+	}
+
+
+
+	/********************* SQL ****************d*g**/
+
+
+
+	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    encoded value
@@ -235,6 +253,7 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 			return "'" . mysqli_real_escape_string($this->connection, $value) . "'";
 
 		case dibi::IDENTIFIER:
+			$value = str_replace('`', '``', $value);
 			return '`' . str_replace('.', '`.`', $value) . '`';
 
 		case dibi::FIELD_BOOL:
@@ -255,7 +274,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
@@ -270,7 +288,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
@@ -287,9 +304,12 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* result set ****************d*g**/
+
+
+
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	public function rowCount()
@@ -304,21 +324,19 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Fetches the row at current position and moves the internal cursor to the next position.
-	 * internal usage only
-	 *
 	 * @param  bool     TRUE for associative array, FALSE for numeric
 	 * @return array    array on success, nonarray if no next record
+	 * @internal
 	 */
-	public function fetch($type)
+	public function fetch($assoc)
 	{
-		return mysqli_fetch_array($this->resultSet, $type ? MYSQLI_ASSOC : MYSQLI_NUM);
+		return mysqli_fetch_array($this->resultSet, $assoc ? MYSQLI_ASSOC : MYSQLI_NUM);
 	}
 
 
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -335,7 +353,6 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function free()
@@ -348,49 +365,39 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Returns metadata for all columns in a result set.
-	 *
 	 * @return array
 	 */
 	public function getColumnsMeta()
 	{
-		$count = mysqli_num_fields($this->resultSet);
-		$meta = array();
-		for ($i = 0; $i < $count; $i++) {
-			// items 'name' and 'table' are required
-			$meta[] = (array) mysqli_fetch_field_direct($this->resultSet, $i);
+		static $types;
+		if (empty($types)) {
+			$consts = get_defined_constants(TRUE);
+			foreach ($consts['mysqli'] as $key => $value) {
+				if (strncmp($key, 'MYSQLI_TYPE_', 12) === 0) {
+					$types[$value] = substr($key, 12);
+				}
+			}
 		}
-		return $meta;
-	}
 
-
-
-	/**
-	 * Converts database error to DibiDriverException.
-	 *
-	 * @throws DibiDriverException
-	 */
-	protected function throwException($sql = NULL)
-	{
-		throw new DibiDriverException(mysqli_error($this->connection), mysqli_errno($this->connection), $sql);
-	}
-
-
-
-	/**
-	 * Returns the connection resource.
-	 *
-	 * @return mysqli
-	 */
-	public function getResource()
-	{
-		return $this->connection;
+		$count = mysqli_num_fields($this->resultSet);
+		$res = array();
+		for ($i = 0; $i < $count; $i++) {
+			$row = (array) mysqli_fetch_field_direct($this->resultSet, $i);
+			$res[] = array(
+				'name' => $row['name'],
+				'table' => $row['orgtable'],
+				'fullname' => $row['table'] ? $row['table'] . '.' . $row['name'] : $row['name'],
+				'nativetype' => $types[$row['type']],
+				'vendor' => $row,
+			);
+		}
+		return $res;
 	}
 
 
 
 	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mysqli_result
 	 */
 	public function getResultResource()
@@ -400,12 +407,104 @@ class DibiMySqliDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* reflection ****************d*g**/
+
+
+
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Returns list of tables.
+	 * @return array
 	 */
-	function getDibiReflection()
-	{}
+	public function getTables()
+	{
+		/*$this->query("
+			SELECT TABLE_NAME as name, TABLE_TYPE = 'VIEW' as view
+			FROM INFORMATION_SCHEMA.TABLES
+			WHERE TABLE_SCHEMA = DATABASE()
+		");*/
+		$this->query("SHOW FULL TABLES");
+		$res = array();
+		while ($row = $this->fetch(FALSE)) {
+			$res[] = array(
+				'name' => $row[0],
+				'view' => isset($row[1]) && $row[1] === 'VIEW',
+			);
+		}
+		$this->free();
+		return $res;
+	}
+
+
+
+	/**
+	 * Returns metadata for all columns in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getColumns($table)
+	{
+		/*$table = $this->escape($table, dibi::FIELD_TEXT);
+		$this->query("
+			SELECT *
+			FROM INFORMATION_SCHEMA.COLUMNS
+			WHERE TABLE_NAME = $table AND TABLE_SCHEMA = DATABASE()
+		");*/
+		$this->query("SHOW COLUMNS FROM `$table`");
+		$res = array();
+		while ($row = $this->fetch(TRUE)) {
+			$type = explode('(', $row['Type']);
+			$res[] = array(
+				'name' => $row['Field'],
+				'table' => $table,
+				'nativetype' => strtoupper($type[0]),
+				'size' => isset($type[1]) ? (int) $type[1] : NULL,
+				'nullable' => $row['Null'] === 'YES',
+				'default' => $row['Default'],
+				'autoincrement' => $row['Extra'] === 'auto_increment',
+			);
+		}
+		$this->free();
+		return $res;
+	}
+
+
+
+	/**
+	 * Returns metadata for all indexes in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getIndexes($table)
+	{
+		/*$table = $this->escape($table, dibi::FIELD_TEXT);
+		$this->query("
+			SELECT *
+			FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+			WHERE TABLE_NAME = $table AND TABLE_SCHEMA = DATABASE()
+			AND REFERENCED_COLUMN_NAME IS NULL
+		");*/
+		$this->query("SHOW INDEX FROM `$table`");
+		$res = array();
+		while ($row = $this->fetch(TRUE)) {
+			$res[$row['Key_name']]['name'] = $row['Key_name'];
+			$res[$row['Key_name']]['unique'] = !$row['Non_unique'];
+			$res[$row['Key_name']]['primary'] = $row['Key_name'] === 'PRIMARY';
+			$res[$row['Key_name']]['columns'][$row['Seq_in_index'] - 1] = $row['Column_name'];
+		}
+		$this->free();
+		return array_values($res);
+	}
+
+
+
+	/**
+	 * Returns metadata for all foreign keys in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getForeignKeys($table)
+	{
+		throw new NotImplementedException;
+	}
 
 }

@@ -4,30 +4,29 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: DibiResult.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: DibiResult.php 179 2009-01-07 13:48:01Z david@grudl.com $
  */
 
 
 
 /**
- * dibi result-set abstract class.
+ * dibi result-set.
  *
  * <code>
  * $result = dibi::query('SELECT * FROM [table]');
  *
  * $row   = $result->fetch();
- * $obj   = $result->fetch(TRUE);
  * $value = $result->fetchSingle();
  * $table = $result->fetchAll();
  * $pairs = $result->fetchPairs();
@@ -38,46 +37,28 @@
  * </code>
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiResult extends /*Nette::*/Object implements IDataSource
+class DibiResult extends DibiObject implements IDataSource
 {
-	/**
-	 * IDibiDriver.
-	 * @var array
-	 */
+	/** @var array  IDibiDriver */
 	private $driver;
 
-	/**
-	 * Translate table.
-	 * @var array
-	 */
+	/** @var array  Translate table */
 	private $xlat;
 
-	/**
-	 * Cache for $driver->getColumnsMeta().
-	 * @var array
-	 */
-	private $metaCache;
+	/** @var array  Cache for $driver->getColumnsMeta() */
+	private $meta;
 
-	/**
-	 * Already fetched? Used for allowance for first seek(0).
-	 * @var bool
-	 */
+	/** @var bool  Already fetched? Used for allowance for first seek(0) */
 	private $fetched = FALSE;
 
-	/**
-	 * Qualifiy each column name with the table name?
-	 * @var array|FALSE
-	 */
+	/** @var array|FALSE  Qualifiy each column name with the table name? */
 	private $withTables = FALSE;
 
-	/**
-	 * Fetch as objects or arrays?
-	 * @var mixed  TRUE | FALSE | class name
-	 */
-	private $objects = FALSE;
+	/** @var string  returned object class */
+	private $class = 'DibiRow';
 
 
 
@@ -89,12 +70,8 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 	{
 		$this->driver = $driver;
 
-		if (!empty($config['result:withtables'])) {
+		if (!empty($config[dibi::RESULT_WITH_TABLES])) {
 			$this->setWithTables(TRUE);
-		}
-
-		if (isset($config['result:objects'])) {
-			$this->setObjects($config['result:objects']);
 		}
 	}
 
@@ -102,7 +79,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Automatically frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function __destruct()
@@ -114,7 +90,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mixed
 	 */
 	final public function getResource()
@@ -126,7 +101,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -140,7 +114,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	final public function rowCount()
@@ -152,7 +125,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	final public function free()
@@ -167,7 +139,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Qualifiy each column name with the table name?
-	 *
 	 * @param  bool
 	 * @return void
 	 * @throws DibiException
@@ -175,14 +146,9 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 	final public function setWithTables($val)
 	{
 		if ($val) {
-			if ($this->metaCache === NULL) {
-				$this->metaCache = $this->getDriver()->getColumnsMeta();
-			}
-
 			$cols = array();
-			foreach ($this->metaCache as $col) {
-				// intentional ==
-				$name = $col['table'] == '' ? $col['name'] : ($col['table'] . '.' . $col['name']);
+			foreach ($this->getMeta() as $info) {
+				$name = $info['fullname'];
 				if (isset($cols[$name])) {
 					$fix = 1;
 					while (isset($cols[$name . '#' . $fix])) $fix++;
@@ -201,7 +167,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Qualifiy each key with the table name?
-	 *
 	 * @return bool
 	 */
 	final public function getWithTables()
@@ -212,26 +177,24 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 
 	/**
-	 * Returns rows as arrays or objects?
-	 *
-	 * @param  mixed  TRUE | FALSE | class name
+	 * Set fetched object class. This class should extend the DibiRow class.
+	 * @param  string
 	 * @return void
 	 */
-	public function setObjects($type)
+	public function setRowClass($class)
 	{
-		$this->objects = $type;
+		$this->class = $class;
 	}
 
 
 
 	/**
-	 * Returns rows as arrays or objects?
-	 *
-	 * @return mixed  TRUE | FALSE | class name
+	 * Returns fetched object class name.
+	 * @return string
 	 */
-	public function getObjects()
+	public function getRowClass()
 	{
-		return $this->objects;
+		return $this->class;
 	}
 
 
@@ -239,11 +202,9 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 	/**
 	 * Fetches the row at current position, process optional type conversion.
 	 * and moves the internal cursor to the next position
-	 *
-	 * @param  mixed  fetch as object? Overrides $this->setObjects()
-	 * @return array|FALSE  array on success, FALSE if no next record
+	 * @return DibiRow|FALSE  array on success, FALSE if no next record
 	 */
-	final public function fetch($objects = NULL)
+	final public function fetch()
 	{
 		if ($this->withTables === FALSE) {
 			$row = $this->getDriver()->fetch(TRUE);
@@ -261,34 +222,21 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 		if ($this->xlat !== NULL) {
 			foreach ($this->xlat as $col => $type) {
 				if (isset($row[$col])) {
-					$row[$col] = $this->convert($row[$col], $type[0], $type[1]);
+					$row[$col] = $this->convert($row[$col], $type['type'], $type['format']);
 				}
 			}
 		}
 
-		if ($objects === NULL) {
-			$objects = $this->objects;
-		}
-
-		if ($objects) {
-			if ($objects === TRUE) {
-				$row = (object) $row;
-			} else {
-				$row = new $objects($row);
-			}
-		}
-
-		return $row;
+		return new $this->class($row);
 	}
 
 
 
 	/**
 	 * Like fetch(), but returns only first field.
-	 *
 	 * @return mixed  value on success, FALSE if no next record
 	 */
-	final function fetchSingle()
+	final public function fetchSingle()
 	{
 		$row = $this->getDriver()->fetch(TRUE);
 		if (!is_array($row)) return FALSE;
@@ -299,7 +247,7 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 		$key = key($row);
 		if (isset($this->xlat[$key])) {
 			$type = $this->xlat[$key];
-			return $this->convert($value, $type[0], $type[1]);
+			return $this->convert($value, $type['type'], $type['format']);
 		}
 
 		return $value;
@@ -309,13 +257,11 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Fetches all records from table.
-	 *
 	 * @param  int  offset
 	 * @param  int  limit
-	 * @param  bool simplify one-column result set?
-	 * @return array
+	 * @return array of DibiRow
 	 */
-	final function fetchAll($offset = NULL, $limit = NULL, $simplify = TRUE)
+	final public function fetchAll($offset = NULL, $limit = NULL)
 	{
 		$limit = $limit === NULL ? -1 : (int) $limit;
 		$this->seek((int) $offset);
@@ -323,22 +269,11 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 		if (!$row) return array();  // empty result set
 
 		$data = array();
-		if ($simplify && !$this->objects && count($row) === 1) {
-			// special case: one-column result set
-			$key = key($row);
-			do {
-				if ($limit === 0) break;
-				$limit--;
-				$data[] = $row[$key];
-			} while ($row = $this->fetch());
-
-		} else {
-			do {
-				if ($limit === 0) break;
-				$limit--;
-				$data[] = $row;
-			} while ($row = $this->fetch());
-		}
+		do {
+			if ($limit === 0) break;
+			$limit--;
+			$data[] = $row;
+		} while ($row = $this->fetch());
 
 		return $data;
 	}
@@ -349,15 +284,14 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 	 * Fetches all records from table and returns associative tree.
 	 * Associative descriptor:  assoc1,#,assoc2,=,assoc3,@
 	 * builds a tree:           $data[assoc1][index][assoc2]['assoc3']->value = {record}
-	 *
 	 * @param  string  associative descriptor
-	 * @return array
+	 * @return DibiRow
 	 * @throws InvalidArgumentException
 	 */
-	final function fetchAssoc($assoc)
+	final public function fetchAssoc($assoc)
 	{
 		$this->seek(0);
-		$row = $this->fetch(FALSE);
+		$row = $this->fetch();
 		if (!$row) return array();  // empty result set
 
 		$data = NULL;
@@ -365,13 +299,14 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 		// check columns
 		foreach ($assoc as $as) {
-			if ($as !== '#' && $as !== '=' && $as !== '@' && !array_key_exists($as, $row)) {
+			// offsetExists ignores NULL in PHP 5.2.1, isset() surprisingly NULL accepts
+			if ($as !== '#' && $as !== '=' && $as !== '@' && !isset($row[$as])) {
 				throw new InvalidArgumentException("Unknown column '$as' in associative descriptor.");
 			}
 		}
 
 		// strip leading = and @
-		$assoc[] = '=';  // gap
+		$leaf = '@';  // gap
 		$last = count($assoc) - 1;
 		while ($assoc[$last] === '=' || $assoc[$last] === '@') {
 			$leaf = $assoc[$last];
@@ -386,6 +321,7 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 		// make associative tree
 		do {
+			$arr = (array) $row;
 			$x = & $data;
 
 			// iterative deepening
@@ -395,7 +331,7 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 				} elseif ($as === '=') { // "record" node
 					if ($x === NULL) {
-						$x = $row;
+						$x = $arr;
 						$x = & $x[ $assoc[$i+1] ];
 						$x = NULL; // prepare child node
 					} else {
@@ -404,7 +340,7 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 				} elseif ($as === '@') { // "object" node
 					if ($x === NULL) {
-						$x = (object) $row;
+						$x = clone $row;
 						$x = & $x->{$assoc[$i+1]};
 						$x = NULL; // prepare child node
 					} else {
@@ -413,15 +349,19 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 
 				} else { // associative-array node
-					$x = & $x[ $row[ $as ] ];
+					$x = & $x[ $arr[ $as ] ];
 				}
 			}
 
 			if ($x === NULL) { // build leaf
-				if ($leaf === '=') $x = $row; else $x = (object) $row;
+				if ($leaf === '=') {
+					$x = $arr;
+				} else {
+					$x = $row;
+				}
 			}
 
-		} while ($row = $this->fetch(FALSE));
+		} while ($row = $this->fetch());
 
 		unset($x);
 		return $data;
@@ -431,16 +371,15 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Fetches all records from table like $key => $value pairs.
-	 *
 	 * @param  string  associative key
 	 * @param  string  value
 	 * @return array
 	 * @throws InvalidArgumentException
 	 */
-	final function fetchPairs($key = NULL, $value = NULL)
+	final public function fetchPairs($key = NULL, $value = NULL)
 	{
 		$this->seek(0);
-		$row = $this->fetch(FALSE);
+		$row = $this->fetch();
 		if (!$row) return array();  // empty result set
 
 		$data = array();
@@ -450,35 +389,38 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 				throw new InvalidArgumentException("Either none or both columns must be specified.");
 			}
 
-			if (count($row) < 2) {
-				throw new UnexpectedValueException("Result must have at least two columns.");
+			// autodetect
+			$tmp = array_keys((array) $row);
+			$key = $tmp[0];
+			if (count($row) < 2) { // indexed-array
+				do {
+					$data[] = $row[$key];
+				} while ($row = $this->fetch());
+				return $data;
 			}
 
-			// autodetect
-			$tmp = array_keys($row);
-			$key = $tmp[0];
 			$value = $tmp[1];
 
 		} else {
-			if (!array_key_exists($value, $row)) {
+			if (!isset($row[$value])) {
 				throw new InvalidArgumentException("Unknown value column '$value'.");
 			}
 
 			if ($key === NULL) { // indexed-array
 				do {
 					$data[] = $row[$value];
-				} while ($row = $this->fetch(FALSE));
+				} while ($row = $this->fetch());
 				return $data;
 			}
 
-			if (!array_key_exists($key, $row)) {
+			if (!isset($row[$key])) {
 				throw new InvalidArgumentException("Unknown key column '$key'.");
 			}
 		}
 
 		do {
 			$data[ $row[$key] ] = $row[$value];
-		} while ($row = $this->fetch(FALSE));
+		} while ($row = $this->fetch());
 
 		return $data;
 	}
@@ -494,15 +436,29 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 	 */
 	final public function setType($col, $type, $format = NULL)
 	{
-		$this->xlat[$col] = array($type, $format);
+		$this->xlat[$col] = array('type' => $type, 'format' => $format);
 	}
 
 
 
 	/**
-	 * Define multiple columns types (for internal usage).
+	 * Autodetect column types.
+	 * @return void
+	 */
+	final public function detectTypes()
+	{
+		foreach ($this->getMeta() as $info) {
+			$this->xlat[$info['name']] = array('type' => $info['type'], 'format' => NULL);
+		}
+	}
+
+
+
+	/**
+	 * Define multiple columns types.
 	 * @param array
 	 * @return void
+	 * @internal
 	 */
 	final public function setTypes(array $types)
 	{
@@ -547,7 +503,7 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 		case dibi::FIELD_DATE:
 		case dibi::FIELD_DATETIME:
-			$value = strtotime($value);
+			$value = is_numeric($value) ? (int) $value : strtotime($value);
 			return $format === NULL ? $value : date($format, $value);
 
 		case dibi::FIELD_BOOL:
@@ -561,20 +517,29 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 
 	/**
-	 * Gets an array of meta informations about column.
-	 *
-	 * @return array
+	 * Gets an array of meta informations about columns.
+	 * @return array of DibiColumnInfo
 	 */
-	final public function getColumnsMeta()
+	final public function getColumns()
 	{
-		if ($this->metaCache === NULL) {
-			$this->metaCache = $this->getDriver()->getColumnsMeta();
-		}
-
 		$cols = array();
-		foreach ($this->metaCache as $col) {
-			$name = (!$this->withTables || $col['table'] === NULL) ? $col['name'] : ($col['table'] . '.' . $col['name']);
-			$cols[$name] = $col;
+		foreach ($this->getMeta() as $info) {
+			$cols[] = new DibiColumnInfo($this->driver, $info);
+		}
+		return $cols;
+	}
+
+
+
+	/**
+	 * @param  bool
+	 * @return array of string
+	 */
+	public function getColumnNames($withTables = FALSE)
+	{
+		$cols = array();
+		foreach ($this->getMeta() as $info) {
+			$cols[] = $info[$withTables ? 'fullname' : 'name'];
 		}
 		return $cols;
 	}
@@ -583,14 +548,14 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Displays complete result-set as HTML table for debug purposes.
-	 *
 	 * @return void
 	 */
 	final public function dump()
 	{
-		$none = TRUE;
-		foreach ($this as $i => $row) {
-			if ($none) {
+		$i = 0;
+		$this->seek(0);
+		while ($row = $this->fetch()) {
+			if ($i === 0) {
 				echo "\n<table class=\"dump\">\n<thead>\n\t<tr>\n\t\t<th>#row</th>\n";
 
 				foreach ($row as $col => $foo) {
@@ -598,7 +563,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 				}
 
 				echo "\t</tr>\n</thead>\n<tbody>\n";
-				$none = FALSE;
 			}
 
 			echo "\t<tr>\n\t\t<th>", $i, "</th>\n";
@@ -607,9 +571,10 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 				echo "\t\t<td>", htmlSpecialChars($col), "</td>\n";
 			}
 			echo "\t</tr>\n";
+			$i++;
 		}
 
-		if ($none) {
+		if ($i === 0) {
 			echo '<p><em>empty result set</em></p>';
 		} else {
 			echo "</tbody>\n</table>\n";
@@ -622,11 +587,11 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 	 * Required by the IteratorAggregate interface.
 	 * @param  int  offset
 	 * @param  int  limit
-	 * @return ArrayIterator
+	 * @return DibiResultIterator
 	 */
 	final public function getIterator($offset = NULL, $limit = NULL)
 	{
-		return new ArrayIterator($this->fetchAll($offset, $limit, FALSE));
+		return new DibiResultIterator($this, $offset, $limit);
 	}
 
 
@@ -644,7 +609,6 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 
 	/**
 	 * Safe access to property $driver.
-	 *
 	 * @return IDibiDriver
 	 * @throws InvalidStateException
 	 */
@@ -655,6 +619,57 @@ class DibiResult extends /*Nette::*/Object implements IDataSource
 		}
 
 		return $this->driver;
+	}
+
+
+
+	/**
+	 * Meta lazy initialization.
+	 * @return array
+	 */
+	private function getMeta()
+	{
+		if ($this->meta === NULL) {
+			$this->meta = $this->getDriver()->getColumnsMeta();
+			foreach ($this->meta as & $row) {
+				$row['type'] = DibiColumnInfo::detectType($row['nativetype']);
+			}
+		}
+		return $this->meta;
+	}
+
+}
+
+
+
+
+/**
+ * dibi result-set row
+ *
+ * @author     David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
+ * @package    dibi
+ */
+class DibiRow extends ArrayObject
+{
+
+	/**
+	 * @param  array
+	 */
+	public function __construct($arr)
+	{
+		parent::__construct($arr, 2);
+	}
+
+
+
+	/**
+	 * PHP < 5.3 workaround
+	 * @return void
+	 */
+	public function __wakeup()
+	{
+		$this->setFlags(2);
 	}
 
 }

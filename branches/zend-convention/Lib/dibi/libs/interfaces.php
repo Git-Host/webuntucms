@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: interfaces.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: interfaces.php 174 2008-12-31 00:13:40Z david@grudl.com $
  */
 
 
@@ -28,8 +28,7 @@ interface IDibiVariable
 {
 	/**
 	 * Format for SQL.
-	 *
-	 * @param  object  DibiTranslator
+	 * @param  DibiTranslator
 	 * @param  string  optional modifier
 	 * @return string  SQL code
 	 */
@@ -55,18 +54,68 @@ interface IDataSource extends Countable, IteratorAggregate
 
 
 /**
+ * Defines method that must profiler implement.
+ * @package dibi
+ */
+interface IDibiProfiler
+{
+	/**#@+ event type */
+	const CONNECT = 1;
+	const SELECT = 4;
+	const INSERT = 8;
+	const DELETE = 16;
+	const UPDATE = 32;
+	const QUERY = 60;
+	const BEGIN = 64;
+	const COMMIT = 128;
+	const ROLLBACK = 256;
+	const TRANSACTION = 448;
+	const EXCEPTION = 512;
+	const ALL = 1023;
+	/**#@-*/
+
+	/**
+	 * Before event notification.
+	 * @param  DibiConnection
+	 * @param  int     event name
+	 * @param  string  sql
+	 * @return int
+	 */
+	function before(DibiConnection $connection, $event, $sql = NULL);
+
+	/**
+	 * After event notification.
+	 * @param  int
+	 * @param  DibiResult
+	 * @return void
+	 */
+	function after($ticket, $result = NULL);
+
+	/**
+	 * After exception notification.
+	 * @param  DibiDriverException
+	 * @return void
+	 */
+	function exception(DibiDriverException $exception);
+
+}
+
+
+
+
+
+/**
  * dibi driver interface.
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
 interface IDibiDriver
 {
 
 	/**
-	 * Internal: Connects to a database.
-	 *
+	 * Connects to a database.
 	 * @param  array
 	 * @return void
 	 * @throws DibiException
@@ -76,8 +125,7 @@ interface IDibiDriver
 
 
 	/**
-	 * Internal: Disconnects from a database.
-	 *
+	 * Disconnects from a database.
 	 * @return void
 	 * @throws DibiException
 	 */
@@ -87,7 +135,6 @@ interface IDibiDriver
 
 	/**
 	 * Internal: Executes the SQL query.
-	 *
 	 * @param  string      SQL statement.
 	 * @return IDibiDriver|NULL
 	 * @throws DibiDriverException
@@ -98,7 +145,6 @@ interface IDibiDriver
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int|FALSE  number of rows or FALSE on error
 	 */
 	function affectedRows();
@@ -107,7 +153,6 @@ interface IDibiDriver
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @return int|FALSE  int on success or FALSE on failure
 	 */
 	function insertId($sequence);
@@ -116,34 +161,48 @@ interface IDibiDriver
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	function begin();
+	function begin($savepoint = NULL);
 
 
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	function commit();
+	function commit($savepoint = NULL);
 
 
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	function rollback();
+	function rollback($savepoint = NULL);
+
+
+
+	/**
+	 * Returns the connection resource.
+	 * @return mixed
+	 */
+	function getResource();
+
+
+
+	/********************* SQL ****************d*g**/
 
 
 
 	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    encoded value
@@ -155,7 +214,6 @@ interface IDibiDriver
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
@@ -167,7 +225,6 @@ interface IDibiDriver
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
@@ -177,9 +234,12 @@ interface IDibiDriver
 
 
 
+	/********************* result set ****************d*g**/
+
+
+
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	function rowCount();
@@ -188,7 +248,6 @@ interface IDibiDriver
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -199,10 +258,9 @@ interface IDibiDriver
 
 	/**
 	 * Fetches the row at current position and moves the internal cursor to the next position.
-	 * internal usage only
-	 *
 	 * @param  bool     TRUE for associative array, FALSE for numeric
 	 * @return array    array on success, nonarray if no next record
+	 * @internal
 	 */
 	function fetch($type);
 
@@ -210,7 +268,6 @@ interface IDibiDriver
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @param  resource  result set resource
 	 * @return void
 	 */
@@ -220,7 +277,6 @@ interface IDibiDriver
 
 	/**
 	 * Returns metadata for all columns in a result set.
-	 *
 	 * @return array
 	 * @throws DibiException
 	 */
@@ -229,28 +285,48 @@ interface IDibiDriver
 
 
 	/**
-	 * Returns the connection resource.
-	 *
-	 * @return mixed
-	 */
-	function getResource();
-
-
-
-	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mixed
 	 */
 	function getResultResource();
 
 
 
+	/********************* reflection ****************d*g**/
+
+
+
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Returns list of tables.
+	 * @return array
 	 */
-	function getDibiReflection();
+	function getTables();
+
+
+
+	/**
+	 * Returns metadata for all columns in a table.
+	 * @param  string
+	 * @return array
+	 */
+	function getColumns($table);
+
+
+
+	/**
+	 * Returns metadata for all indexes in a table.
+	 * @param  string
+	 * @return array
+	 */
+	function getIndexes($table);
+
+
+
+	/**
+	 * Returns metadata for all foreign keys in a table.
+	 * @param  string
+	 * @return array
+	 */
+	function getForeignKeys($table);
 
 }

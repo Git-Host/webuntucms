@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: DibiConnection.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: DibiConnection.php 181 2009-01-08 00:42:01Z david@grudl.com $
  */
 
 
@@ -24,59 +24,49 @@
  * dibi connection.
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiConnection extends /*Nette::*/Object
+class DibiConnection extends DibiObject
 {
-	/**
-	 * Current connection configuration.
-	 * @var array
-	 */
+	/** @var array  Current connection configuration */
 	private $config;
 
-	/**
-	 * IDibiDriver.
-	 * @var array
-	 */
+	/** @var IDibiDriver  Driver */
 	private $driver;
 
-	/**
-	 * Is connected?
-	 * @var bool
-	 */
+	/** @var IDibiProfiler  Profiler */
+	private $profiler;
+
+	/** @var bool  Is connected? */
 	private $connected = FALSE;
 
-	/**
-	 * Is in transaction?
-	 * @var bool
-	 */
+	/** @var bool  Is in transaction? */
 	private $inTxn = FALSE;
 
 
 
 	/**
 	 * Creates object and (optionally) connects to a database.
-	 *
-	 * @param  array|string|Nette::Collections::Hashtable connection parameters
+	 * @param  array|string|ArrayObject connection parameters
 	 * @param  string       connection name
 	 * @throws DibiException
 	 */
 	public function __construct($config, $name = NULL)
 	{
-		if (class_exists(/*Nette::*/'Debug', FALSE)) {
-			/*Nette::*/Debug::addColophon(array('dibi', 'getColophon'));
+		if (class_exists(/*Nette\*/'Debug', FALSE)) {
+			/*Nette\*/Debug::addColophon(array('dibi', 'getColophon'));
 		}
 
 		// DSN string
 		if (is_string($config)) {
 			parse_str($config, $config);
 
-		} elseif ($config instanceof /*Nette::Collections::*/Hashtable) {
+		} elseif ($config instanceof ArrayObject) {
 			$config = (array) $config;
 
 		} elseif (!is_array($config)) {
-			throw new InvalidArgumentException('Configuration must be array, string or Nette::Collections::Hashtable.');
+			throw new InvalidArgumentException('Configuration must be array, string or ArrayObject.');
 		}
 
 		if (!isset($config['driver'])) {
@@ -86,22 +76,27 @@ class DibiConnection extends /*Nette::*/Object
 		$driver = preg_replace('#[^a-z0-9_]#', '_', $config['driver']);
 		$class = "Dibi" . $driver . "Driver";
 		if (!class_exists($class, FALSE)) {
-			include_once __FILE__ . "/../../drivers/$driver.php";
+			include_once dirname(__FILE__) . "/../drivers/$driver.php";
 
 			if (!class_exists($class, FALSE)) {
-				throw new DibiException("Unable to create instance of dibi driver class '$class'.");
+				throw new DibiException("Unable to create instance of dibi driver '$class'.");
 			}
-		}
-
-		if (isset($config['result:objects'])) {
-			// normalize
-			$val = $config['result:objects'];
-			$config['result:objects'] = is_string($val) && !is_numeric($val) ? $val : (bool) $val;
 		}
 
 		$config['name'] = $name;
 		$this->config = $config;
 		$this->driver = new $class;
+
+		if (!empty($config['profiler'])) {
+			$class = $config['profiler'];
+			if (is_numeric($class) || is_bool($class)) {
+				$class = 'DibiProfiler';
+			}
+			if (!class_exists($class)) {
+				throw new DibiException("Unable to create instance of dibi profiler '$class'.");
+			}
+			$this->setProfiler(new $class);
+		}
 
 		if (empty($config['lazy'])) {
 			$this->connect();
@@ -112,7 +107,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Automatically frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function __destruct()
@@ -125,15 +119,19 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Connects to a database.
-	 *
 	 * @return void
 	 */
 	final protected function connect()
 	{
 		if (!$this->connected) {
+			if ($this->profiler !== NULL) {
+				$ticket = $this->profiler->before($this, IDibiProfiler::CONNECT);
+			}
 			$this->driver->connect($this->config);
 			$this->connected = TRUE;
-			dibi::notify($this, 'connected');
+			if (isset($ticket)) {
+				$this->profiler->after($ticket);
+			}
 		}
 	}
 
@@ -141,7 +139,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Disconnects from a database.
-	 *
 	 * @return void
 	 */
 	final public function disconnect()
@@ -152,7 +149,6 @@ class DibiConnection extends /*Nette::*/Object
 			}
 			$this->driver->disconnect();
 			$this->connected = FALSE;
-			dibi::notify($this, 'disconnected');
 		}
 	}
 
@@ -160,7 +156,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Returns TRUE when connection was established.
-	 *
 	 * @return bool
 	 */
 	final public function isConnected()
@@ -172,7 +167,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Returns configuration variable. If no $key is passed, returns the entire array.
-	 *
 	 * @see self::__construct
 	 * @param  string
 	 * @param  mixed  default value to use if key not found
@@ -195,7 +189,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Apply configuration alias or default values.
-	 *
 	 * @param  array  connect configuration
 	 * @param  string key
 	 * @param  string alias key
@@ -217,11 +210,23 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Returns the connection resource.
-	 *
+	 * @return IDibiDriver
+	 */
+	final public function getDriver()
+	{
+		return $this->driver;
+	}
+
+
+
+	/**
+	 * Returns the connection resource.
 	 * @return resource
+	 * @deprecated use getDriver()->getResource()
 	 */
 	final public function getResource()
 	{
+		trigger_error('Deprecated: use getDriver()->getResource(...) instead.', E_USER_WARNING);
 		return $this->driver->getResource();
 	}
 
@@ -229,7 +234,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Generates (translates) and executes SQL query.
-	 *
 	 * @param  array|mixed      one or more arguments
 	 * @return DibiResult|NULL  result set object (if any)
 	 * @throws DibiException
@@ -249,8 +253,27 @@ class DibiConnection extends /*Nette::*/Object
 
 
 	/**
+	 * Generates and returns SQL query.
+	 * @param  array|mixed      one or more arguments
+	 * @return string
+	 * @throws DibiException
+	 */
+	final public function sql($args)
+	{
+		$args = func_get_args();
+		$this->connect();
+		$trans = new DibiTranslator($this->driver);
+		if ($trans->translate($args)) {
+			return $trans->sql;
+		} else {
+			throw new DibiException('SQL translate error: ' . $trans->sql);
+		}
+	}
+
+
+
+	/**
 	 * Generates and prints SQL query.
-	 *
 	 * @param  array|mixed  one or more arguments
 	 * @return bool
 	 */
@@ -268,7 +291,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Executes the SQL query.
-	 *
 	 * @param  string           SQL statement.
 	 * @return DibiResult|NULL  result set object (if any)
 	 * @throws DibiException
@@ -277,11 +299,22 @@ class DibiConnection extends /*Nette::*/Object
 	{
 		$this->connect();
 
+		if ($this->profiler !== NULL) {
+			$event = IDibiProfiler::QUERY;
+			if (preg_match('#\s*(SELECT|UPDATE|INSERT|DELETE)#i', $sql, $matches)) {
+				static $events = array(
+					'SELECT' => IDibiProfiler::SELECT, 'UPDATE' => IDibiProfiler::UPDATE,
+					'INSERT' => IDibiProfiler::INSERT, 'DELETE' => IDibiProfiler::DELETE,
+				);
+				$event = $events[strtoupper($matches[1])];
+			}
+			$ticket = $this->profiler->before($this, $event, $sql);
+		}
+		// TODO: move to profiler?
 		dibi::$numOfQueries++;
 		dibi::$sql = $sql;
 		dibi::$elapsedTime = FALSE;
 		$time = -microtime(TRUE);
-		dibi::notify($this, 'beforeQuery', $sql);
 
 		if ($res = $this->driver->query($sql)) { // intentionally =
 			$res = new DibiResult($res, $this->config);
@@ -290,8 +323,10 @@ class DibiConnection extends /*Nette::*/Object
 		$time += microtime(TRUE);
 		dibi::$elapsedTime = $time;
 		dibi::$totalTime += $time;
-		dibi::notify($this, 'afterQuery', $res);
 
+		if (isset($ticket)) {
+			$this->profiler->after($ticket, $res);
+		}
 		return $res;
 	}
 
@@ -299,7 +334,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int  number of rows
 	 * @throws DibiException
 	 */
@@ -314,7 +348,6 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @param  string     optional sequence name
 	 * @return int
 	 * @throws DibiException
@@ -330,62 +363,96 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 */
-	public function begin()
+	public function begin($savepoint = NULL)
 	{
 		$this->connect();
-		if ($this->inTxn) {
+		if (!$savepoint && $this->inTxn) {
 			throw new DibiException('There is already an active transaction.');
 		}
-		$this->driver->begin();
+		if ($this->profiler !== NULL) {
+			$ticket = $this->profiler->before($this, IDibiProfiler::BEGIN, $savepoint);
+		}
+		if ($savepoint && !$this->inTxn) {
+			$this->driver->begin();
+		}
+		$this->driver->begin($savepoint);
+
 		$this->inTxn = TRUE;
-		dibi::notify($this, 'begin');
+		if (isset($ticket)) {
+			$this->profiler->after($ticket);
+		}
 	}
 
 
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 */
-	public function commit()
+	public function commit($savepoint = NULL)
 	{
 		if (!$this->inTxn) {
 			throw new DibiException('There is no active transaction.');
 		}
-		$this->driver->commit();
-		$this->inTxn = FALSE;
-		dibi::notify($this, 'commit');
+		if ($this->profiler !== NULL) {
+			$ticket = $this->profiler->before($this, IDibiProfiler::COMMIT, $savepoint);
+		}
+		$this->driver->commit($savepoint);
+		$this->inTxn = (bool) $savepoint;
+		if (isset($ticket)) {
+			$this->profiler->after($ticket);
+		}
 	}
 
 
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 */
-	public function rollback()
+	public function rollback($savepoint = NULL)
 	{
 		if (!$this->inTxn) {
 			throw new DibiException('There is no active transaction.');
 		}
-		$this->driver->rollback();
-		$this->inTxn = FALSE;
-		dibi::notify($this, 'rollback');
+		if ($this->profiler !== NULL) {
+			$ticket = $this->profiler->before($this, IDibiProfiler::ROLLBACK, $savepoint);
+		}
+		$this->driver->rollback($savepoint);
+		$this->inTxn = (bool) $savepoint;
+		if (isset($ticket)) {
+			$this->profiler->after($ticket);
+		}
+	}
+
+
+
+	/**
+	 * Is in transaction?
+	 * @return bool
+	 */
+	public function inTransaction()
+	{
+		return $this->inTxn;
 	}
 
 
 
 	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    unescaped string
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    escaped and quoted string
+	 * @deprecated
 	 */
 	public function escape($value, $type = dibi::FIELD_TEXT)
 	{
+		trigger_error('Deprecated: use getDriver()->escape(...) instead.', E_USER_WARNING);
 		$this->connect(); // MySQL & PDO require connection
 		return $this->driver->escape($value, $type);
 	}
@@ -394,13 +461,14 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
+	 * @deprecated
 	 */
 	public function unescape($value, $type = dibi::FIELD_BINARY)
 	{
+		trigger_error('Deprecated: use getDriver()->unescape(...) instead.', E_USER_WARNING);
 		return $this->driver->unescape($value, $type);
 	}
 
@@ -408,12 +476,13 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Delimites identifier (table's or column's name, etc.).
-	 *
 	 * @param  string    identifier
 	 * @return string    delimited identifier
+	 * @deprecated
 	 */
 	public function delimite($value)
 	{
+		trigger_error('Deprecated: use getDriver()->escape(...) instead.', E_USER_WARNING);
 		return $this->driver->escape($value, dibi::IDENTIFIER);
 	}
 
@@ -421,22 +490,173 @@ class DibiConnection extends /*Nette::*/Object
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
 	 * @return void
+	 * @deprecated
 	 */
 	public function applyLimit(&$sql, $limit, $offset)
 	{
+		trigger_error('Deprecated: use getDriver()->applyLimit(...) instead.', E_USER_WARNING);
 		$this->driver->applyLimit($sql, $limit, $offset);
 	}
 
 
 
+	/********************* fluent SQL builders ****************d*g**/
+
+
+
+	/**
+	 * @return DibiFluent
+	 */
+	public function command()
+	{
+		return new DibiFluent($this);
+	}
+
+
+
+	/**
+	 * @param  string    column name
+	 * @return DibiFluent
+	 */
+	public function select($args)
+	{
+		$args = func_get_args();
+		return $this->command()->__call('select', $args);
+	}
+
+
+
+	/**
+	 * @param  string   table
+	 * @param  array
+	 * @return DibiFluent
+	 */
+	public function update($table, array $args)
+	{
+		return $this->command()->update('%n', $table)->set($args);
+	}
+
+
+
+	/**
+	 * @param  string   table
+	 * @param  array
+	 * @return DibiFluent
+	 */
+	public function insert($table, array $args)
+	{
+		return $this->command()->insert()
+			->into('%n', $table, '(%n)', array_keys($args))->values('%l', array_values($args));
+	}
+
+
+
+	/**
+	 * @param  string   table
+	 * @return DibiFluent
+	 */
+	public function delete($table)
+	{
+		return $this->command()->delete()->from('%n', $table);
+	}
+
+
+
+	/********************* profiler ****************d*g**/
+
+
+
+	/**
+	 * @param  IDibiProfiler
+	 * @return void
+	 */
+	public function setProfiler(IDibiProfiler $profiler = NULL)
+	{
+		$this->profiler = $profiler;
+	}
+
+
+
+	/**
+	 * @return IDibiProfiler
+	 */
+	public function getProfiler()
+	{
+		return $this->profiler;
+	}
+
+
+
+	/********************* shortcuts ****************d*g**/
+
+
+
+	/**
+	 * Executes SQL query and fetch result - shortcut for query() & fetch().
+	 * @param  array|mixed    one or more arguments
+	 * @return DibiRow
+	 * @throws DibiException
+	 */
+	public function fetch($args)
+	{
+		$args = func_get_args();
+		return $this->query($args)->fetch();
+	}
+
+
+
+	/**
+	 * Executes SQL query and fetch results - shortcut for query() & fetchAll().
+	 * @param  array|mixed    one or more arguments
+	 * @return array of DibiRow
+	 * @throws DibiException
+	 */
+	public function fetchAll($args)
+	{
+		$args = func_get_args();
+		return $this->query($args)->fetchAll();
+	}
+
+
+
+	/**
+	 * Executes SQL query and fetch first column - shortcut for query() & fetchSingle().
+	 * @param  array|mixed    one or more arguments
+	 * @return string
+	 * @throws DibiException
+	 */
+	public function fetchSingle($args)
+	{
+		$args = func_get_args();
+		return $this->query($args)->fetchSingle();
+	}
+
+
+
+	/**
+	 * Executes SQL query and fetch pairs - shortcut for query() & fetchPairs().
+	 * @param  array|mixed    one or more arguments
+	 * @return string
+	 * @throws DibiException
+	 */
+	public function fetchPairs($args)
+	{
+		$args = func_get_args();
+		return $this->query($args)->fetchPairs();
+	}
+
+
+
+	/********************* misc ****************d*g**/
+
+
+
 	/**
 	 * Import SQL dump from file - extreme fast!
-	 *
 	 * @param  string  filename
 	 * @return int  count of sql commands
 	 */
@@ -469,13 +689,13 @@ class DibiConnection extends /*Nette::*/Object
 
 
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Gets a information about the current database.
+	 * @return DibiDatabaseInfo
 	 */
-	public function getDibiReflection()
+	public function getDatabaseInfo()
 	{
-		throw new NotImplementedException;
+		$this->connect();
+		return new DibiDatabaseInfo($this->driver, isset($this->config['database']) ? $this->config['database'] : NULL);
 	}
 
 

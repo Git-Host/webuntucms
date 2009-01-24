@@ -4,18 +4,18 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl (http://davidgrudl.com)
+ * Copyright (c) 2005, 2009 David Grudl (http://davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
  *
  * For more information please see http://dibiphp.com
  *
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @license    http://dibiphp.com/license  dibi license
  * @link       http://dibiphp.com
  * @package    dibi
- * @version    $Id: mysql.php 133 2008-07-17 03:51:29Z David Grudl $
+ * @version    $Id: mysql.php 186 2009-01-17 19:27:40Z david@grudl.com $
  */
 
 
@@ -35,32 +35,21 @@
  *   - 'options' - driver specific constants (MYSQL_*)
  *   - 'sqlmode' - see http://dev.mysql.com/doc/refman/5.0/en/server-sql-mode.html
  *   - 'lazy' - if TRUE, connection will be established only when required
+ *   - 'resource' - connection resource (optional)
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2008 David Grudl
+ * @copyright  Copyright (c) 2005, 2009 David Grudl
  * @package    dibi
  */
-class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
+class DibiMySqlDriver extends DibiObject implements IDibiDriver
 {
-
-	/**
-	 * Connection resource.
-	 * @var resource
-	 */
+	/** @var resource  Connection resource */
 	private $connection;
 
-
-	/**
-	 * Resultset resource.
-	 * @var resource
-	 */
+	/** @var resource  Resultset resource */
 	private $resultSet;
 
-
-	/**
-	 * Is buffered (seekable and countable)?
-	 * @var bool
-	 */
+	/** @var bool  Is buffered (seekable and countable)? */
 	private $buffered;
 
 
@@ -79,7 +68,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Connects to a database.
-	 *
 	 * @return void
 	 * @throws DibiException
 	 */
@@ -90,30 +78,35 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 		DibiConnection::alias($config, 'host', 'hostname');
 		DibiConnection::alias($config, 'options');
 
-		// default values
-		if (!isset($config['username'])) $config['username'] = ini_get('mysql.default_user');
-		if (!isset($config['password'])) $config['password'] = ini_get('mysql.default_password');
-		if (!isset($config['host'])) {
-			$host = ini_get('mysql.default_host');
-			if ($host) {
-				$config['host'] = $host;
-				$config['port'] = ini_get('mysql.default_port');
-			} else {
-				if (!isset($config['socket'])) $config['socket'] = ini_get('mysql.default_socket');
-				$config['host'] = NULL;
+		if (isset($config['resource'])) {
+			$this->connection = $config['resource'];
+
+		} else {
+			// default values
+			if (!isset($config['username'])) $config['username'] = ini_get('mysql.default_user');
+			if (!isset($config['password'])) $config['password'] = ini_get('mysql.default_password');
+			if (!isset($config['host'])) {
+				$host = ini_get('mysql.default_host');
+				if ($host) {
+					$config['host'] = $host;
+					$config['port'] = ini_get('mysql.default_port');
+				} else {
+					if (!isset($config['socket'])) $config['socket'] = ini_get('mysql.default_socket');
+					$config['host'] = NULL;
+				}
 			}
-		}
 
-		if (empty($config['socket'])) {
-			$host = $config['host'] . (empty($config['port']) ? '' : ':' . $config['port']);
-		} else {
-			$host = ':' . $config['socket'];
-		}
+			if (empty($config['socket'])) {
+				$host = $config['host'] . (empty($config['port']) ? '' : ':' . $config['port']);
+			} else {
+				$host = ':' . $config['socket'];
+			}
 
-		if (empty($config['persistent'])) {
-			$this->connection = @mysql_connect($host, $config['username'], $config['password'], TRUE, $config['options']); // intentionally @
-		} else {
-			$this->connection = @mysql_pconnect($host, $config['username'], $config['password'], $config['options']); // intentionally @
+			if (empty($config['persistent'])) {
+				$this->connection = @mysql_connect($host, $config['username'], $config['password'], TRUE, $config['options']); // intentionally @
+			} else {
+				$this->connection = @mysql_pconnect($host, $config['username'], $config['password'], $config['options']); // intentionally @
+			}
 		}
 
 		if (!is_resource($this->connection)) {
@@ -126,16 +119,24 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 				// affects the character set used by mysql_real_escape_string() (was added in MySQL 5.0.7 and PHP 5.2.3)
 				$ok = @mysql_set_charset($config['charset'], $this->connection); // intentionally @
 			}
-			if (!$ok) $ok = @mysql_query("SET NAMES '$config[charset]'", $this->connection); // intentionally @
-			if (!$ok) $this->throwException();
+			if (!$ok) {
+				$ok = @mysql_query("SET NAMES '$config[charset]'", $this->connection); // intentionally @
+				if (!$ok) {
+					throw new DibiDriverException(mysql_error($this->connection), mysql_errno($this->connection));
+				}
+			}
 		}
 
 		if (isset($config['database'])) {
-			@mysql_select_db($config['database'], $this->connection) or $this->throwException(); // intentionally @
+			if (!@mysql_select_db($config['database'], $this->connection)) { // intentionally @
+				throw new DibiDriverException(mysql_error($this->connection), mysql_errno($this->connection));
+			}
 		}
 
 		if (isset($config['sqlmode'])) {
-			if (!@mysql_query("SET sql_mode='$config[sqlmode]'", $this->connection)) $this->throwException(); // intentionally @
+			if (!@mysql_query("SET sql_mode='$config[sqlmode]'", $this->connection)) { // intentionally @
+				throw new DibiDriverException(mysql_error($this->connection), mysql_errno($this->connection));
+			}
 		}
 
 		$this->buffered = empty($config['unbuffered']);
@@ -145,7 +146,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Disconnects from a database.
-	 *
 	 * @return void
 	 */
 	public function disconnect()
@@ -157,7 +157,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Executes the SQL query.
-	 *
 	 * @param  string      SQL statement.
 	 * @return IDibiDriver|NULL
 	 * @throws DibiDriverException
@@ -171,7 +170,7 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 		}
 
 		if (mysql_errno($this->connection)) {
-			$this->throwException($sql);
+			throw new DibiDriverException(mysql_error($this->connection), mysql_errno($this->connection), $sql);
 		}
 
 		return is_resource($this->resultSet) ? clone $this : NULL;
@@ -181,7 +180,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Gets the number of affected rows by the last INSERT, UPDATE or DELETE query.
-	 *
 	 * @return int|FALSE  number of rows or FALSE on error
 	 */
 	public function affectedRows()
@@ -193,7 +191,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Retrieves the ID generated for an AUTO_INCREMENT column by the previous INSERT query.
-	 *
 	 * @return int|FALSE  int on success or FALSE on failure
 	 */
 	public function insertId($sequence)
@@ -205,43 +202,60 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Begins a transaction (if supported).
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function begin()
+	public function begin($savepoint = NULL)
 	{
-		$this->query('START TRANSACTION');
+		$this->query($savepoint ? "SAVEPOINT $savepoint" : 'START TRANSACTION');
 	}
 
 
 
 	/**
 	 * Commits statements in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function commit()
+	public function commit($savepoint = NULL)
 	{
-		$this->query('COMMIT');
+		$this->query($savepoint ? "RELEASE SAVEPOINT $savepoint" : 'COMMIT');
 	}
 
 
 
 	/**
 	 * Rollback changes in a transaction.
+	 * @param  string  optinal savepoint name
 	 * @return void
 	 * @throws DibiDriverException
 	 */
-	public function rollback()
+	public function rollback($savepoint = NULL)
 	{
-		$this->query('ROLLBACK');
+		$this->query($savepoint ? "ROLLBACK TO SAVEPOINT $savepoint" : 'ROLLBACK');
 	}
 
 
 
 	/**
+	 * Returns the connection resource.
+	 * @return mixed
+	 */
+	public function getResource()
+	{
+		return $this->connection;
+	}
+
+
+
+	/********************* SQL ****************d*g**/
+
+
+
+	/**
 	 * Encodes data for use in an SQL statement.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_TEXT, dibi::FIELD_BOOL, ...)
 	 * @return string    encoded value
@@ -255,6 +269,8 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 			return "'" . mysql_real_escape_string($value, $this->connection) . "'";
 
 		case dibi::IDENTIFIER:
+			// @see http://dev.mysql.com/doc/refman/5.0/en/identifiers.html
+			$value = str_replace('`', '``', $value);
 			return '`' . str_replace('.', '`.`', $value) . '`';
 
 		case dibi::FIELD_BOOL:
@@ -275,7 +291,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Decodes data from result set.
-	 *
 	 * @param  string    value
 	 * @param  string    type (dibi::FIELD_BINARY)
 	 * @return string    decoded value
@@ -290,7 +305,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Injects LIMIT/OFFSET to the SQL query.
-	 *
 	 * @param  string &$sql  The SQL query that will be modified.
 	 * @param  int $limit
 	 * @param  int $offset
@@ -307,9 +321,12 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* result set ****************d*g**/
+
+
+
 	/**
 	 * Returns the number of rows in a result set.
-	 *
 	 * @return int
 	 */
 	public function rowCount()
@@ -324,21 +341,19 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Fetches the row at current position and moves the internal cursor to the next position.
-	 * internal usage only
-	 *
 	 * @param  bool     TRUE for associative array, FALSE for numeric
 	 * @return array    array on success, nonarray if no next record
+	 * @internal
 	 */
-	public function fetch($type)
+	public function fetch($assoc)
 	{
-		return mysql_fetch_array($this->resultSet, $type ? MYSQL_ASSOC : MYSQL_NUM);
+		return mysql_fetch_array($this->resultSet, $assoc ? MYSQL_ASSOC : MYSQL_NUM);
 	}
 
 
 
 	/**
 	 * Moves cursor position without fetching row.
-	 *
 	 * @param  int      the 0-based cursor pos to seek to
 	 * @return boolean  TRUE on success, FALSE if unable to seek to specified record
 	 * @throws DibiException
@@ -356,7 +371,6 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Frees the resources allocated for this result set.
-	 *
 	 * @return void
 	 */
 	public function free()
@@ -369,49 +383,29 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 	/**
 	 * Returns metadata for all columns in a result set.
-	 *
 	 * @return array
 	 */
 	public function getColumnsMeta()
 	{
 		$count = mysql_num_fields($this->resultSet);
-		$meta = array();
+		$res = array();
 		for ($i = 0; $i < $count; $i++) {
-			// items 'name' and 'table' are required
-			$meta[] = (array) mysql_fetch_field($this->resultSet, $i);
+			$row = (array) mysql_fetch_field($this->resultSet, $i);
+			$res[] = array(
+				'name' => $row['name'],
+				'table' => $row['table'],
+				'fullname' => $row['table'] ? $row['table'] . '.' . $row['name'] : $row['name'],
+				'nativetype' => strtoupper($row['type']),
+				'vendor' => $row,
+			);
 		}
-		return $meta;
-	}
-
-
-
-	/**
-	 * Converts database error to DibiDriverException.
-	 *
-	 * @throws DibiDriverException
-	 */
-	protected function throwException($sql = NULL)
-	{
-		throw new DibiDriverException(mysql_error($this->connection), mysql_errno($this->connection), $sql);
-	}
-
-
-
-	/**
-	 * Returns the connection resource.
-	 *
-	 * @return mixed
-	 */
-	public function getResource()
-	{
-		return $this->connection;
+		return $res;
 	}
 
 
 
 	/**
 	 * Returns the result set resource.
-	 *
 	 * @return mixed
 	 */
 	public function getResultResource()
@@ -421,12 +415,86 @@ class DibiMySqlDriver extends /*Nette::*/Object implements IDibiDriver
 
 
 
+	/********************* reflection ****************d*g**/
+
+
+
 	/**
-	 * Gets a information of the current database.
-	 *
-	 * @return DibiReflection
+	 * Returns list of tables.
+	 * @return array
 	 */
-	function getDibiReflection()
-	{}
+	public function getTables()
+	{
+		$this->query("SHOW FULL TABLES");
+		$res = array();
+		while ($row = $this->fetch(FALSE)) {
+			$res[] = array(
+				'name' => $row[0],
+				'view' => isset($row[1]) && $row[1] === 'VIEW',
+			);
+		}
+		$this->free();
+		return $res;
+	}
+
+
+
+	/**
+	 * Returns metadata for all columns in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getColumns($table)
+	{
+		$this->query("SHOW COLUMNS FROM `$table`");
+		$res = array();
+		while ($row = $this->fetch(TRUE)) {
+			$type = explode('(', $row['Type']);
+			$res[] = array(
+				'name' => $row['Field'],
+				'table' => $table,
+				'nativetype' => strtoupper($type[0]),
+				'size' => isset($type[1]) ? (int) $type[1] : NULL,
+				'nullable' => $row['Null'] === 'YES',
+				'default' => $row['Default'],
+				'autoincrement' => $row['Extra'] === 'auto_increment',
+			);
+		}
+		$this->free();
+		return $res;
+	}
+
+
+
+	/**
+	 * Returns metadata for all indexes in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getIndexes($table)
+	{
+		$this->query("SHOW INDEX FROM `$table`");
+		$res = array();
+		while ($row = $this->fetch(TRUE)) {
+			$res[$row['Key_name']]['name'] = $row['Key_name'];
+			$res[$row['Key_name']]['unique'] = !$row['Non_unique'];
+			$res[$row['Key_name']]['primary'] = $row['Key_name'] === 'PRIMARY';
+			$res[$row['Key_name']]['columns'][$row['Seq_in_index'] - 1] = $row['Column_name'];
+		}
+		$this->free();
+		return array_values($res);
+	}
+
+
+
+	/**
+	 * Returns metadata for all foreign keys in a table.
+	 * @param  string
+	 * @return array
+	 */
+	public function getForeignKeys($table)
+	{
+		throw new NotImplementedException;
+	}
 
 }
