@@ -11,7 +11,7 @@ final class Bobr_Session
      * @var integer
      */
 	const DEFAULT_LIFETIME = 10800;
-    
+
 	/**
 	 * @var bool
 	 */

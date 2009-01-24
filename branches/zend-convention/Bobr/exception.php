@@ -9,6 +9,7 @@ require_once __WEB_ROOT__ .  '/Bobr/Page/exception.php';
  * Nejvissi vyjimka v BOBRovi.
  */
 class Bobr_KernelException extends Exception{}
+class Bobr_IAException extends Bobr_KernelException {}
 
 /**
  * Vyjimka ktera se vyhazuje v pripade ze se nemuze nacist kernel.

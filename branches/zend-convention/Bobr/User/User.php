@@ -37,13 +37,13 @@ class Bobr_User_User extends Object
             throw new Bobr_User_UserNotExistException('Uzivatelske jmeno ' . $this->nick . ' neexistuje.');
         }
         $this->importRecord($data);
-        
+
         return $this;
     }
 
 	/**
      * Nastavi anonymouse.
-     * 
+     *
      * @return User
      */
     public function setAnonymous()
@@ -55,7 +55,7 @@ class Bobr_User_User extends Object
 	/**
      * Nacte zakladni uzivatelske udaje podle id.
      *
-     * @param integer $id 
+     * @param integer $id
      */
     private function loadUserInfo($id)
 	{

@@ -63,7 +63,8 @@ class Bobr_Bobr extends Object
         echo '<p>Tyto blahy se daji vypnout v configu. Jedna se o debugMode</p>';
 
         $this->setUser();
-                
+        die();
+
         try {
             // Vytvorime si zaklad z url.
             $process = new Bobr_Process;
@@ -83,7 +84,7 @@ class Bobr_Bobr extends Object
                 ob_end_clean();
 
                 $config = new Config;
-                
+
                 $template = Bobr_Page_Template::getInstance();
                 $template->setContainerColection($page->getContainerColection())
                     ->setCommand($process->getCommand());
@@ -93,11 +94,11 @@ class Bobr_Bobr extends Object
 
                 echo $template;
 
-                
+
             } else {
                 throw new Bobr_BobrException('Z nejakeho duvodu se nepovedlo nacist stranku.');
             }
-            
+
         } catch (Bobr_Page_PageException $e) {
             // Nemuze se vytvorit stranka, vyhodime nejvissi vyjimku.
             throw new Bobr_BobrException($e->getMessage());
@@ -118,17 +119,20 @@ class Bobr_Bobr extends Object
     {
         // Zvalidujem platnost Session
         new Bobr_SessionValidator();
-        $validator = new Bobr_User_UserValidator();
+		$user = new Bobr_User_Data(1);
+        print_re($user);
+
+        die();
         // Zvalidujem uzivatele v session
         if(FALSE === $validator->validate()){
             // Uzivatel nebyl validni nastavime anonymouse
-            $user = Bobr_Session::getInstance()->user = new Bobr_User_User(2);
+            Bobr_Session::setNamesapce('user', new Bobr_User_User(2));
+            $user = Bobr_Session::getNamespace('user');
             echo '<p>Nastavil jsem <b>' . $user->nick .'</b>.</p>';
         }else{
-            $user = Bobr_Session::getInstance()->user;
+            $user = Bobr_Session::getNamespace('user');
             echo '<p>Uzivatel <b>' . $user->nick .'</b> mel jiz vytvorenou session.</p>';
         }
-        $user = Bobr_Session::getInstance()->user;
 
         $webInstanceValidatdor = new Bobr_WebInstanceValidator();
         if (TRUE === $webInstanceValidatdor->validate(Lib_Tools::getWebInstance())) {

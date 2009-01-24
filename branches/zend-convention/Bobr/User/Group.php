@@ -1,77 +1,133 @@
 <?php
 
-class Bobr_User_Group extends Object
+class Bobr_User_Group extends Bobr_DataObject
 {
+
+	/**
+	 * Id skupiny.
+	 *
+	 * @var integer
+	 */
 	private $id = 0;
+
+	/**
+	 * Id rodicovske skupiny.
+	 *
+	 * @var unknown_type
+	 */
 	private $pid = 0;
+
+	/**
+	 * Nazev skupiny.
+	 *
+	 * @var string
+	 */
 	private $name = '';
+
+	/**
+	 * Popis skupiny.
+	 * Slouzi pouze pro administracni ucely.
+	 *
+	 * @var string
+	 */
 	private $description = '';
 
-	private $webInstanceList = array();
-
-	private $modulesList = array();
-
-
-	public function importRecord($record)
+	public function __construct($id = 0)
 	{
-		$this->id	=	$record['id'];
-		$this->pid	=	$record['pid'];
-		$this->name =	$record['title'];
-		$this->description	=	$record['description'];
+		$this->importProperties = array('id' => 'id', 'pid' => 'pid', 'title' => 'name', 'description' => 'description');
 	}
 
-	public function getWebInstanceList()
+	public function getCacheId()
 	{
-		if(empty($this->webInstanceList)){
-			return $this->setWebInstanceList();
-		}else{
-			return $this->webInstanceList;
-		}
+		return '/bobr/' . $this->getClass() . '/' . $this->id;
 	}
 
-	private function setWebInstanceList()
+	/**
+	 * Vrati hodnotu vlastnosti $id
+	 *
+	 * @return integer
+	 */
+	public function getId()
 	{
-		if($this->id < 1){
-			throw new LogicException('Neni nastavena skupina, nemuzu nastavit jeji web instance.');
-		}
-
-		$this->webInstanceList = new Bobr_User_WebInstanceList;
-		$this->webInstanceList->loadByGroupId($this->id);
-		return $this->webInstanceList;
+		return $this->id;
 	}
 
-	public function getWebInstance()
+	/**
+	 * Nastavi hodnotu vlastnosti $id
+	 *
+	 * @param integer
+	 * @return Bobr_User_Group
+	 */
+	public function setId($id)
 	{
-		return $this->getWebInstanceList()->items;
+		$this->id = (integer)$id;
+		return $this;
 	}
 
-	public function getModulesId()
+	/**
+	 * Vrati hodnotu vlastnosti $pid
+	 *
+	 * @return integer
+	 */
+	public function getPid()
 	{
-		return array_keys($this->getModulesList()->items);
+		return $this->pid;
 	}
 
-	public function getModules()
+	/**
+	 * Nastavi hodnotu vlastnosti $pid
+	 *
+	 * @param integer
+	 * @return Bobr_User_Group
+	 */
+	public function setPid($pid)
 	{
-		return $this->getModulesList()->items;
+		$this->pid = (integer)$pid;
+		return $this;
 	}
 
-	public function getModulesList()
+	/**
+	 * Vrati hodnotu vlastnosti $name
+	 *
+	 * @return string
+	 */
+	public function getName()
 	{
-		if(empty($this->modulesList)){
-			return $this->setModulesList();
-		}else{
-			return $this->modulesList;
-		}
+		return $this->name;
 	}
 
-	private function setModulesList()
+	/**
+	 * Nastavi hodnotu vlastnosti $name
+	 *
+	 * @param string
+	 * @return Bobr_User_Group
+	 */
+	public function setName($name)
 	{
-		if($this->id < 1){
-			throw new LogicException('Neni nastavena skupina, nemuzu nastavit jeji moduly.');
-		}
-
-		$this->modulesList = new Bobr_User_ModuleList;
-		$this->modulesList->loadByGroupId($this->id);
-		return $this->modulesList;
+		$this->name = (string)$name;
+		return $this;
 	}
+
+	/**
+	 * Vrati hodnotu vlastnosti $description
+	 *
+	 * @return string
+	 */
+	public function getDescription()
+	{
+		return $this->description;
+	}
+
+	/**
+	 * Nastavi hodnotu vlastnosti $description
+	 *
+	 * @param string
+	 * @return Bobr_User_Group
+	 */
+	public function setDescription($description)
+	{
+		$this->description = (string)$description;
+		return $this;
+	}
+
 }

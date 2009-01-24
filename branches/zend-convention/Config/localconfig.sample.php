@@ -49,6 +49,18 @@ class Config implements ArrayAccess
         'DEFAULTLANG'   => 'cs',
 	);
 
+	/**
+	 * Vrati hodnotu z configu.
+	 *
+	 * @param string $variable
+	 * @return mixed
+	 */
+	public static function get($variable)
+	{
+		$config = new self;
+		return $config->$variable;
+	}
+
     /**
      * Pokud konfigurator existuje v lokalnim configu vrati ho.
      * Pokud neexistuje zavola config spustene web instance a pokusi se ho najit tam.

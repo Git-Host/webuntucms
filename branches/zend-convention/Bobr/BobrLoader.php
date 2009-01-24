@@ -72,6 +72,14 @@ class Bobr_BobrLoader extends Bobr_AutoLoader
         'bobr_user_uservalidator' => '/Bobr/User/UserValidator.php',
         'bobr_user_webinstance' => '/Bobr/User/WebInstance.php',
         'bobr_user_webinstancelist' => '/Bobr/User/WebInstanceList.php',
+
+		'bobr_user' => '/Bobr/User.php',
+		'bobr_user_data' => '/Bobr/User/Data.php',
+		'bobr_user_group' => '/Bobr/User/Group.php',
+		'bobr_user_group_colection' => '/Bobr/User/Group/Colection.php',
+		'bobr_user_group_function' => '/Bobr/User/Group/Function.php',
+		'bobr_user_group_function_colection' => '/Bobr/User/Group/Function/Colection.php',
+
         // Lib
         'lib_abstractmodule' => '/Lib/AbstractModule.php',
         'lib_imodule' => '/Lib/IModule.php',

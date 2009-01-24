@@ -50,11 +50,11 @@ final class Bobr_SessionValidator extends Object
 	 */
 	private function validate()
 	{
-		$session = Bobr_Session::getInstance();
-		if(FALSE === isset($session->hash)
-			&& $session->hash  != sha1(sha1($this->salt).sha1(self::$remoteAddr.sha1($this->publicKey)))
+		$session = Bobr_Session::getNamespace('validity');
+		if(FALSE === isset($session)
+			&& $session  != sha1(sha1($this->salt).sha1(self::$remoteAddr.sha1($this->publicKey)))
 		){
-			$this->setSession($session);
+			$this->setSession();
 		}
 	}
 
@@ -64,9 +64,10 @@ final class Bobr_SessionValidator extends Object
 	 * @param mixed Bobr_Session
 	 * @return void
 	 */
-	private function setSession(Bobr_Session $session)
+	private function setSession()
 	{
+		$session = Bobr_Session::getInstance();
 		$session->destroy();
-		$session->hash =  sha1(sha1($this->salt).sha1(self::$remoteAddr.sha1($this->publicKey)));
+		Bobr_Session::setNamesapce('validity', sha1(sha1($this->salt).sha1(self::$remoteAddr.sha1($this->publicKey))));
 	}
 }

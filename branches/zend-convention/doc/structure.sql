@@ -97,7 +97,7 @@ CREATE TABLE bobr_routestatic_cs
     uri VARCHAR NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (webinstance_id) REFERENCES bobr_webinstance (id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    FOREIGN KEY (pageid_id) REFERENCES bobr_pageid (id) ON UPDATE CASCADE ON DELETE RESTRICT    
+    FOREIGN KEY (pageid_id) REFERENCES bobr_pageid (id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 COMMENT ON TABLE bobr_routestatic_cs IS 'Seznam ceskych statickych rout';
 COMMENT ON COLUMN bobr_routestatic_cs.id IS 'Unikatni hodnota routy';
@@ -118,3 +118,20 @@ COMMENT ON TABLE bobr_administrationcategory IS 'Kategorie administrace';
 COMMENT ON COLUMN bobr_administrationcategory.routedynamic_id IS 'Odkaz na id dynamicke routy v danem jazyce';
 COMMENT ON COLUMN bobr_administrationcategory.description_id IS 'Odkaz na id popisu v danem jazyce';
 COMMENT ON COLUMN bobr_administrationcategory.weight IS 'Vaha linku (cim vetsi cislo tim tezsi)';
+
+
+CREATE TABLE bobr_group_functions_webinstance
+(
+	group_id INTEGER NOT NULL,
+	module_id INTEGER NOT NULL,
+	module_function_id INTEGER NOT NULL,
+	webinstance_id INTEGER NOT NULL,
+	PRIMARY KEY (group_id,module_function_id, webinstance_id),
+	FOREIGN KEY (group_id) REFERENCES bobr_groups (id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (module_id) REFERENCES bobr_module (id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (webinstance_id) REFERENCES bobr_webinstance (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+COMMENT ON TABLE bobr_group_functions_webinstance IS 'Relacni tabulka mezi funkcema a uzivatelskejma skupinama. Dale se to omezuje na webinstance.';
+COMMENT ON COLUMN bobr_group_functions_webinstance.group_id IS 'Odkaz na uzivatelskou skupinu.';
+COMMENT ON COLUMN bobr_group_functions_webinstance.module_id IS 'Odkaz na id modulu.';
+COMMENT ON COLUMN bobr_group_functions_webinstance.webinstance_id IS 'Odkaz na webinstanci pro kterou prava plati.';
