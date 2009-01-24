@@ -13,33 +13,38 @@ abstract class Bobr_DataObject extends Object implements Bobr_DataObjectInterfac
      * @var string
      */
     protected $storage = '';
-
+    
     /**
-     * Pole nazvu vlastnosti a jeji databazovych protejsku.
-     * Pozor musi zde byt kazda privatni vlastnost.
-     *
-     * @example array('block_id' => 'blockId');
-     * @var array
+     * Konstanta na import dat v metode getRecordMap().
+     * 
+     * @var string
      */
-    protected $importProperties = array();
+    const RECORD_MAP_IMPORT = 'import';
+    /**
+     * Konstanta na export dat v metode getRecordMap().
+     * 
+     * @var string
+     */
+    const RECORD_MAP_EXPORT = 'export';
 
     /**
      * Naimportuje do sebe vlastnosti ktere jsou v seznamu importProperties.
      *
-     * @param array $record
-     * @throws Bobr_IAException Pokud je vlastnost importProperties prazdna.
+     * @param ArrayObject $record
+     * @throws Bobr_IAException Pokud metoda getRecordMap nevrati pole.
      * @return Bobr_DataObject
      */
-    public function importRecord(array $record)
-    {
-        if (empty($this->importProperties)) {
-            throw new Bobr_IAException('Ve tride ' . $this->getClass() . ' neni nadefinovano pole $importProperties. Nemuzu naimportovat data.');
+    public function importRecord(ArrayObject $record)
+    {     
+        $recordMap = $this->getRecordMap(self::RECORD_MAP_IMPORT);
+        if (empty($recordMap)) {
+        	throw new Bobr_IAException('Ve tride ' . $this->getClass() . ' neni nadefinovana metoda getRecordMap($type). Nemuzu naimportovat data.');
         }
         // Projdeme si record
         foreach ($record as $name => $value) {
             // Pokud klic existuje muzem ho nastavit
-            if (isset($this->importProperties[$name])) {
-                $methodName = 'set' . ucfirst($this->importProperties[$name]);
+            if (isset($recordMap[$name])) {
+                $methodName = 'set' . ucfirst($recordMap[$name]);
                 $this->$methodName($value);
             }
         }
@@ -108,6 +113,32 @@ abstract class Bobr_DataObject extends Object implements Bobr_DataObjectInterfac
 				$this->$name = $object->$name;
 			}
 		}
+    }
+    
+    /**
+     * Vraci pole pro generovany import nebo export record.
+     * 
+     * @param string
+     * @return array
+     */
+    protected abstract function getRecordMap($type);
+    
+    /**
+     * Vrati pole na zaklade $type.
+     * 
+     * @param string $type
+     * @param array $map
+     * @return array
+     */
+    protected function returnMap($type, $map)
+    {
+    	switch ($type) {
+    		case self::RECORD_MAP_EXPORT:
+    			return array_flip($map);
+    		case self::RECORD_MAP_IMPORT: // toto je schvalne
+    		default:
+    			return $map;
+    	}
     }
 
     /**

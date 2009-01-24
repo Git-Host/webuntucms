@@ -46,7 +46,7 @@ class Bobr_Request_DynamicRoute extends Bobr_DataObject
         $this->importRecord($record);
     }
 
-    public function importRecord(array $record)
+    public function importRecord(ArrayObject $record)
     {
         foreach ($record as $key => $route) {
             $this->items[$key] = new Bobr_Request_Route;

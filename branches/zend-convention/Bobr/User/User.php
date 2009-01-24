@@ -70,7 +70,7 @@ class Bobr_User_User extends Object
 		$this->importRecord($data);
 	}
 
-	private function importRecord(array $record)
+	private function importRecord(ArrayObject $record)
 	{
 		if (isset($record['id'])) {
             $this->setId($record['id']);

@@ -45,7 +45,7 @@ class Bobr_Request_Route extends Object
         
     }
 
-    public function importRecord(array $record)
+    public function importRecord(ArrayObject $record)
     {
         if (isset($record['id'])) {
             $this->setId($record['id']);

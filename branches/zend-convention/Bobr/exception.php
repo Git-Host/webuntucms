@@ -39,3 +39,11 @@ class Bobr_ProcessIAException extends Bobr_ProcessException {}
  * Nejvissi vyjimka kterou muze vyhodit modul
  */
 class Bobr_ModuleException extends Bobr_BobrException{}
+
+/**
+ * Nove vyjimky
+ * @author rbas
+ *
+ */
+class Bobr_Exception extends Exception {}
+class Bobr_Access_Exception extends Bobr_Exception {}

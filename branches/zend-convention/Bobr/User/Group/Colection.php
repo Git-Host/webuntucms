@@ -16,7 +16,11 @@ class Bobr_User_Group_Colection extends Bobr_Colection
 			$this->load();
 		}
 	}
-
+	/**
+	 * Nacte data.
+	 * 
+	 * @return Bobr_User_Group_Colection
+	 */
 	public function load()
 	{
 		if (0 === $this->userId) {
@@ -33,15 +37,29 @@ class Bobr_User_Group_Colection extends Bobr_Colection
 			if (empty($record)) {
 				return NULL;
 			}
-
 			$this->importColection($record);
 			$this->saveToCache();
 		}
+		return $this;
 	}
 
 	public function getCacheId()
 	{
 		return '/bobr/user/' . $this->getUserId() . '/' . $this->getClass();
+	}
+	
+	/**
+	 * Vrati pole pro import nebo export dat v zavislosti na $type.
+	 * 
+	 * @param string $type
+	 * @return array
+	 */
+	protected function getRecordMap($type)
+	{
+		static $map = array(
+			'user_id' => 'userId',
+		);
+		return $this->returnMap($type, $map);
 	}
 
 	/**

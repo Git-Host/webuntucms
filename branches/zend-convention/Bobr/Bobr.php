@@ -58,6 +58,7 @@ class Bobr_Bobr extends Object
      */
     private function getBobr()
     {
+    	Bobr_Session::getInstance();
         // veskery odeslany obsah zacnem bufferovat
         ob_start();
         echo '<p>Tyto blahy se daji vypnout v configu. Jedna se o debugMode</p>';
@@ -118,9 +119,11 @@ class Bobr_Bobr extends Object
     private function setUser()
     {
         // Zvalidujem platnost Session
-        new Bobr_SessionValidator();
+        new Bobr_Session_Validator();
 		$user = new Bobr_User_Data(1);
-        print_re($user);
+        //print_re($user->Bobr_User = new Bobr_Description);
+        $user->getBobrUserAccess()->load();
+		print_re($user);
 
         die();
         // Zvalidujem uzivatele v session

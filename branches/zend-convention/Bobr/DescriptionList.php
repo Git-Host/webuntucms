@@ -86,7 +86,7 @@ class Bobr_DescriptionList extends Bobr_DataObject
        }
     }
 
-    public function importRecord(array $record)
+    public function importRecord(ArrayObject $record)
     {
         foreach ($record as $id => $description) {
             $this->items[$description['id']] = new Bobr_Description;

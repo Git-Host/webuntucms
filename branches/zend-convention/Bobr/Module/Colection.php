@@ -1,6 +1,6 @@
 <?php
 
-class Bobr_User_ModuleList extends Object
+class Bobr_Module_Colection extends Object
 {
 	private $items = array();
 
@@ -38,7 +38,7 @@ class Bobr_User_ModuleList extends Object
 		$this->importRecord($result, $functionsList);
 	}
 
-	private function importRecord(array $record, $functionsList)
+	private function importRecord(ArrayObject $record, $functionsList)
 	{
 		foreach($record as $module){
 			// @todo zatim to radim podle id nevim jestli se nebude hodit radit podle moduleName

@@ -10,10 +10,10 @@ interface Bobr_DataObjectInterface
     /**
      * Naimportuje do sebe data.
      *
-     * @param array $record
+     * @param ArrayObject $record
      * @return Bobr_DataObject
      */
-    public function importRecord(array $record);
+    public function importRecord(ArrayObject $record);
     
     /**
      * Vraci identifikator kese

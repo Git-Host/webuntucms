@@ -26,7 +26,7 @@ class Bobr_Lang extends Object
      */
 	private $name = '';
 
-    public function importRecord(array $record)
+    public function importRecord(ArrayObject $record)
     {
         $this->setId($record['id'])
         ->setSymbol($record['symbol'])

@@ -32,12 +32,12 @@ abstract class Bobr_Colection extends Bobr_DataObject implements Countable, Iter
     /**
      * Naimportuje do sebe kolekci objektu.
      *
-     * @param array $record
+     * @param ArrayObject $record
      * @throws Bobr_ColectionIAException Pokud neni vyplnena vlastnost $colectionClass.
      * @throws Bobr_ColectionException Pokud se nepovede naimportovat data.
      * @return Bobr_Colection
      */
-    public function importColection(array $record)
+    public function importColection(ArrayObject $record)
     {
         if (empty($this->colectionClass)) {
             throw new Bobr_ColectionIAException('Ve tride ' . $this->getClass() . ' neni vyplnena vlastnost $colectionClass. Nemuzu naimportovat data.');

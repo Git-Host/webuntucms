@@ -20,3 +20,11 @@ class Bobr_User_GroupColectionIAException extends Bobr_UserException {}
 
 class Bobr_User_Group_FunctionColectionException extends Bobr_UserException {}
 class Bobr_User_Group_FunctionColectionIAException extends Bobr_User_Group_FunctionColectionException {}
+/**
+ * Nove vyjimky
+ * @author rbas
+ *
+ */
+class Bobr_User_Exception extends Bobr_Exception {}
+class Bobr_User_Group_Exception extends Bobr_User_Exception {}
+class Bobr_User_Group_IAException extends Bobr_User_Group_Exception {}

@@ -46,11 +46,27 @@ class Bobr_User extends Bobr_DataObject
 
 	public function __construct($id = 0)
 	{
-		$this->importProperties = array ('id' => 'id', 'nick' => 'nick', 'email' => 'email', 'pass' => 'pass', 'status_id' => 'statusId');
 		if (0 != $id) {
 			$this->setId($id);
 			$this->load();
 		}
+	}
+	/**
+	 * Vrati pole pro import nebo export dat v zavislosti na $type.
+	 * 
+	 * @param string $type
+	 * @return array
+	 */
+	protected function getRecordMap($type)
+	{
+		static $map = array(
+			'id' => 'id',
+			'nick' => 'nick', 
+			'email' => 'email', 
+			'pass' => 'pass',
+			'status_id' => 'statusId'
+		);
+		return $this->returnMap($type, $map);
 	}
 
 	/**

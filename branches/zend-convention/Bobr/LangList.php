@@ -39,10 +39,10 @@ class Bobr_LangList extends Bobr_DataObject
     /**
      * Naimportuje do sebe objekty Lang podle databazoveho recordu.
      *
-     * @param array $record
+     * @param ArrayObject $record
      * @return Bobr_LangList
      */
-    public function importRecord(array $record)
+    public function importRecord(ArrayObject $record)
     {
         foreach ($record as $lang) {
             $this->items[$lang['id']] = new Bobr_Lang;

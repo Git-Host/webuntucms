@@ -1,58 +1,50 @@
 <?php
-class Bobr_User_Data extends Object
+class Bobr_User_Data extends Bobr_ObjectBox
 {
-	private $user = NULL;
-
-	private $groupColection = NULL;
-
+	private $userId = 0;
+	
 	public function __construct($userId)
 	{
-		$this->setUser(new Bobr_User($userId));
-        $this->setGroupColection(new Bobr_User_Group_Colection($userId));
-        //$userGroupFunction = new Bobr_User_Group_Function_Colection(1);
+		$this->setUserId($userId)
+		->addObject(new Bobr_User($this->userId))
+		->addObject(new Bobr_User_Access($this->userId));
+		
 	}
-
-
+	
 	/**
-	 * Vrati hodnotu vlasnosti $user
-	 *
+	 * Nastavi hodnotu vlastnosti $userId
+	 * 
+	 * @param integer $userId
+	 * @return Bobr_User_Data
+	 */
+	public function setUserId($userId)
+	{
+		$this->userId = (integer) $userId;
+		return $this;
+	}
+	/**
+	 * Vrati objekt.
+	 * 
+	 * @return Bobr_User_Access
+	 */
+	public function getBobrUserAccess()
+	{
+		return $this->bobrUserAccess;
+	}
+	
+	/**
+	 * Kkk
+	 * 
 	 * @return Bobr_User
 	 */
-	public function getUser()
+	public function getBobrUser()
 	{
-		return $this->user;
+		return $this->bobrUser;
 	}
-	/**
-	 * Nastavi hodnotu vlastnosti $user.
-	 *
-	 * @param Bobr_User $user
-	 * @return Bobr_User_Data
-	 */
-	public function setUser(Bobr_User $user)
+	
+	public function setBobrUser($value)
 	{
-		$this->user = $user;
-		return $this;
-	}
-
-	/**
-	 * Vrati hodnotu vlastnosti $groupColection
-	 *
-	 * @return Bobr_User_Group_Colection
-	 */
-	public function getGroupColection()
-	{
-		return $this->groupColection;
-	}
-	/**
-	 * Nastavi hodnotu vlastnosti $groupColection
-	 *
-	 * @param Bobr_User_Group_Colection $groupColection
-	 * @return Bobr_User_Data
-	 */
-	public function setGroupColection(Bobr_User_Group_Colection $groupColection)
-	{
-		$this->groupColection = $groupColection;
-		return $this;
+		return $this->bobrUser = $value;
 	}
 }
 ?>

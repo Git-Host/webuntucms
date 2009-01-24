@@ -1,6 +1,6 @@
 <?php
 
-class Bobr_WebInstanceValidator
+class Bobr_WebInstance_Validator
 {
 	private $webInstanceList = array();
 

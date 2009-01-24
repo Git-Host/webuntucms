@@ -81,11 +81,11 @@ class Bobr_Page_Page extends Bobr_DataObject
     /**
      * Vytvori objekt ContainerColection a da mu potrebne data pro sestaveni kontejneru.
      * 
-     * @param array $record 
+     * @param ArrayObject $record 
      * @throws Bobr_Page_PageException Pokud se nepovede sestavit kontejnery.
      * @return Bobr_Page_Page
      */
-    public function importRecord(array $record)
+    public function importRecord(ArrayObject $record)
     {
         try {
             $this->setContainerColection(new Bobr_Page_ContainerColection);

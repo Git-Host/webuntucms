@@ -8,7 +8,7 @@ class Bobr_User_WebInstance extends Object
 	// 512 znaku
 	private $description = '';
 
-	public function importRecord(array $record)
+	public function importRecord(ArrayObject $record)
 	{
 		$this->id			=	$record['id'];
 		$this->name			=	$record['title'];

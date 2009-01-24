@@ -1,5 +1,5 @@
 <?php
-class Bobr_User_Group_Function extends Bobr_DataObject
+class Bobr_Module_Function extends Bobr_DataObject
 {
 
 	/**

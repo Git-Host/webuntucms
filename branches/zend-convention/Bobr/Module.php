@@ -1,6 +1,6 @@
 <?php
 
-class Bobr_User_Module extends Object
+class Bobr_Module extends Object
 {
 	private $id = 0;
 	private $name = '';
@@ -9,7 +9,7 @@ class Bobr_User_Module extends Object
 
 	private $functionsList = array();
 
-	public function importRecord(array $info, array $functions)
+	public function importRecord(ArrayObject $info, array $functions)
 	{
 		$this->id				=	$info['id'];
 		$this->name				=	$info['module'];
@@ -23,7 +23,7 @@ class Bobr_User_Module extends Object
 
 	private function importFunctions(array $functions)
 	{
-		$this->functionsList = new Bobr_User_FunctionsList;
+		$this->functionsList = new Bobr_Module_Function_Colection;
 		$this->functionsList->importRecord($functions);
 
 		return $this;

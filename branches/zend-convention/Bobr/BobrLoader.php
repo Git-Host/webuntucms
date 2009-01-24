@@ -16,6 +16,7 @@ class Bobr_BobrLoader extends Bobr_AutoLoader
         // Kernel
         'bobr_bobr' => '/Bobr/Bobr.php',
         'bobr_colection' => '/Bobr/Colection.php',
+		'bobr_objectbox' => '/Bobr/ObjectBox.php',
         'bobr_bobrloader' => '/Bobr/BobrLoader.php',
         'bobr_autoloader' => '/Bobr/AutoLoader.php',
         'bobr_command' => '/Bobr/Command.php',
@@ -28,7 +29,7 @@ class Bobr_BobrLoader extends Bobr_AutoLoader
         'bobr_langlist' => '/Bobr/LangList.php',
         'bobr_process' => '/Bobr/Process.php',
         'bobr_session' => '/Bobr/Session.php',
-        'bobr_sessionvalidator' => '/Bobr/SessionValidator.php',
+        'bobr_session_validator' => '/Bobr/Session/Validator.php',
         'bobr_webinstancevalidator' => '/Bobr/WebInstanceValidator.php',
         // Cache
         'bobr_cache_cache' => '/Bobr/Cache/Cache.php',
@@ -61,24 +62,32 @@ class Bobr_BobrLoader extends Bobr_AutoLoader
         'bobr_request_route' => '/Bobr/Request/Route.php',
         'bobr_request_dynamicroute' => '/Bobr/Request/DynamicRoute.php',
         // User
-        'bobr_user_functionslist' => '/Bobr/User/FunctionsList.php',
-        'bobr_user_group' => '/Bobr/User/Group.php',
-        'bobr_user_groupslist' => '/Bobr/User/GroupsList.php',
-        'bobr_user_module' => '/Bobr/User/Module.php',
-        'bobr_user_modulefunction' => '/Bobr/User/ModuleFunction.php',
-        'bobr_user_modulelist' => '/Bobr/User/ModuleList.php',
-        'bobr_user_user' => '/Bobr/User/User.php',
+        'bobr_user' => '/Bobr/User.php',
+		'bobr_user_data' => '/Bobr/User/Data.php',
+		'bobr_user_access' => '/Bobr/User/Access.php',
         'bobr_user_userlogin' => '/Bobr/User/UserLogin.php',
         'bobr_user_uservalidator' => '/Bobr/User/UserValidator.php',
-        'bobr_user_webinstance' => '/Bobr/User/WebInstance.php',
-        'bobr_user_webinstancelist' => '/Bobr/User/WebInstanceList.php',
-
-		'bobr_user' => '/Bobr/User.php',
-		'bobr_user_data' => '/Bobr/User/Data.php',
 		'bobr_user_group' => '/Bobr/User/Group.php',
+		'bobr_user_group_simple' => '/Bobr/User/Group/Simple.php',
 		'bobr_user_group_colection' => '/Bobr/User/Group/Colection.php',
 		'bobr_user_group_function' => '/Bobr/User/Group/Function.php',
 		'bobr_user_group_function_colection' => '/Bobr/User/Group/Function/Colection.php',
+		'bobr_user_group' => '/Bobr/User/Group.php',
+        'bobr_user_groupslist' => '/Bobr/User/GroupsList.php',
+		'bobr_user_group_webinstance' => '/Bobr/User/Group/WebInstance.php',
+		'bobr_user_group_webinstancecolection' => '/Bobr/User/Group/WebInstanceColection.php',
+	
+		// WebInstance
+        'bobr_webinstance' => '/Bobr/WebInstance.php',
+        'bobr_webinstance_colection' => '/Bobr/WebInstance/Coletion.php',
+		// Module
+		'bobr_module' => '/Bobr/Module.php',
+        'bobr_module_colection' => '/Bobr/Module/Colection.php',
+		'bobr_module_function' => '/Bobr/Module/Function.php',
+		'bobr_module_function_colection' => '/Bobr/Module/Function/Colection.php',
+		'bobr_module_function_simple' => '/Bobr/Module/Function/Simple.php',
+
+		
 
         // Lib
         'lib_abstractmodule' => '/Lib/AbstractModule.php',

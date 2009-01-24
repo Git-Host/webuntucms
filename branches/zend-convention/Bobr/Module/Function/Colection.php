@@ -1,10 +1,10 @@
 <?php
 
-class Bobr_User_FunctionsList extends Object
+class Bobr_Module_Function_Colection extends Object
 {
 	private $items = array();
 
-	public function importRecord(array $record)
+	public function importRecord(ArrayObject $record)
 	{
 		foreach($record as $id => $function){
 			$this->items[$id] = new Bobr_User_ModuleFunction;

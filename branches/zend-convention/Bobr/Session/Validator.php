@@ -4,7 +4,7 @@
  * Zvaliduje session,
  * pokud je neplatna odstrani ji a nastavi novou
  */
-final class Bobr_SessionValidator extends Object
+final class Bobr_Session_Validator extends Object
 {
 
 	/**
