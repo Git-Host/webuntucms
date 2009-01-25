@@ -364,7 +364,7 @@ class DibiResult extends DibiObject implements IDataSource
 		} while ($row = $this->fetch());
 
 		unset($x);
-		return $data;
+		return new ArrayObject($data);
 	}
 
 
